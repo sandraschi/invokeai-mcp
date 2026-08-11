@@ -18,24 +18,33 @@ _SCHEDULERS = Literal[
 
 
 async def _resolve_model(client: InvokeAIClient, model_key: str | None) -> dict:
-    """Pick the requested model or the first main model."""
+    """Pick the requested model or the first main model, enriched with the
+    full record (the list endpoint omits the hash the graph loader needs)."""
     if not client.models_cache:
         await client.refresh_models()
     if model_key:
+        match = None
         for m in client.models_cache.get("main", []):
             if m.get("key") == model_key or m.get("name", "").lower() == model_key.lower():
-                return m
-        raise InvokeAIError(
-            f"Model '{model_key}' not found. Use invokeai_models list to see keys.",
-            error_type="not_found",
-        )
-    mains = client.models_cache.get("main", [])
-    if not mains:
-        raise InvokeAIError(
-            "No main models installed. Install one via invokeai_models (e.g. SDXL or Flux) first.",
-            error_type="no_model",
-        )
-    return mains[0]
+                match = m
+                break
+        if not match:
+            raise InvokeAIError(
+                f"Model '{model_key}' not found. Use invokeai_models list to see keys.",
+                error_type="not_found",
+            )
+    else:
+        mains = client.models_cache.get("main", [])
+        if not mains:
+            raise InvokeAIError(
+                "No main models installed. Install one via invokeai_models (e.g. SDXL or Flux) first.",
+                error_type="no_model",
+            )
+        match = mains[0]
+    try:
+        return await client.get_model(match["key"])
+    except InvokeAIError:
+        return match
 
 
 @mcp.tool()

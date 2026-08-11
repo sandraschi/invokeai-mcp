@@ -47,7 +47,6 @@ def test_sd1_graph_has_required_node_types():
         "noise",
         "denoise_latents",
         "l2i",
-        "vae_loader",
         "collect",
     } <= types
 
@@ -88,7 +87,7 @@ def test_img2img_adds_image_and_i2l():
     assert "image" in types and "i2l" in types
     assert _edge_fields(g, "i2l") >= {"image"}
     denoise = next(n for n in g["nodes"].values() if n["type"] == "denoise_latents")
-    assert denoise["data"]["denoising_start"] == pytest.approx(0.4)
+    assert denoise["denoising_start"] == pytest.approx(0.4)
 
 
 def test_inpaint_adds_mask_path():
@@ -103,8 +102,8 @@ def test_inpaint_adds_mask_path():
 def test_txt2img_denoising_starts_at_zero():
     g = build_sd1_graph(model=MODEL, positive_prompt="cat")
     denoise = next(n for n in g["nodes"].values() if n["type"] == "denoise_latents")
-    assert denoise["data"]["denoising_start"] == 0.0
-    assert denoise["data"]["denoising_end"] == 1.0
+    assert denoise["denoising_start"] == 0.0
+    assert denoise["denoising_end"] == 1.0
 
 
 def test_upscale_graph():
@@ -112,7 +111,7 @@ def test_upscale_graph():
     types = _node_types(g)
     assert "esrgan" in types and "image" in types
     esrgan = next(n for n in g["nodes"].values() if n["type"] == "esrgan")
-    assert esrgan["data"]["model_name"] == "RealESRGAN_x4plus.pth"
+    assert esrgan["model_name"] == "RealESRGAN_x4plus.pth"
 
 
 def test_dispatch_by_base():

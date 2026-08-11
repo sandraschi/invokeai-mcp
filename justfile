@@ -39,6 +39,9 @@ test:
 e2e:
     Set-Location "{{REPO}}\webapp"; bun run test:e2e
 
+screenshots:
+    Set-Location "{{REPO}}\webapp"; bunx playwright test screenshots --reporter=line
+
 ci:
     & "{{UV}}" run ruff check src tests
     & "{{UV}}" run ruff format --check src tests

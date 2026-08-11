@@ -24,6 +24,9 @@ class FakeClient:
     async def list_models(self, **kw):
         return [{"key": "m1", "name": "SDXL", "type": "main", "base": "sdxl"}]
 
+    async def get_model(self, key):
+        return {"key": key, "name": "SDXL", "base": "sdxl", "type": "main", "hash": "h"}
+
     async def enqueue_batch(self, graph, runs=1, destination="mcp"):
         self.calls.append(("enqueue", graph, runs))
         return {"batch_id": "b1", "queue_item_ids": [7], "queue_id": "default"}

@@ -67,7 +67,7 @@ async def test_enqueue_batch_payload(client):
 
 async def test_list_models_passthrough(client):
     c, router = client
-    router.get("http://fake.invokeai:9090/api/v2/models").respond(
+    router.get("http://fake.invokeai:9090/api/v2/models/").respond(
         json={"models": [{"key": "k1", "name": "SDXL Base", "type": "main", "base": "sdxl"}]}
     )
     models = await c.list_models(model_type="main")
@@ -101,9 +101,42 @@ async def test_download_image_writes_file(client, tmp_path):
 
 async def test_gallery_items_sends_filters(client):
     c, router = client
-    router.get("http://fake.invokeai:9090/api/v1/gallery/items").respond(
-        json={"items": [{"image_name": "a.png"}], "total": 1}
+    router.get("http://fake.invokeai:9090/api/v1/images/").respond(
+        json={"items": [{"image_name": "a.png", "session_id": "s1"}], "total": 1}
     )
-    await c.gallery_items(limit=10, board_id="b1", search="cat")
+    data = await c.gallery_items(limit=10, board_id="b1", search="cat")
     req = str(router.calls.last.request.url)
-    assert "limit=10" in req and "board_id=b1" in req and "search=cat" in req
+    assert "limit=10" in req and "board_id=b1" in req and "search_term=cat" in req
+    assert data["items"][0]["image_name"] == "a.png"
+
+
+async def test_enqueue_batch_v6_response(client):
+    c, router = client
+    router.post("http://fake.invokeai:9090/api/v1/queue/default/enqueue_batch").respond(
+        json={
+            "queue_id": "default",
+            "enqueued": 1,
+            "requested": 1,
+            "batch": {"batch_id": "b9"},
+            "priority": 0,
+            "item_ids": [7],
+        }
+    )
+    data = await c.enqueue_batch({"id": "g1", "nodes": {}, "edges": []}, runs=1)
+    assert data["queue_item_ids"] == [7]
+    assert data["batch_id"] == "b9"
+
+
+async def test_images_by_session(client):
+    c, router = client
+    router.get("http://fake.invokeai:9090/api/v1/images/").respond(
+        json={
+            "items": [
+                {"image_name": "a.png", "session_id": "s1"},
+                {"image_name": "b.png", "session_id": "s2"},
+            ],
+            "total": 2,
+        }
+    )
+    images = await c.images_by_session("s2")
+    assert [i["image_name"] for i in images] == ["b.png"]

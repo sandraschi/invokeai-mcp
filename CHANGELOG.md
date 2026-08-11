@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.1.1] - 2026-08-12
+
+Live-verified against InvokeAI 6.13.7.
+
+### Fixed
+- v6 API alignment: flat graph node fields (no `data` wrapper), trailing
+  slashes on list endpoints, `item_ids`/`batch` in enqueue response,
+  `ModelIdentifierField` requires base+type, vae wired from main loader
+  (vae_loader needs a vae_model value), queue status unwrap, results via
+  images-by-session (v6 has no /sessions/.../result endpoint)
+- Engine install path: manual `invokeai-web` install (launcher GUI has a
+  uv-managed-Python lock collision with the fleet); engine VRAM capped via
+  invokeai.yaml (`max_cache_vram_gb: 8`, `precision: float16`) so desktop
+  apps + engine coexist on the 4090
+
+### Added
+- Onboarding completed on Goliath: InvokeAI 6.13.7 + SDXL base installed
+- README Preview screenshots (live data) via `just screenshots`
+
 ## [0.1.0] - 2026-08-11
 
 Initial release.

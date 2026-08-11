@@ -77,6 +77,13 @@ Onboarding worked when all of these are true:
   enqueues an item, and `invokeai_queue(operation="result", item_id=N,
   wait_seconds=120)` returns an output image
 
+**Status on Goliath (2026-08-12): COMPLETE** - InvokeAI 6.13.7 (manual
+install, `D:\InvokeAI`, launcher optional for updates) + SDXL base model.
+First image verified through the MCP stack end to end. Note: if the engine
+was installed manually, the launcher shows it as a non-managed location -
+use `invokeai-web` (D:\InvokeAI\start-engine.ps1) or the launcher only for
+future launcher-managed installs.
+
 ## Declared doubles
 
 - Before InvokeAI is reachable, the webapp shows **declared MOCK sample

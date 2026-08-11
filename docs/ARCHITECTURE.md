@@ -46,7 +46,16 @@ Graphs are constructed per model family because node types differ:
 | flux | flux_model_loader + flux_text_encoder | flux_compel_prompt | flux_denoise | flux_vae_decode |
 
 Wiring verified against invoke-ai/InvokeAI `main` frontend graph builders
-(2026-08). img2img adds `image -> image_to_latents -> denoise.latents` with
+(2026-08) and live-tested against **InvokeAI 6.13.7**. v6 specifics the
+client handles: nodes are FLAT (fields at node level, no `data` wrapper);
+list endpoints use trailing slashes (`/api/v2/models/`); enqueue returns
+`item_ids` + `batch`; `ModelIdentifierField` requires key/hash/name/base/type
+(the list endpoint omits hash - the client fetches the full record);
+`vae_loader` needs a `vae_model` value so the graphs wire the main loader's
+`vae` output directly; queue status is nested under `queue`; there is no
+`/sessions/.../result` endpoint - outputs are correlated via
+images-by-`session_id`.
+img2img adds `image -> image_to_latents -> denoise.latents` with
 `denoising_start = 1 - strength`; inpaint adds `create_denoise_mask` into
 `denoise.mask`. Upscale uses the `esrgan` node (RealESRGAN).
 

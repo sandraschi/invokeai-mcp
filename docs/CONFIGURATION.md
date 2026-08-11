@@ -39,6 +39,19 @@ Copy `.env.example` to `.env` in the repo root, or set them in
 | 11155 | webapp frontend (Vite dev) | same |
 | 9090 | InvokeAI engine (owned by InvokeAI, not this repo) | n/a |
 
+## Engine-side tuning (invokeai.yaml)
+
+The InvokeAI engine reads `D:\InvokeAI\invokeai.yaml` (or the install root).
+The fleet-tested profile on Goliath (RTX 4090 with desktop apps resident):
+
+```yaml
+max_cache_vram_gb: 8
+precision: float16
+```
+
+Without the VRAM cap the engine assumes it owns all 24 GB and OOMs during
+generation when other apps (Discord, Notion, Edge, Steam) hold ~11 GB.
+
 ## Queue destination
 
 Enqueued batches carry `destination: "mcp"` (or `"webapp"` for UI-triggered

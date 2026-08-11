@@ -34,10 +34,13 @@ def _image_node(image_name: str) -> dict[str, Any]:
 
 
 def _model_field(model: dict[str, Any]) -> dict[str, Any]:
+    """ModelIdentifierField - v6 requires key, hash, name, base AND type."""
     return {
         "key": model.get("key"),
         "hash": model.get("hash"),
         "name": model.get("name"),
+        "base": model.get("base"),
+        "type": model.get("type"),
     }
 
 
@@ -63,8 +66,11 @@ def build_sd1_graph(
     edges: list[dict[str, Any]] = []
 
     def add(node: dict[str, Any]) -> str:
+        """Register a node. v6 uses FLAT node fields - data is merged in."""
         nid = node["id"]
-        nodes[nid] = node
+        flat = {"id": nid, "type": node["type"]}
+        flat.update(node.get("data") or {})
+        nodes[nid] = flat
         return nid
 
     def edge(src: str, src_field: str, dst: str, dst_field: str) -> None:
@@ -107,7 +113,6 @@ def build_sd1_graph(
         }
     )
     l2i = add({"id": _uuid(), "type": "l2i", "data": {}})
-    vae_loader = add({"id": _uuid(), "type": "vae_loader", "data": {}})
 
     edge(loader, "unet", denoise, "unet")
     edge(loader, "clip", clip_skip, "clip")
@@ -121,20 +126,20 @@ def build_sd1_graph(
     edge(neg_collect, "collection", denoise, "negative_conditioning")
     edge(seed_node, "value", noise, "seed")
     edge(noise, "noise", denoise, "noise")
-    edge(vae_loader, "vae", l2i, "vae")
+    edge(loader, "vae", l2i, "vae")
 
     if image_name is not None:
         img_node = _image_node(image_name)
         img_id = add(img_node)
         i2l = add({"id": _uuid(), "type": "i2l", "data": {}})
         edge(img_id, "image", i2l, "image")
-        edge(vae_loader, "vae", i2l, "vae")
+        edge(loader, "vae", i2l, "vae")
         edge(i2l, "latents", denoise, "latents")
         if mask_image_name is not None:
             mask_node = _image_node(mask_image_name)
             mask_id = add(mask_node)
             mask_denoise = add({"id": _uuid(), "type": "create_denoise_mask", "data": {}})
-            edge(vae_loader, "vae", mask_denoise, "vae")
+            edge(loader, "vae", mask_denoise, "vae")
             edge(mask_id, "image", mask_denoise, "mask")
             edge(mask_denoise, "mask", denoise, "mask")
 
@@ -166,8 +171,11 @@ def build_sdxl_graph(
     edges: list[dict[str, Any]] = []
 
     def add(node: dict[str, Any]) -> str:
+        """Register a node. v6 uses FLAT node fields - data is merged in."""
         nid = node["id"]
-        nodes[nid] = node
+        flat = {"id": nid, "type": node["type"]}
+        flat.update(node.get("data") or {})
+        nodes[nid] = flat
         return nid
 
     def edge(src: str, src_field: str, dst: str, dst_field: str) -> None:
@@ -210,7 +218,6 @@ def build_sdxl_graph(
         }
     )
     l2i = add({"id": _uuid(), "type": "l2i", "data": {}})
-    vae_loader = add({"id": _uuid(), "type": "vae_loader", "data": {}})
 
     edge(loader, "unet", denoise, "unet")
     edge(loader, "clip", pos_cond, "clip")
@@ -227,18 +234,18 @@ def build_sdxl_graph(
     edge(neg_collect, "collection", denoise, "negative_conditioning")
     edge(seed_node, "value", noise, "seed")
     edge(noise, "noise", denoise, "noise")
-    edge(vae_loader, "vae", l2i, "vae")
+    edge(loader, "vae", l2i, "vae")
 
     if image_name is not None:
         img_id = add(_image_node(image_name))
         i2l = add({"id": _uuid(), "type": "i2l", "data": {}})
         edge(img_id, "image", i2l, "image")
-        edge(vae_loader, "vae", i2l, "vae")
+        edge(loader, "vae", i2l, "vae")
         edge(i2l, "latents", denoise, "latents")
         if mask_image_name is not None:
             mask_id = add(_image_node(mask_image_name))
             mask_denoise = add({"id": _uuid(), "type": "create_denoise_mask", "data": {}})
-            edge(vae_loader, "vae", mask_denoise, "vae")
+            edge(loader, "vae", mask_denoise, "vae")
             edge(mask_id, "image", mask_denoise, "mask")
             edge(mask_denoise, "mask", denoise, "mask")
 
@@ -268,8 +275,11 @@ def build_flux_graph(
     edges: list[dict[str, Any]] = []
 
     def add(node: dict[str, Any]) -> str:
+        """Register a node. v6 uses FLAT node fields - data is merged in."""
         nid = node["id"]
-        nodes[nid] = node
+        flat = {"id": nid, "type": node["type"]}
+        flat.update(node.get("data") or {})
+        nodes[nid] = flat
         return nid
 
     def edge(src: str, src_field: str, dst: str, dst_field: str) -> None:
@@ -339,8 +349,11 @@ def build_upscale_graph(
     edges: list[dict[str, Any]] = []
 
     def add(node: dict[str, Any]) -> str:
+        """Register a node. v6 uses FLAT node fields - data is merged in."""
         nid = node["id"]
-        nodes[nid] = node
+        flat = {"id": nid, "type": node["type"]}
+        flat.update(node.get("data") or {})
+        nodes[nid] = flat
         return nid
 
     def edge(src: str, src_field: str, dst: str, dst_field: str) -> None:

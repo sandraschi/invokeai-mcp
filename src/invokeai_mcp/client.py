@@ -122,15 +122,25 @@ class InvokeAIClient:
             "graph": graph,
             "runs": runs,
         }
-        return await self._request(
+        data = await self._request(
             "POST",
             f"/v1/queue/{queue_id or self.settings.queue_id}/enqueue_batch",
             params={"prepend": str(prepend).lower()},
             json={"batch": batch},
         )
+        # v6 returns {queue_id, enqueued, requested, batch, priority, item_ids}
+        batch_meta = data.get("batch") or {}
+        return {
+            "queue_id": data.get("queue_id") or queue_id or self.settings.queue_id,
+            "batch_id": data.get("batch_id") or batch_meta.get("batch_id") or batch_meta.get("id"),
+            "queue_item_ids": data.get("item_ids") or data.get("queue_item_ids") or [],
+        }
 
     async def queue_status(self, queue_id: str | None = None) -> dict[str, Any]:
-        return await self._request("GET", f"/v1/queue/{queue_id or self.settings.queue_id}/status")
+        data = await self._request("GET", f"/v1/queue/{queue_id or self.settings.queue_id}/status")
+        if isinstance(data, dict) and "queue" in data:
+            return data["queue"]
+        return data or {}
 
     async def queue_list(
         self, limit: int = 20, queue_id: str | None = None
@@ -177,19 +187,43 @@ class InvokeAIClient:
     async def queue_delete_item(self, item_id: int, queue_id: str | None = None) -> None:
         await self._request("DELETE", f"/v1/queue/{queue_id or self.settings.queue_id}/i/{item_id}")
 
+    async def images_by_session(self, session_id: str, limit: int = 10) -> list[dict[str, Any]]:
+        """v6 result lookup: images carry session_id; filter the recent feed."""
+        data = await self.gallery_items(limit=limit)
+        return [i for i in data.get("items", []) if i.get("session_id") == session_id]
+
     async def session_result(self, session_id: str, item_id: int) -> dict[str, Any]:
-        return await self._request(
-            "GET", f"/v1/sessions/{session_id}/queue_item/{item_id}/result", allow_error=True
-        )
+        images = await self.images_by_session(session_id)
+        return {
+            "items": [{"outputs": [{"image": {"image_name": i.get("image_name")}}]} for i in images]
+        }
 
     # ----------------------------------------------------------------- models
     async def list_models(self, **params: Any) -> list[dict[str, Any]]:
-        data = await self._request(
-            "GET", "/v2/models", params={k: v for k, v in params.items() if v}
-        )
+        """List models. v6 accepts base_models/model_type/model_name/model_format;
+        search and limit are applied client-side (the API has no search param)."""
+        allowed = {
+            k: v
+            for k, v in params.items()
+            if k in ("base_models", "model_type", "model_name", "model_format") and v
+        }
+        data = await self._request("GET", "/v2/models/", params=allowed or None)
         if isinstance(data, dict):
-            return data.get("models", data.get("items", []))
-        return data or []
+            models = data.get("models", data.get("items", []))
+        else:
+            models = data or []
+        search = params.get("search")
+        if search:
+            needle = str(search).lower()
+            models = [
+                m
+                for m in models
+                if needle in (m.get("name") or "").lower() or needle in (m.get("key") or "").lower()
+            ]
+        limit = params.get("limit")
+        if limit:
+            models = models[: int(limit)]
+        return models
 
     async def get_model(self, key: str) -> dict[str, Any]:
         return await self._request("GET", f"/v2/models/i/{key}")
@@ -223,13 +257,24 @@ class InvokeAIClient:
     async def gallery_items(
         self, limit: int = 50, offset: int = 0, **filters: Any
     ) -> dict[str, Any]:
-        params = {"limit": limit, "offset": offset, **{k: v for k, v in filters.items() if v}}
-        return await self._request("GET", "/v1/gallery/items", params=params)
+        """Image feed. v6 endpoint: /api/v1/images/ with search_term/board_id."""
+        params: dict[str, Any] = {"limit": limit, "offset": offset}
+        if filters.get("board_id"):
+            params["board_id"] = filters["board_id"]
+        if filters.get("starred") is not None:
+            params["starred_first"] = filters["starred"]
+        if filters.get("search"):
+            params["search_term"] = filters["search"]
+        data = await self._request("GET", "/v1/images/", params=params)
+        if isinstance(data, dict):
+            items = data.get("images", data.get("items", []))
+            return {"items": items, "total": data.get("total", len(items))}
+        return {"items": data or [], "total": len(data or [])}
 
     # ----------------------------------------------------------------- images
     async def list_images(self, limit: int = 50, offset: int = 0, **params: Any) -> dict[str, Any]:
         query = {"limit": limit, "offset": offset, **{k: v for k, v in params.items() if v}}
-        return await self._request("GET", "/v1/images", params=query)
+        return await self._request("GET", "/v1/images/", params=query)
 
     async def get_image(self, image_name: str) -> dict[str, Any]:
         return await self._request("GET", f"/v1/images/i/{image_name}")
@@ -266,7 +311,7 @@ class InvokeAIClient:
 
     # ----------------------------------------------------------------- boards
     async def list_boards(self) -> list[dict[str, Any]]:
-        data = await self._request("GET", "/v1/boards")
+        data = await self._request("GET", "/v1/boards/")
         if isinstance(data, dict):
             return data.get("boards", [])
         return data or []
@@ -298,7 +343,7 @@ class InvokeAIClient:
     # --------------------------------------------------------------- workflows
     async def list_workflows(self, limit: int = 50, offset: int = 0) -> list[dict[str, Any]]:
         data = await self._request(
-            "GET", "/v1/workflows", params={"limit": limit, "offset": offset}
+            "GET", "/v1/workflows/", params={"limit": limit, "offset": offset}
         )
         if isinstance(data, dict):
             return data.get("items", data.get("workflows", []))

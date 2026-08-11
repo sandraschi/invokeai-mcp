@@ -20,7 +20,7 @@ export default defineConfig({
   projects: [
     {
       name: "fleet-audit",
-      testMatch: /fleet\.spec\.ts/,
+      testMatch: /(fleet|screenshots)\.spec\.ts/,
       use: { baseURL: "http://127.0.0.1:11155" },
     },
   ],
