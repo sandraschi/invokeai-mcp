@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "invokeai": {
+      "command": "uv",
+      "args": ["--directory", "D:\\Dev\\repos\\invokeai-mcp", "run", "invokeai-mcp"],
+      "env": { "PYTHONUNBUFFERED": "1" },
+      "capabilities": {
+        "tools": { "enabled": true },
+        "prompts": { "enabled": true },
+        "resources": { "enabled": true }
+      },
+      "metadata": {
+        "version": "0.1.0",
+        "tags": ["image-generation", "creative", "stable-diffusion", "flux"],
+        "homepage": "https://github.com/sandraschi/invokeai-mcp"
+      }
+    }
+  }
+}

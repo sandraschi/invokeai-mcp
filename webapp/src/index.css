@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-slate-950 text-slate-100 antialiased;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+select,
+input,
+textarea {
+  color-scheme: dark;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+.markdown-body h1 {
+  @apply text-2xl font-bold text-slate-100 mb-3;
+}
+.markdown-body h2 {
+  @apply text-xl font-bold text-slate-100 mt-6 mb-2;
+}
+.markdown-body h3 {
+  @apply text-lg font-semibold text-slate-200 mt-4 mb-2;
+}
+.markdown-body p {
+  @apply text-slate-300 my-2 leading-relaxed;
+}
+.markdown-body ul {
+  @apply list-disc list-inside text-slate-300 my-2 space-y-1;
+}
+.markdown-body code {
+  @apply bg-slate-800 text-amber-300 px-1.5 py-0.5 rounded text-sm font-mono;
+}
+.markdown-body pre {
+  @apply bg-slate-900 border border-slate-800 rounded-lg p-4 my-3 overflow-x-auto;
+}
+.markdown-body pre code {
+  @apply bg-transparent text-slate-200 p-0;
+}
+.markdown-body table {
+  @apply w-full text-sm my-3 border-collapse;
+}
+.markdown-body th,
+.markdown-body td {
+  @apply border border-slate-800 px-3 py-2 text-left;
+}
+.markdown-body th {
+  @apply bg-slate-900 text-slate-200;
+}

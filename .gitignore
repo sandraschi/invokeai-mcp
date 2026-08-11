@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Node / webapp
+node_modules/
+**/node_modules/
+.next/
+*.tsbuildinfo
+webapp/dist/
+
+# Rust / Tauri (fleet: always include target/ even in Python repos - Zed/rust-analyzer)
+target/
+native/target/
+gen/
+
+# Build output
+dist/
+build/
+*.mcpb
+
+# MCPB pack staging (exact copy of src/ for packing - never commit)
+mcpb/src/
+mcpb/
+
+# Data / DB
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# Fleet backup artifacts (sneak-in specialists)
+*.bak
+*.bak.*
+
+# Test / report artifacts
+reports/
+cua-reports/
+webapp/test-results/
+webapp/playwright-report/

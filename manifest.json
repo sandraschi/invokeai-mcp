@@ -1,0 +1,34 @@
+{
+  "manifest_version": "0.2",
+  "name": "invokeai-mcp",
+  "version": "0.1.0",
+  "description": "InvokeAI creative engine bridge - generate images, manage queues/models/gallery/boards/workflows from Claude Desktop",
+  "author": { "name": "Sandra Schipal" },
+  "server": {
+    "type": "python",
+    "entry_point": "src/invokeai_mcp/server.py",
+    "mcp_config": {
+      "command": "python",
+      "args": ["-m", "invokeai_mcp.server"],
+      "env": {
+        "PYTHONPATH": "${PWD}",
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  },
+  "tools": [
+    { "name": "invokeai_generate", "description": "Generate images: txt2img, img2img, inpaint, outpaint, upscale" },
+    { "name": "invokeai_queue", "description": "Queue status, list, cancel, clear, resume, item results" },
+    { "name": "invokeai_models", "description": "List, install, delete, update models" },
+    { "name": "invokeai_gallery", "description": "List, search, download, upload, delete images" },
+    { "name": "invokeai_boards", "description": "Board management: list, create, update, delete, assign images" },
+    { "name": "invokeai_workflows", "description": "Workflow CRUD: list, get, save, delete" },
+    { "name": "invokeai_system", "description": "Version, health, runtime config, model stats" },
+    { "name": "show_invokeai_dashboard_card", "description": "InvokeAI fleet status as a rich Prefab card" },
+    { "name": "show_invokeai_queue_card", "description": "Queue status as a rich Prefab card" },
+    { "name": "show_invokeai_models_card", "description": "Installed models as a rich Prefab card" },
+    { "name": "show_invokeai_gallery_card", "description": "Recent gallery images as a rich Prefab card" },
+    { "name": "invokeai_help", "description": "Help and documentation for InvokeAI MCP" },
+    { "name": "invokeai_shutdown", "description": "Graceful server shutdown" }
+  ]
+}

@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v1
+        with:
+          python-version: "3.12"
+
+      - name: uv sync
+        run: uv sync --extra dev
+
+      - name: Ruff lint
+        run: uv run ruff check src tests
+
+      - name: Ruff format
+        run: uv run ruff format src tests --check
+
+      - name: Pyright
+        run: uv run pyright src/
+
+      - name: Pytest
+        run: uv run python -m pytest -q tests/
+
+      - name: Webapp install
+        working-directory: webapp
+        run: |
+          npm install --no-fund --no-audit
+          npx tsc --noEmit
+          npx biome check src/
+
+      - name: Webapp build
+        working-directory: webapp
+        run: npx vite build

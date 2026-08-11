@@ -1,0 +1,138 @@
+# InvokeAI MCP - full LLM reference
+
+## Overview
+
+invokeai-mcp bridges AI coding agents (Claude Desktop, Cursor, opencode) and
+the fleet webapp to a locally running **InvokeAI** creative engine. InvokeAI
+is the open-source professional Stable Diffusion/Flux toolkit (Apache-2.0)
+running on the user's GPU, served at http://127.0.0.1:9090 by default.
+
+The server provides:
+- Generation: txt2img, img2img, masked inpaint, RealESRGAN upscale
+- Queue: status, listing, item results, cancel, clear, pause/resume
+- Models: list, install (HuggingFace/Civitai/local), update, delete, stats
+- Gallery: search, download, delete, star/unstar, metadata
+- Boards: CRUD and image assignment
+- Workflows: library CRUD
+- Prefab UI cards for dashboard/queue/models/gallery in chat
+- A SOTA dark webapp (React/Vite/Tailwind/Zustand) on ports 11154/11155
+
+## Ports
+
+| Port | Service |
+|------|---------|
+| 11154 | invokeai-mcp backend (REST /api/*, MCP /mcp) |
+| 11155 | webapp frontend (Vite dev) |
+| 9090 | InvokeAI engine (owned by InvokeAI) |
+
+## Environment variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| INVOKEAI_URL | http://127.0.0.1:9090 | InvokeAI base URL |
+| INVOKEAI_QUEUE_ID | default | Queue id |
+| INVOKEAI_DOWNLOAD_DIR | <repo>/data/downloads | Local download dir |
+| INVOKEAI_MCP_PORT | 11154 | Backend port |
+| INVOKEAI_FRONTEND_PORT | 11155 | Frontend port |
+| INVOKEAI_ACCESS_TOKEN | - | Token for gated model sources |
+| INVOKEAI_TIMEOUT | 120 | HTTP timeout seconds |
+
+## Tool reference
+
+### invokeai_generate(operation, prompt, ...)
+
+Operations:
+- txt2img: prompt -> fresh image (params: model_key, negative_prompt, width,
+  height, steps, cfg_scale, scheduler, seed, runs)
+- img2img: prompt + image_name (strength 0-1, default 0.75)
+- inpaint: prompt + image_name + mask_image_name (white = regenerate)
+- upscale: image_name (RealESRGAN 4x)
+
+Model base auto-selects graph family (sd-1, sdxl, flux). Returns
+queue_item_id; poll via invokeai_queue result.
+
+Example:
+```python
+invokeai_generate(operation="txt2img", prompt="neon cyberpunk city at night, rain")
+invokeai_generate(operation="img2img", prompt="watercolor style", image_name="abc123.png", strength=0.6)
+```
+
+### invokeai_queue(operation, ...)
+
+status | list (limit, status_filter) | item_status (item_id) |
+result (item_id, wait_seconds, download_image) | cancel (item_id) |
+cancel_batch (batch_ids) | clear | resume | pause
+
+result polls to completion and returns output image URLs; with
+download_image=True saves the first output locally.
+
+### invokeai_models(operation, ...)
+
+list (model_type, search, limit) | get (key) | install (source, config) |
+installs | update (key, config) | delete (key) | stats
+
+install source: HuggingFace repo id, Civitai URL, or local path.
+
+### invokeai_gallery(operation, ...)
+
+list (board_id, starred, limit, offset) | search (query) | get (image_name) |
+metadata (image_name) | download (image_name) | delete (image_name) |
+star/unstar (image_name)
+
+### invokeai_boards(operation, ...)
+
+list | get (board_id) | create (board_name) | update (board_id, board_name) |
+delete (board_id) | add_image/remove_image (board_id, image_names)
+
+### invokeai_workflows(operation, ...)
+
+list | get (workflow_id) | save (workflow_json) | delete (workflow_id)
+
+### invokeai_system(operation, ...)
+
+health | version | config | stats
+
+health returns `configured` (true when InvokeAI reachable) - drives webapp
+onboarding state.
+
+### Prefab cards
+
+show_invokeai_dashboard_card | show_invokeai_queue_card |
+show_invokeai_models_card | show_invokeai_gallery_card
+
+### invokeai_help(topic) / invokeai_shutdown()
+
+## Architecture
+
+FastMCP 3.4.4+ with dual transport:
+- stdio: `uv run python -m invokeai_mcp.server`
+- HTTP: `INVOKEAI_MCP_PORT=11154 uv run python -m invokeai_mcp.server --mode http`
+  (MCP at /mcp, REST at /api/*)
+
+Starlette outer app with fleet CORS (localhost, Tauri origins, Tailscale/LAN
+regex). Graph builders verified against invoke-ai/InvokeAI main (2026-08):
+SD1.5 (main_model_loader + compel), SDXL (sdxl_model_loader +
+sdxl_compel_prompt, clip+clip2), FLUX (flux_model_loader + flux_text_encoder
++ flux_denoise + flux_vae_decode). img2img adds image_to_latents with
+denoising_start = 1 - strength; inpaint adds create_denoise_mask into
+denoise.mask; upscale uses the esrgan node.
+
+## Onboarding
+
+InvokeAI must be installed (launcher), running, and have at least one main
+model. The webapp shows declared MOCK content until health succeeds. Full
+steps: docs/ONBOARDING.md.
+
+## Troubleshooting
+
+- configured: false -> start InvokeAI (launcher)
+- "No main models installed" -> install a model in InvokeAI UI
+- CUDA out of memory -> SDXL/SD1.5 or lower resolution
+- Queue stuck -> invokeai_queue resume
+- outpaint not available -> InvokeAI canvas UI (explicit non-goal)
+
+## Test
+
+- pytest: client (respx mocks), graphs (structure invariants), tools (fake client)
+- Playwright e2e: backend health + frontend load
+- Gate: `just ci` (ruff + pytest + tsc + biome)

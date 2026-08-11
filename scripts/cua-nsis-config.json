@@ -1,0 +1,28 @@
+# invokeai-mcp CUA webapp test config
+{
+  "server_name": "invokeai-mcp",
+  "backend_port": 11154,
+  "frontend_port": 11155,
+  "health_path": "/api/health",
+  "backend_module": "invokeai_mcp.server",
+  "start_script": "start.ps1",
+  "connected_badge_text": "connected",
+  "connected_timeout": 60,
+  "window_title_re": "InvokeAI",
+  "nav_routes": [
+    ["Dashboard", "InvokeAI MCP"],
+    ["Generate", "Generate"],
+    ["Gallery", "Gallery"],
+    ["Models", "Models"],
+    ["Queue", "Queue"],
+    ["Boards", "Boards"],
+    ["Workflows", "Workflows"],
+    ["Inbox", "Inbox"],
+    ["Tools", "Tools"],
+    ["Skills", "Skills"],
+    ["Chat", "Chat"],
+    ["Settings", "Settings"],
+    ["Help", "Help"],
+    ["Logs", "Logs"]
+  ]
+}

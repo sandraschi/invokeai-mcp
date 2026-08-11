@@ -1,0 +1,41 @@
+# Logic/Dev Bloat
+.venv/
+node_modules/
+__pycache__/
+.ruff_cache/
+.pytest_cache/
+tests/
+data/
+
+# Discovery & Fleet Metadata
+glama.json
+llms.txt
+llms-full.txt
+.git/
+.github/
+.vscode/
+AGENTS.md
+CLAUDE.md
+PRD.md
+
+# Build Artifacts
+dist/
+build/
+*.mcpb
+webapp/
+src-tauri/
+target/
+
+# Editor / tooling backups
+*.bak
+*.bak.*
+*.orig
+*.rej
+
+# Scripts and docs that do not belong in the bundle
+scripts/
+docs/
+start.ps1
+start.bat
+justfile
+fleet-start.config.ps1

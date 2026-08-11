@@ -1,0 +1,33 @@
+# InvokeAI MCP
+
+> Bridge between AI coding agents and the local InvokeAI creative engine:
+> image generation, queue, models, gallery, boards, workflows.
+
+- [GitHub](https://github.com/sandraschi/invokeai-mcp)
+- [README](README.md) | [Install](INSTALL.md) | [Onboarding](docs/ONBOARDING.md)
+- Full LLM corpus: [llms-full.txt](llms-full.txt)
+
+## Tools
+
+- `invokeai_generate` - txt2img / img2img / inpaint / upscale
+- `invokeai_queue` - status, list, result, cancel, clear, resume
+- `invokeai_models` - list, install, update, delete, stats
+- `invokeai_gallery` - list, search, download, delete, star
+- `invokeai_boards` - board CRUD + image assignment
+- `invokeai_workflows` - workflow library CRUD
+- `invokeai_system` - health, version, config, stats
+- Prefab cards: dashboard, queue, models, gallery
+
+## Architecture
+
+- FastMCP 3.4.4+ (stdio + HTTP `/mcp`), Starlette REST `/api/*`
+- Graph builders per model family: sd-1, sdxl, flux (verified vs InvokeAI main)
+- Webapp: React + Vite + Tailwind dark (ports 11154/11155)
+- InvokeAI runs separately on port 9090 (launcher install, never bundled)
+
+## Docs
+
+- `docs/TOOLS.md` - full tool reference
+- `docs/CONFIGURATION.md` - env vars (INVOKEAI_URL, ports)
+- `docs/ONBOARDING.md` - first-timer setup (InvokeAI install + models)
+- `docs/TROUBLESHOOTING.md` - common issues
