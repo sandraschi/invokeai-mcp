@@ -8,6 +8,7 @@
     Backend = @{
         Kind       = 'module-serve'
         Module     = 'invokeai_mcp.server'
+        ServeArgs  = @('--mode', 'http', '--port', '11154')
         SyncExtras = @('dev')
     }
 
