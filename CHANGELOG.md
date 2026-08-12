@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.2] - 2026-08-12
+
+### Added
+- Generate page: 8 horizontal mode tabs (txt2img, img2img, inpaint, outpaint,
+  upscale, controlnet, ip-adapter, seamless) with image/mask uploads
+- 60-style catalog + 24 materials (stained glass, tilt-shift, disco, super
+  mario, ukiyo-e, art nouveau, vaporwave, ...) with select-all batch generation
+  and live per-item progress bar
+- Outpaint via client-side pad + border-mask inpaint (canvas-safe image proxy)
+- Plugins page: custom node pack install/uninstall/reload (git) + live
+  built-in capability catalog (19 categories, 253 nodes from the engine spec)
+- AI prompt refiner wired to local LLM with style/material context
+- Live-verified modes: txt2img, img2img, inpaint, upscale, seamless
+
 ## [0.1.1] - 2026-08-12
 
 Live-verified against InvokeAI 6.13.7.

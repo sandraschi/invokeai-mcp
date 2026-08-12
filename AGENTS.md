@@ -41,7 +41,7 @@ just mcpb-pack
 
 ## Tool surface (portmanteau)
 
-invokeai_generate (txt2img/img2img/inpaint/upscale), invokeai_queue
+invokeai_generate (txt2img/img2img/inpaint/upscale + seamless/controlnet/ip-adapter modules), invokeai_queue
 (status/list/item_status/result/cancel/clear/resume/pause), invokeai_models
 (list/get/install/installs/update/delete/stats), invokeai_gallery
 (list/search/get/metadata/download/delete/star/unstar), invokeai_boards,

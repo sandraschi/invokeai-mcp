@@ -44,11 +44,26 @@ test.describe("Fleet Audit", () => {
 
   test("Navigation covers main pages", async ({ page }) => {
     await page.goto(`${FE}/app/dashboard`);
-    for (const route of ["generate", "gallery", "models", "queue", "boards", "workflows", "inbox", "tools", "skills", "chat", "settings", "help", "logs"]) {
+    for (const route of ["generate", "gallery", "models", "plugins", "queue", "boards", "workflows", "inbox", "tools", "skills", "chat", "settings", "help", "logs"]) {
       await page.goto(`${FE}/app/${route}`);
       await page.waitForTimeout(800);
       await expect(page.locator(`[data-testid="${route}-page"]`)).toBeAttached({ timeout: 10000 });
     }
+  });
+
+  test("Generate page surfaces all mode tabs", async ({ page }) => {
+    await page.goto(`${FE}/app/generate`);
+    await expect(page.locator('[data-testid="mode-tabs"]')).toBeVisible({ timeout: 15000 });
+    for (const tab of ["txt2img", "img2img", "inpaint", "outpaint", "upscale", "controlnet", "ipadapter", "seamless"]) {
+      await expect(page.locator(`[data-testid="mode-tab-${tab}"]`)).toBeAttached();
+    }
+    await expect(page.locator('[data-testid="style-checks"]')).toBeVisible();
+  });
+
+  test("Plugins page lists capabilities", async ({ page }) => {
+    await page.goto(`${FE}/app/plugins`);
+    await expect(page.locator('[data-testid="plugins-page"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="plugins-capabilities"]')).toBeVisible();
   });
 
   test("Settings probes LLM providers", async ({ page }) => {

@@ -96,7 +96,7 @@ def test_inpaint_adds_mask_path():
     )
     types = _node_types(g)
     assert "create_denoise_mask" in types
-    assert _edge_fields(g, "denoise_latents") >= {"mask"}
+    assert _edge_fields(g, "denoise_latents") >= {"denoise_mask"}
 
 
 def test_txt2img_denoising_starts_at_zero():

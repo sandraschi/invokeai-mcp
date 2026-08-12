@@ -10,6 +10,7 @@ import HelpPage from "./pages/HelpPage";
 import InboxPage from "./pages/InboxPage";
 import LogsPage from "./pages/LogsPage";
 import ModelsPage from "./pages/ModelsPage";
+import PluginsPage from "./pages/PluginsPage";
 import QueuePage from "./pages/QueuePage";
 import SettingsPage from "./pages/SettingsPage";
 import SkillsPage from "./pages/SkillsPage";
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="/app/generate" element={<GeneratePage />} />
         <Route path="/app/gallery" element={<GalleryPage />} />
         <Route path="/app/models" element={<ModelsPage />} />
+        <Route path="/app/plugins" element={<PluginsPage />} />
         <Route path="/app/queue" element={<QueuePage />} />
         <Route path="/app/boards" element={<BoardsPage />} />
         <Route path="/app/workflows" element={<WorkflowsPage />} />

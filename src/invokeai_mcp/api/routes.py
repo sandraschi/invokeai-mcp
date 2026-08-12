@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
 
 from invokeai_mcp import __version__
@@ -182,6 +182,73 @@ async def _invokeai_status(request: Request) -> JSONResponse:
     return JSONResponse(data)
 
 
+async def _invokeai_image(request: Request) -> Response:
+    """Proxy engine image bytes same-origin (canvas-safe for outpaint)."""
+    client = get_client()
+    name = request.path_params.get("name", "")
+    try:
+        urls = await client.get_image_urls(name)
+        full = urls.get("full") or urls.get("url") or urls.get("image_url") or ""
+        if not full:
+            return JSONResponse({"error": "no url"}, status_code=404)
+        url = full if full.startswith("http") else f"{client.settings.api_base}/{full.lstrip('/')}"
+        resp = await client._client.get(url)
+        if resp.status_code != 200:
+            return JSONResponse({"error": f"engine HTTP {resp.status_code}"}, status_code=502)
+        return Response(
+            content=resp.content, media_type=resp.headers.get("content-type", "image/png")
+        )
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=404)
+
+
+async def _invokeai_plugins(request: Request) -> JSONResponse:
+    """Plugins surface: installed node packs + live built-in capability catalog."""
+    client = get_client()
+    try:
+        packs = await client.list_custom_nodes()
+        caps = await client.capabilities()
+        return JSONResponse({"configured": True, "packs": packs, "capabilities": caps})
+    except Exception as exc:  # pragma: no cover - degraded path
+        return JSONResponse(
+            {"configured": False, "packs": [], "capabilities": {}, "error": str(exc)}
+        )
+
+
+async def _invokeai_plugin_action(request: Request) -> JSONResponse:
+    """POST /api/invokeai/plugins/install|reload, DELETE /api/invokeai/plugins/{name}."""
+    client = get_client()
+    path = request.url.path
+    try:
+        if path.endswith("/install"):
+            body = await request.json()
+            result = await client.install_custom_node(body.get("source", ""))
+            return JSONResponse({"success": True, "data": result})
+        if path.endswith("/reload"):
+            await client.reload_custom_nodes()
+            return JSONResponse({"success": True, "message": "Custom nodes reloaded."})
+        if path.endswith(f"/{request.path_params.get('name', '')}"):
+            result = await client.uninstall_custom_node(request.path_params["name"])
+            return JSONResponse({"success": True, "data": result})
+    except Exception as exc:
+        return JSONResponse({"success": False, "error": str(exc)}, status_code=400)
+    return JSONResponse({"success": False, "error": "unknown plugin action"}, status_code=400)
+
+
+async def _invokeai_upload(request: Request) -> JSONResponse:
+    """POST /api/invokeai/upload - multipart image upload to the engine gallery."""
+    client = get_client()
+    form = await request.form()
+    upload = form.get("file")
+    from starlette.datastructures import UploadFile
+
+    if not isinstance(upload, UploadFile):
+        return JSONResponse({"success": False, "error": "missing file field"}, status_code=400)
+    data = await upload.read()
+    result = await client.upload_image(data, upload.filename or "upload.png")
+    return JSONResponse({"success": True, "data": result})
+
+
 async def _invokeai_models(request: Request) -> JSONResponse:
     """Model list for the webapp Generate/Models pages."""
     client = get_client()
@@ -306,6 +373,12 @@ routes = [
     Route("/api/llm/chat", _llm_chat, methods=["POST"]),
     Route("/api/invokeai/status", _invokeai_status),
     Route("/api/invokeai/models", _invokeai_models),
+    Route("/api/invokeai/image/{name}", _invokeai_image),
+    Route("/api/invokeai/upload", _invokeai_upload, methods=["POST"]),
+    Route("/api/invokeai/plugins", _invokeai_plugins),
+    Route("/api/invokeai/plugins/install", _invokeai_plugin_action, methods=["POST"]),
+    Route("/api/invokeai/plugins/reload", _invokeai_plugin_action, methods=["POST"]),
+    Route("/api/invokeai/plugins/{name}", _invokeai_plugin_action, methods=["DELETE"]),
     Route("/api/invokeai/queue/status", _queue_status_rest),
     Route("/api/invokeai/queue/list", _queue_list_rest),
     Route("/api/invokeai/generate", _generate, methods=["POST"]),

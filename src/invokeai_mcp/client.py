@@ -69,7 +69,10 @@ class InvokeAIClient:
         files: Any | None = None,
         allow_error: bool = False,
     ) -> Any:
-        url = path if path.startswith("http") else f"/api{path}"
+        if path.startswith("http") or path.startswith("/api") or path.startswith("/openapi"):
+            url = path
+        else:
+            url = f"/api{path}"
         try:
             resp = await self._client.request(
                 method, url, params=params, json=json, data=data, files=files, headers=self.headers
@@ -360,6 +363,49 @@ class InvokeAIClient:
 
     async def delete_workflow(self, workflow_id: str) -> None:
         await self._request("DELETE", f"/v1/workflows/i/{workflow_id}")
+
+    # ------------------------------------------------------------- custom nodes
+    async def list_custom_nodes(self) -> list[dict[str, Any]]:
+        data = await self._request("GET", "/v2/custom_nodes/")
+        if isinstance(data, dict):
+            return data.get("node_packs", [])
+        return data or []
+
+    async def install_custom_node(self, source: str) -> dict[str, Any]:
+        return await self._request("POST", "/v2/custom_nodes/install", json={"source": source})
+
+    async def uninstall_custom_node(self, pack_name: str) -> dict[str, Any]:
+        return await self._request("DELETE", f"/v2/custom_nodes/{pack_name}")
+
+    async def reload_custom_nodes(self) -> None:
+        await self._request("POST", "/v2/custom_nodes/reload")
+
+    async def capabilities(self) -> dict[str, Any]:
+        """Live capability catalog derived from the engine's OpenAPI spec."""
+        data = await self._request("GET", "/openapi.json", allow_error=True)
+        if not isinstance(data, dict):
+            return {}
+        cats: dict[str, dict[str, Any]] = {}
+        schemas = data.get("components", {}).get("schemas", {})
+        for name, schema in schemas.items():
+            if schema.get("class") != "invocation" or not schema.get("category"):
+                continue
+            cat = schema["category"]
+            entry = cats.setdefault(cat, {"count": 0, "nodes": []})
+            entry["count"] += 1
+            if len(entry["nodes"]) < 5:
+                entry["nodes"].append(name)
+        return cats
+
+    async def upload_image(self, file_bytes: bytes, filename: str) -> dict[str, Any]:
+        """Upload an image to the engine gallery (multipart)."""
+        files = {"file": (filename, file_bytes, "image/png")}
+        return await self._request(
+            "POST",
+            "/v1/images/upload",
+            params={"image_category": "general", "is_intermediate": "false"},
+            files=files,
+        )
 
     async def close(self) -> None:
         await self._client.aclose()

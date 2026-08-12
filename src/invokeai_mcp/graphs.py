@@ -25,6 +25,104 @@ def _uuid() -> str:
     return str(uuid.uuid4())
 
 
+def _attach_modules(
+    edges: list[dict[str, Any]],
+    add,
+    edge,
+    *,
+    loader: str,
+    denoise: str,
+    l2i: str,
+    seamless_x: bool = False,
+    seamless_y: bool = False,
+    control_image_name: str | None = None,
+    control_model: dict[str, Any] | None = None,
+    control_weight: float = 0.8,
+    canny_low: int = 100,
+    canny_high: int = 200,
+    ip_image_name: str | None = None,
+    ip_model: dict[str, Any] | None = None,
+    ip_weight: float = 0.7,
+) -> None:
+    """Attach optional generation modules to a base sd1/sdxl graph.
+
+    - seamless: reroutes loader.unet/vae through the seamless node (tiling).
+    - controlnet: canny edge detection -> controlnet node -> denoise.control.
+    - ip_adapter: reference image -> ip_adapter node -> denoise.ip_adapter.
+    """
+    if seamless_x or seamless_y:
+        seamless = add(
+            {
+                "id": _uuid(),
+                "type": "seamless",
+                "data": {"seamless_x": seamless_x, "seamless_y": seamless_y},
+            }
+        )
+        # reroute the unet/vae chain through the seamless node
+        edges[:] = [
+            e
+            for e in edges
+            if not (e["source"]["node_id"] == loader and e["source"]["field"] in ("unet", "vae"))
+        ]
+        edge(loader, "unet", seamless, "unet")
+        edge(loader, "vae", seamless, "vae")
+        edge(seamless, "unet", denoise, "unet")
+        edge(seamless, "vae", l2i, "vae")
+        if control_image_name is None:
+            # img2img i2l vae edge also reroutes through seamless (never self-loop)
+            for e in edges:
+                if e["destination"]["field"] == "vae" and e["destination"]["node_id"] not in (
+                    l2i,
+                    seamless,
+                ):
+                    e["source"] = {"node_id": seamless, "field": "vae"}
+
+    if control_image_name and control_model:
+        ctrl_img = add(_image_node(control_image_name))
+        canny = add(
+            {
+                "id": _uuid(),
+                "type": "canny_edge_detection",
+                "data": {"low_threshold": canny_low, "high_threshold": canny_high},
+            }
+        )
+        controlnet = add(
+            {
+                "id": _uuid(),
+                "type": "controlnet",
+                "data": {
+                    "control_model": _model_field(control_model),
+                    "control_weight": control_weight,
+                    "control_mode": "balanced",
+                    "resize_mode": "resize",
+                    "begin_step_percent": 0.0,
+                    "end_step_percent": 1.0,
+                },
+            }
+        )
+        edge(ctrl_img, "image", canny, "image")
+        edge(canny, "image", controlnet, "image")
+        edge(controlnet, "control", denoise, "control")
+
+    if ip_image_name and ip_model:
+        ip_img = add(_image_node(ip_image_name))
+        ip_adapter = add(
+            {
+                "id": _uuid(),
+                "type": "ip_adapter",
+                "data": {
+                    "ip_adapter_model": _model_field(ip_model),
+                    "weight": ip_weight,
+                    "method": "full",
+                    "begin_step_percent": 0.0,
+                    "end_step_percent": 1.0,
+                },
+            }
+        )
+        edge(ip_img, "image", ip_adapter, "image")
+        edge(ip_adapter, "ip_adapter", denoise, "ip_adapter")
+
+
 def _image_node(image_name: str) -> dict[str, Any]:
     return {
         "id": _uuid(),
@@ -61,6 +159,16 @@ def build_sd1_graph(
     strength: float | None = None,
     image_name: str | None = None,
     mask_image_name: str | None = None,
+    seamless_x: bool = False,
+    seamless_y: bool = False,
+    control_image_name: str | None = None,
+    control_model: dict[str, Any] | None = None,
+    control_weight: float = 0.8,
+    canny_low: int = 100,
+    canny_high: int = 200,
+    ip_image_name: str | None = None,
+    ip_model: dict[str, Any] | None = None,
+    ip_weight: float = 0.7,
 ) -> dict[str, Any]:
     nodes: dict[str, Any] = {}
     edges: list[dict[str, Any]] = []
@@ -141,9 +249,28 @@ def build_sd1_graph(
             mask_denoise = add({"id": _uuid(), "type": "create_denoise_mask", "data": {}})
             edge(loader, "vae", mask_denoise, "vae")
             edge(mask_id, "image", mask_denoise, "mask")
-            edge(mask_denoise, "mask", denoise, "mask")
+            edge(mask_denoise, "denoise_mask", denoise, "denoise_mask")
 
     edge(denoise, "latents", l2i, "latents")
+
+    _attach_modules(
+        edges,
+        add,
+        edge,
+        loader=loader,
+        denoise=denoise,
+        l2i=l2i,
+        seamless_x=seamless_x,
+        seamless_y=seamless_y,
+        control_image_name=control_image_name,
+        control_model=control_model,
+        control_weight=control_weight,
+        canny_low=canny_low,
+        canny_high=canny_high,
+        ip_image_name=ip_image_name,
+        ip_model=ip_model,
+        ip_weight=ip_weight,
+    )
 
     return {"id": _uuid(), "nodes": nodes, "edges": edges}
 
@@ -166,6 +293,16 @@ def build_sdxl_graph(
     strength: float | None = None,
     image_name: str | None = None,
     mask_image_name: str | None = None,
+    seamless_x: bool = False,
+    seamless_y: bool = False,
+    control_image_name: str | None = None,
+    control_model: dict[str, Any] | None = None,
+    control_weight: float = 0.8,
+    canny_low: int = 100,
+    canny_high: int = 200,
+    ip_image_name: str | None = None,
+    ip_model: dict[str, Any] | None = None,
+    ip_weight: float = 0.7,
 ) -> dict[str, Any]:
     nodes: dict[str, Any] = {}
     edges: list[dict[str, Any]] = []
@@ -247,9 +384,28 @@ def build_sdxl_graph(
             mask_denoise = add({"id": _uuid(), "type": "create_denoise_mask", "data": {}})
             edge(loader, "vae", mask_denoise, "vae")
             edge(mask_id, "image", mask_denoise, "mask")
-            edge(mask_denoise, "mask", denoise, "mask")
+            edge(mask_denoise, "denoise_mask", denoise, "denoise_mask")
 
     edge(denoise, "latents", l2i, "latents")
+
+    _attach_modules(
+        edges,
+        add,
+        edge,
+        loader=loader,
+        denoise=denoise,
+        l2i=l2i,
+        seamless_x=seamless_x,
+        seamless_y=seamless_y,
+        control_image_name=control_image_name,
+        control_model=control_model,
+        control_weight=control_weight,
+        canny_low=canny_low,
+        canny_high=canny_high,
+        ip_image_name=ip_image_name,
+        ip_model=ip_model,
+        ip_weight=ip_weight,
+    )
 
     return {"id": _uuid(), "nodes": nodes, "edges": edges}
 
@@ -388,6 +544,16 @@ def build_generation_graph(
     strength: float = 0.75,
     image_name: str | None = None,
     mask_image_name: str | None = None,
+    seamless_x: bool = False,
+    seamless_y: bool = False,
+    control_image_name: str | None = None,
+    control_model: dict[str, Any] | None = None,
+    control_weight: float = 0.8,
+    canny_low: int = 100,
+    canny_high: int = 200,
+    ip_image_name: str | None = None,
+    ip_model: dict[str, Any] | None = None,
+    ip_weight: float = 0.7,
 ) -> dict[str, Any]:
     """Dispatch to the right graph builder for the model's base family."""
     if operation == "upscale":
@@ -411,12 +577,24 @@ def build_generation_graph(
     )
     if operation == "inpaint":
         kwargs["mask_image_name"] = mask_image_name
+    modules = dict(
+        seamless_x=seamless_x,
+        seamless_y=seamless_y,
+        control_image_name=control_image_name,
+        control_model=control_model,
+        control_weight=control_weight,
+        canny_low=canny_low,
+        canny_high=canny_high,
+        ip_image_name=ip_image_name,
+        ip_model=ip_model,
+        ip_weight=ip_weight,
+    )
     if base.startswith("flux"):
-        return build_flux_graph(**kwargs)
+        return build_flux_graph(**kwargs)  # type: ignore[arg-type]
     if base == "sdxl":
-        return build_sdxl_graph(**kwargs)
+        return build_sdxl_graph(**kwargs, **modules)  # type: ignore[arg-type]
     if base == "sd-1":
-        return build_sd1_graph(**kwargs)
+        return build_sd1_graph(**kwargs, **modules)  # type: ignore[arg-type]
     raise InvokeAIError(
         f"Unsupported model base '{base}' for graph building. Supported: sd-1, sdxl, flux.",
         error_type="unsupported_model",

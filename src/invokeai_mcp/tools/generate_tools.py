@@ -53,7 +53,10 @@ async def invokeai_generate(
         Literal["txt2img", "img2img", "inpaint", "upscale"],
         Field(description="Generation operation to run."),
     ],
-    prompt: Annotated[str, Field(description="Positive prompt describing the desired image.")],
+    prompt: Annotated[
+        str,
+        Field(description="Positive prompt describing the desired image (not needed for upscale)."),
+    ] = "",
     negative_prompt: Annotated[
         str | None, Field(description="Elements to avoid in the image.")
     ] = None,
@@ -82,6 +85,31 @@ async def invokeai_generate(
         float,
         Field(description="img2img/inpaint transformation strength (0.0-1.0).", ge=0.0, le=1.0),
     ] = 0.75,
+    seamless_x: Annotated[bool, Field(description="Seamless tiling along X (textures).")] = False,
+    seamless_y: Annotated[bool, Field(description="Seamless tiling along Y (textures).")] = False,
+    control_image_name: Annotated[
+        str | None,
+        Field(description="Control image for ControlNet (canny edge detection is applied)."),
+    ] = None,
+    control_model: Annotated[
+        dict | None,
+        Field(description="ControlNet model record (type=controlnet) from invokeai_models list."),
+    ] = None,
+    control_weight: Annotated[
+        float, Field(description="ControlNet influence (0.0-1.0).", ge=0.0, le=1.0)
+    ] = 0.8,
+    canny_low: Annotated[int, Field(description="Canny low threshold.", ge=0, le=255)] = 100,
+    canny_high: Annotated[int, Field(description="Canny high threshold.", ge=0, le=255)] = 200,
+    ip_image_name: Annotated[
+        str | None, Field(description="Reference image for IP-Adapter style transfer.")
+    ] = None,
+    ip_model: Annotated[
+        dict | None,
+        Field(description="IP-Adapter model record (type=ip_adapter) from invokeai_models list."),
+    ] = None,
+    ip_weight: Annotated[
+        float, Field(description="IP-Adapter influence (0.0-1.0).", ge=0.0, le=1.0)
+    ] = 0.7,
     runs: Annotated[int, Field(description="Number of images to generate (1-8).", ge=1, le=8)] = 1,
     ctx: Context | None = None,  # noqa: B008
 ) -> dict:
@@ -121,16 +149,31 @@ async def invokeai_generate(
             "error": "validation",
             "message": f"{operation} requires image_name (an InvokeAI image from the gallery).",
         }
+    if operation in ("txt2img", "img2img", "inpaint") and not prompt.strip():
+        return {
+            "success": False,
+            "error": "validation",
+            "message": f"{operation} requires a prompt.",
+        }
 
     try:
         model = await _resolve_model(client, model_key)
+        eff_width, eff_height = width, height
+        if image_name:
+            # image-based modes: noise/latents must match the source image size
+            try:
+                dto = await client.get_image(image_name)
+                if dto.get("width") and dto.get("height"):
+                    eff_width, eff_height = int(dto["width"]), int(dto["height"])
+            except InvokeAIError:
+                pass
         graph = build_generation_graph(
             operation=operation,
             model=model,
             positive_prompt=prompt,
             negative_prompt=negative_prompt or "",
-            width=width,
-            height=height,
+            width=eff_width,
+            height=eff_height,
             steps=steps,
             cfg_scale=cfg_scale,
             scheduler=scheduler,
@@ -138,6 +181,16 @@ async def invokeai_generate(
             strength=strength,
             image_name=image_name,
             mask_image_name=mask_image_name,
+            seamless_x=seamless_x,
+            seamless_y=seamless_y,
+            control_image_name=control_image_name,
+            control_model=control_model,
+            control_weight=control_weight,
+            canny_low=canny_low,
+            canny_high=canny_high,
+            ip_image_name=ip_image_name,
+            ip_model=ip_model,
+            ip_weight=ip_weight,
         )
         result = await client.enqueue_batch(graph, runs=runs, destination="mcp")
         queue_id = result.get("queue_id") or settings.queue_id

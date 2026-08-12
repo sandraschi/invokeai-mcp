@@ -30,6 +30,9 @@ InvokeAI instance over its REST API. InvokeAI must be installed and running
 | **Hands-out** | generated PNGs, image URLs, local file paths, queue state | `invokeai_queue result` + gallery download |
 
 - Generate SD1.5 / SDXL / Flux / SD3.5 / Qwen Image images on your RTX 4090
+- 8 generation modes with horizontal tabs: txt2img, img2img, inpaint, outpaint, upscale, ControlNet, IP-Adapter, seamless tiling
+- 60-style catalog + 24 material presets with select-all batch generation and live progress
+- Plugin surface: install custom node packs from git, browse 250+ built-in engine nodes
 - Transform existing images (img2img) and repair regions (masked inpaint)
 - 4x RealESRGAN upscaling
 - Install models from HuggingFace or Civitai without leaving the chat
