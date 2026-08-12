@@ -31,7 +31,8 @@ InvokeAI instance over its REST API. InvokeAI must be installed and running
 
 - Generate SD1.5 / SDXL / Flux / SD3.5 / Qwen Image images on your RTX 4090
 - 8 generation modes with horizontal tabs: txt2img, img2img, inpaint, outpaint, upscale, ControlNet, IP-Adapter, seamless tiling
-- 60-style catalog + 24 material presets with select-all batch generation and live progress
+- 60-style catalog + 24 material presets with select-all batch generation and live per-item progress
+- AI prompt refiner (local LLM) that understands the selected style/material
 - Plugin surface: install custom node packs from git, browse 250+ built-in engine nodes
 - Transform existing images (img2img) and repair regions (masked inpaint)
 - 4x RealESRGAN upscaling
@@ -81,6 +82,8 @@ Other methods (mcpb CLI, manual config, webapp dev stack) are in
 - **InvokeAI** installed and running (launcher install; models downloaded) -
   free, Apache-2.0
 - GPU with 6-12 GB VRAM recommended (SD1.5: 4 GB, SDXL: 8 GB, Flux: 12 GB+)
+- Engine install: `invokeai-web` manual install (`uv venv` + `uv pip install invokeai`)
+  or the official launcher; the engine serves its full canvas GUI on 9090
 - Claude Desktop (or any MCP client) for chat use; a browser for the webapp
 - Python 3.12+ and uv for source installs; Node/Bun for the webapp
 

@@ -51,6 +51,18 @@ Operations:
 Model base auto-selects graph family (sd-1, sdxl, flux). Returns
 queue_item_id; poll via invokeai_queue result.
 
+Advanced module params (sd-1/sdxl only): seamless_x/seamless_y (tileable
+textures), control_image_name + control_model (type=controlnet) +
+control_weight + canny_low/canny_high (canny-edge ControlNet), ip_image_name
++ ip_model (type=ip_adapter) + ip_weight (IP-Adapter style transfer).
+Image-based modes (img2img/inpaint/outpaint) size the noise to the source
+image automatically.
+
+All image-based modes accept image names from the gallery or freshly
+uploaded files (POST /api/invokeai/upload, multipart field 'file'). The
+webapp renders engine images through the same-origin proxy
+GET /api/invokeai/image/{name}.
+
 Example:
 ```python
 invokeai_generate(operation="txt2img", prompt="neon cyberpunk city at night, rain")
@@ -101,6 +113,31 @@ show_invokeai_dashboard_card | show_invokeai_queue_card |
 show_invokeai_models_card | show_invokeai_gallery_card
 
 ### invokeai_help(topic) / invokeai_shutdown()
+
+## Webapp REST surface (invokeai-mcp backend, port 11154)
+
+- GET  /api/health - engine reachability + configured flag (onboarding gate)
+- GET  /api/dashboard - version, model count, queue counts, recent images
+- GET  /api/skills, /api/skills/{name} - SKILL.md content
+- GET  /api/tools - dynamic MCP tool list
+- GET  /api/logs - ring-buffer logs
+- GET  /api/llm/discover, POST /api/llm/chat - local LLM probe + chat proxy
+- GET  /api/invokeai/models - main model list (Generate/Models pages)
+- GET  /api/invokeai/gallery|boards|workflows - list payloads
+- POST /api/invokeai/generate, /api/invokeai/queue - tool passthroughs
+- POST /api/invokeai/upload - multipart image upload to the engine
+- GET  /api/invokeai/image/{name} - same-origin image proxy (canvas-safe)
+- GET  /api/invokeai/plugins - node packs + built-in capability catalog
+      (19 categories / 253 nodes, derived live from the engine OpenAPI)
+- POST /api/invokeai/plugins/install|reload, DELETE /api/invokeai/plugins/{name}
+
+## Engine-side tuning (invokeai.yaml, install root)
+
+With desktop apps resident on the GPU, cap the engine's VRAM cache and keep
+fp16 weights (the fp32 VAE *decode* in the graph fixes black output):
+
+    max_cache_vram_gb: 8
+    precision: float16
 
 ## Architecture
 

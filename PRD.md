@@ -7,12 +7,16 @@ InvokeAI creative engine (SD1.5/SDXL/Flux/SD3.5/Qwen Image) on the user's GPU.
 
 ## Goals (v0.1)
 
-1. Full generation loop in chat: txt2img, img2img, masked inpaint, 4x upscale
+1. Full generation loop in chat: txt2img, img2img, masked inpaint, 4x upscale,
+   outpaint, ControlNet (canny), IP-Adapter, seamless tiling (all live-verified
+   against InvokeAI 6.13.7 except controlnet/ipadapter which need their models)
 2. Queue lifecycle: status, list, result polling, cancel, clear, resume
 3. Model management: list, install (HF/Civitai/local), delete, stats
 4. Gallery + boards: search, download, star, organize
 5. Workflow library CRUD
-6. SOTA webapp (catch-them-all pages) with declared MOCK-until-onboarded UX
+6. SOTA webapp (catch-them-all pages) with declared MOCK-until-onboarded UX;
+   Generate page: 8 mode tabs, 60-style/24-material catalog, batch generation
+   with live progress, AI prompt refiner; Plugins page (node packs + catalog)
 7. MCPB + dual transport (stdio/HTTP) + Prefab cards
 
 ## Non-goals (v0.1)
