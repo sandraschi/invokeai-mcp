@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3] - 2026-08-12
+
+### Fixed
+- Black output images (SDXL fp16 VAE decode) - l2i nodes now decode in fp32;
+  verified pixel brightness 0 -> 152/255 on live generation
+- Gallery/queue list envelope unwrap (empty lists)
+
 ## [0.1.2] - 2026-08-12
 
 ### Added

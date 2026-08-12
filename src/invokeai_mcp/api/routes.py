@@ -339,7 +339,9 @@ async def _invokeai_list(request: Request) -> JSONResponse:
             kwargs[arg] = int(value) if arg == "limit" else value
     result = await fn(**kwargs)
     # GET list endpoints return the payload directly (pages read data.models etc.)
-    return JSONResponse(result.get("data", result), status_code=200 if result.get("success") else 400)
+    return JSONResponse(
+        result.get("data", result), status_code=200 if result.get("success") else 400
+    )
 
 
 async def _queue_status_rest(request: Request) -> JSONResponse:
@@ -360,7 +362,9 @@ async def _queue_list_rest(request: Request) -> JSONResponse:
     result = await invokeai_queue(
         operation="list", limit=int(request.query_params.get("limit", 50))
     )
-    return JSONResponse(result.get("data", result), status_code=200 if result.get("success") else 400)
+    return JSONResponse(
+        result.get("data", result), status_code=200 if result.get("success") else 400
+    )
 
 
 routes = [

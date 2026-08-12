@@ -220,7 +220,7 @@ def build_sd1_graph(
             },
         }
     )
-    l2i = add({"id": _uuid(), "type": "l2i", "data": {}})
+    l2i = add({"id": _uuid(), "type": "l2i", "data": {"fp32": True}})
 
     edge(loader, "unet", denoise, "unet")
     edge(loader, "clip", clip_skip, "clip")
@@ -354,7 +354,7 @@ def build_sdxl_graph(
             },
         }
     )
-    l2i = add({"id": _uuid(), "type": "l2i", "data": {}})
+    l2i = add({"id": _uuid(), "type": "l2i", "data": {"fp32": True}})
 
     edge(loader, "unet", denoise, "unet")
     edge(loader, "clip", pos_cond, "clip")

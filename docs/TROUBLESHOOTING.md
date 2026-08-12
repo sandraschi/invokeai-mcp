@@ -28,6 +28,12 @@ then `invokeai_models(operation="list", model_type="main")`
 **Fix**: `invokeai_models(operation="list", model_type="main")` and copy the
 exact `key`
 
+## Generated images come out pure black (SDXL)
+**Cause**: fp16 VAE decode produces black output with the SDXL diffusers checkpoint
+**Fix**: fixed in the graph layer (l2i nodes decode in fp32). If you see black
+again, check the engine log for VAE decode warnings and consider a
+VAE override in the InvokeAI model manager.
+
 ## CUDA out of memory during generation
 **Cause**: Model too large for VRAM, or another model still resident
 **Fix**: Use SD1.5/SDXL instead of Flux; lower width/height; wait for the
