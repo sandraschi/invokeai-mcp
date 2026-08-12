@@ -25,6 +25,57 @@ def _uuid() -> str:
     return str(uuid.uuid4())
 
 
+def _attach_metadata(
+    edges: list[dict[str, Any]],
+    add,
+    edge,
+    *,
+    l2i: str,
+    seed_node: str | None,
+    pos_string: str | None,
+    neg_string: str | None,
+    model: dict[str, Any],
+    generation_mode: str,
+    width: int,
+    height: int,
+    steps: int,
+    cfg_scale: float,
+    scheduler: str,
+    cfg_rescale_multiplier: float | None = None,
+    strength: float | None = None,
+    init_image: str | None = None,
+    seamless_x: bool = False,
+    seamless_y: bool = False,
+) -> None:
+    """Attach a core_metadata node so generated PNGs embed prompt + parameters."""
+    data: dict[str, Any] = {
+        "generation_mode": generation_mode,
+        "width": width,
+        "height": height,
+        "steps": steps,
+        "cfg_scale": cfg_scale,
+        "scheduler": scheduler,
+        "model": _model_field(model),
+        "rand_device": "cuda",
+        "seamless_x": seamless_x,
+        "seamless_y": seamless_y,
+    }
+    if cfg_rescale_multiplier is not None:
+        data["cfg_rescale_multiplier"] = cfg_rescale_multiplier
+    if strength is not None:
+        data["strength"] = strength
+    if init_image is not None:
+        data["init_image"] = init_image
+    meta = add({"id": _uuid(), "type": "core_metadata", "data": data})
+    if seed_node is not None:
+        edge(seed_node, "value", meta, "seed")
+    if pos_string is not None:
+        edge(pos_string, "value", meta, "positive_prompt")
+    if neg_string is not None:
+        edge(neg_string, "value", meta, "negative_prompt")
+    edge(meta, "metadata", l2i, "metadata")
+
+
 def _attach_modules(
     edges: list[dict[str, Any]],
     add,
@@ -204,7 +255,7 @@ def build_sd1_graph(
         {
             "id": _uuid(),
             "type": "noise",
-            "data": {"width": width, "height": height, "use_seed": True},
+            "data": {"width": width, "height": height, "use_seed": True, "use_cpu": False},
         }
     )
     denoise = add(
@@ -271,6 +322,26 @@ def build_sd1_graph(
         ip_model=ip_model,
         ip_weight=ip_weight,
     )
+    _attach_metadata(
+        edges,
+        add,
+        edge,
+        l2i=l2i,
+        seed_node=seed_node,
+        pos_string=pos_string,
+        neg_string=neg_string,
+        model=model,
+        generation_mode="txt2img" if image_name is None else ("img2img" if mask_image_name is None else "inpaint"),
+        width=width,
+        height=height,
+        steps=steps,
+        cfg_scale=cfg_scale,
+        scheduler=scheduler,
+        strength=strength,
+        init_image=image_name,
+        seamless_x=seamless_x,
+        seamless_y=seamless_y,
+    )
 
     return {"id": _uuid(), "nodes": nodes, "edges": edges}
 
@@ -287,7 +358,7 @@ def build_sdxl_graph(
     height: int = 1024,
     steps: int = 30,
     cfg_scale: float = 5.0,
-    cfg_rescale_multiplier: float = 0.0,
+    cfg_rescale_multiplier: float | None = None,
     scheduler: str = "euler",
     seed: int | None = None,
     strength: float | None = None,
@@ -337,7 +408,7 @@ def build_sdxl_graph(
         {
             "id": _uuid(),
             "type": "noise",
-            "data": {"width": width, "height": height, "use_seed": True},
+            "data": {"width": width, "height": height, "use_seed": True, "use_cpu": False},
         }
     )
     denoise = add(
@@ -346,7 +417,7 @@ def build_sdxl_graph(
             "type": "denoise_latents",
             "data": {
                 "cfg_scale": cfg_scale,
-                "cfg_rescale_multiplier": cfg_rescale_multiplier,
+                "cfg_rescale_multiplier": cfg_rescale_multiplier if cfg_rescale_multiplier is not None else 0.7,
                 "scheduler": scheduler,
                 "steps": steps,
                 "denoising_start": (1.0 - (strength or 0.75)) if image_name else 0.0,
@@ -405,6 +476,27 @@ def build_sdxl_graph(
         ip_image_name=ip_image_name,
         ip_model=ip_model,
         ip_weight=ip_weight,
+    )
+    _attach_metadata(
+        edges,
+        add,
+        edge,
+        l2i=l2i,
+        seed_node=seed_node,
+        pos_string=pos_string,
+        neg_string=neg_string,
+        model=model,
+        generation_mode="sdxl_txt2img" if image_name is None else ("sdxl_img2img" if mask_image_name is None else "sdxl_inpaint"),
+        width=width,
+        height=height,
+        steps=steps,
+        cfg_scale=cfg_scale,
+        scheduler=scheduler,
+        cfg_rescale_multiplier=cfg_rescale_multiplier,
+        strength=strength,
+        init_image=image_name,
+        seamless_x=seamless_x,
+        seamless_y=seamless_y,
     )
 
     return {"id": _uuid(), "nodes": nodes, "edges": edges}
@@ -491,6 +583,24 @@ def build_flux_graph(
         edge(vae_encode, "latents", denoise, "latents")
 
     edge(denoise, "latents", l2i, "latents")
+    _attach_metadata(
+        edges,
+        add,
+        edge,
+        l2i=l2i,
+        seed_node=seed_node,
+        pos_string=pos_string,
+        neg_string=None,
+        model=model,
+        generation_mode="flux_txt2img" if image_name is None else "flux_img2img",
+        width=width,
+        height=height,
+        steps=steps,
+        cfg_scale=cfg_scale,
+        scheduler=scheduler,
+        strength=strength,
+        init_image=image_name,
+    )
 
     return {"id": _uuid(), "nodes": nodes, "edges": edges}
 

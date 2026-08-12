@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.4] - 2026-08-12
+
+### Added
+- Generation metadata embedded in output PNGs (core_metadata node: prompt,
+  seed, steps, cfg, scheduler, model, size, mode) - verified in-file
+
+### Fixed
+- Image quality: GPU noise (was CPU RNG), SDXL cfg_rescale 0.7 (was 0 -
+  the muddy/oversaturated SDXL failure mode), default steps 35
+
 ## [0.1.3] - 2026-08-12
 
 ### Fixed

@@ -193,7 +193,7 @@ export default function GeneratePage() {
   const [outBottom, setOutBottom] = useState(0);
   const [width, setWidth] = useState(1024);
   const [height, setHeight] = useState(1024);
-  const [steps, setSteps] = useState(30);
+  const [steps, setSteps] = useState(35);
   const [cfg, setCfg] = useState(5);
   const [scheduler, setScheduler] = useState("euler");
   const [seed, setSeed] = useState("");
