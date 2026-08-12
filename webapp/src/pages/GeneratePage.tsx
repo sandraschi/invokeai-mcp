@@ -646,7 +646,9 @@ export default function GeneratePage() {
         });
         if (res.success && res.data?.status === "completed") {
           setOutputs(
-            (res.data.outputs ?? []).map((o) => o.url ?? o.image_name),
+            (res.data.outputs ?? []).map(
+              (o) => o.url ?? `/api/invokeai/image/${o.image_name}`,
+            ),
           );
           return;
         }
