@@ -367,10 +367,43 @@ class InvokeAIClient:
         return await self._request("GET", f"/v1/workflows/i/{workflow_id}")
 
     async def save_workflow(self, workflow: dict[str, Any]) -> dict[str, Any]:
-        wid = workflow.get("id")
+        """Create (POST) or update (PATCH) a workflow.
+
+        The engine API takes {"workflow": <Workflow>} on both routes; the
+        v6 GET envelope (workflow_id, created_at, user_id, ...) must not be
+        echoed back, or the engine 500s on unknown fields. The engine also
+        refuses to PATCH workflows in the "default" category - those are
+        recreated as a user copy instead (the response carries the new id).
+        """
+        inner: dict[str, Any] = (
+            workflow["workflow"] if isinstance(workflow.get("workflow"), dict) else workflow
+        )
+        wid: str | None = workflow.get("workflow_id") or workflow.get("id") or inner.get("id")
+        if wid and isinstance(inner.get("meta"), dict) and inner["meta"].get("category") == "default":
+            wid = None
         if wid:
-            return await self._request("PATCH", f"/v1/workflows/i/{wid}", json=workflow)
-        return await self._request("POST", "/v1/workflows", json=workflow)
+            return await self._request(
+                "PATCH", f"/v1/workflows/i/{wid}", json={"workflow": inner}
+            )
+        inner = dict(inner)
+        for key, default in (
+            ("author", ""),
+            ("description", ""),
+            ("version", "1.0.0"),
+            ("contact", ""),
+            ("tags", ""),
+            ("notes", ""),
+        ):
+            inner.setdefault(key, default)
+        inner.setdefault("exposedFields", [])
+        meta = inner.get("meta")
+        if not isinstance(meta, dict):
+            meta = {}
+        if meta.get("category") in (None, "default"):
+            meta = dict(meta)
+            meta["category"] = "user"
+        inner["meta"] = meta
+        return await self._request("POST", "/v1/workflows/", json={"workflow": inner})
 
     async def delete_workflow(self, workflow_id: str) -> None:
         await self._request("DELETE", f"/v1/workflows/i/{workflow_id}")
@@ -407,6 +440,57 @@ class InvokeAIClient:
             if len(entry["nodes"]) < 5:
                 entry["nodes"].append(name)
         return cats
+
+    async def node_templates(self) -> dict[str, Any]:
+        """Editor-ready node templates parsed from the engine's OpenAPI spec.
+
+        Every invocation schema carries per-field: field_kind (input),
+        input kind (value | connection | collection), type, title, default,
+        orig_required. Outputs are not exposed in the spec - consumers use
+        a generic source handle and the engine validates at run time.
+        """
+        data = await self._request("GET", "/openapi.json", allow_error=True)
+        if not isinstance(data, dict):
+            return {}
+        out: dict[str, Any] = {}
+        schemas = data.get("components", {}).get("schemas", {})
+        for name, schema in schemas.items():
+            if schema.get("class") != "invocation" or not schema.get("category"):
+                continue
+            props = schema.get("properties", {})
+            inputs: dict[str, Any] = {}
+            for pname, prop in props.items():
+                if pname in ("id", "is_intermediate", "use_cache"):
+                    continue
+                if prop.get("field_kind") != "input":
+                    continue
+                kind = prop.get("input", "value")
+                if kind == "connection":
+                    inputs[pname] = {
+                        "kind": "connection",
+                        "title": prop.get("title", pname),
+                        "description": prop.get("description", ""),
+                    }
+                else:
+                    inputs[pname] = {
+                        "kind": kind,
+                        "type": prop.get("type", "string"),
+                        "title": prop.get("title", pname),
+                        "description": prop.get("description", ""),
+                        "default": prop.get("default"),
+                        "required": bool(prop.get("orig_required")),
+                        "options": prop.get("enum"),
+                        "ref": prop.get("$ref") or (
+                            prop.get("anyOf", [{}])[0].get("$ref") if prop.get("anyOf") else None
+                        ),
+                    }
+            out[name] = {
+                "title": schema.get("title", name),
+                "category": schema["category"],
+                "description": schema.get("description", ""),
+                "inputs": inputs,
+            }
+        return out
 
     async def upload_image(self, file_bytes: bytes, filename: str) -> dict[str, Any]:
         """Upload an image to the engine gallery (multipart)."""

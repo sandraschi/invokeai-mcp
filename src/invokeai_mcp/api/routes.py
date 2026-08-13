@@ -466,6 +466,21 @@ async def _queue_list_rest(request: Request) -> JSONResponse:
     )
 
 
+async def _invokeai_workflow_templates(request: Request) -> JSONResponse:
+    """GET /api/invokeai/workflow-templates - editor node templates."""
+    from invokeai_mcp.client import InvokeAIError
+
+    try:
+        templates = await get_client().node_templates()
+        return JSONResponse(
+            {"success": True, "templates": templates, "count": len(templates)}
+        )
+    except InvokeAIError as exc:
+        return JSONResponse(
+            {"success": False, "templates": {}, "count": 0, "error": exc.message}
+        )
+
+
 routes = [
     Route("/api/health", _health),
     Route("/api/dashboard", _dashboard),
@@ -489,6 +504,7 @@ routes = [
     Route("/api/invokeai/plugins/install", _invokeai_plugin_action, methods=["POST"]),
     Route("/api/invokeai/plugins/reload", _invokeai_plugin_action, methods=["POST"]),
     Route("/api/invokeai/plugins/{name}", _invokeai_plugin_action, methods=["DELETE"]),
+    Route("/api/invokeai/workflow-templates", _invokeai_workflow_templates),
     Route("/api/invokeai/queue/status", _queue_status_rest),
     Route("/api/invokeai/queue/list", _queue_list_rest),
     Route("/api/invokeai/generate", _generate, methods=["POST"]),
