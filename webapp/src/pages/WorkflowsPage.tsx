@@ -4,7 +4,7 @@ import { EmptyState, PageHeader, Spinner } from "../components/ui";
 import { apiGet, apiPost } from "../lib/api";
 
 interface WorkflowRec {
-  id: string;
+  workflow_id: string;
   name?: string;
   description?: string;
   category?: string;
@@ -65,7 +65,7 @@ export default function WorkflowsPage() {
         "/invokeai/workflows",
         {
           operation: "get",
-          workflow_id: w.id,
+          workflow_id: w.workflow_id,
         },
       );
       setJson(JSON.stringify(res.data ?? res, null, 2));
@@ -79,7 +79,7 @@ export default function WorkflowsPage() {
       operation: "delete",
       workflow_id: id,
     });
-    if (selected?.id === id) setSelected(null);
+    if (selected?.workflow_id === id) setSelected(null);
     void load();
   };
 
@@ -107,20 +107,20 @@ export default function WorkflowsPage() {
           <div className="space-y-2">
             {workflows.map((w) => (
               <div
-                key={w.id}
+                key={w.workflow_id}
                 className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-900/60 px-4 py-3"
                 data-testid="workflow-row"
               >
                 <button onClick={() => open(w)} className="min-w-0 text-left">
                   <div className="truncate text-sm font-medium text-slate-200">
-                    {w.name ?? w.id}
+                    {w.name ?? w.workflow_id}
                   </div>
                   <div className="truncate text-[11px] text-slate-500">
-                    {w.description ?? w.id}
+                    {w.description ?? w.workflow_id}
                   </div>
                 </button>
                 <button
-                  onClick={() => remove(w.id)}
+                  onClick={() => remove(w.workflow_id)}
                   className="ml-2 shrink-0 text-slate-500 hover:text-red-400"
                   title="Delete"
                 >
@@ -135,7 +135,7 @@ export default function WorkflowsPage() {
             <div className="mb-2 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-slate-200">
                 {selected
-                  ? `Edit: ${selected.name ?? selected.id}`
+                  ? `Edit: ${selected.name ?? selected.workflow_id}`
                   : "New / edit workflow JSON"}
               </h2>
               <button
