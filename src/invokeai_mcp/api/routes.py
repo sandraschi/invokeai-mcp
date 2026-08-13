@@ -249,6 +249,36 @@ async def _invokeai_upload(request: Request) -> JSONResponse:
     return JSONResponse({"success": True, "data": result})
 
 
+async def _hf_status(request: Request) -> JSONResponse:
+    client = get_client()
+    try:
+        return JSONResponse({"status": await client.hf_status()})
+    except Exception as exc:  # pragma: no cover - degraded path
+        return JSONResponse({"status": "unknown", "error": str(exc)})
+
+
+async def _hf_login(request: Request) -> JSONResponse:
+    client = get_client()
+    try:
+        body = await request.json()
+        token = (body.get("token") or "").strip()
+        if not token or not token.startswith("hf_"):
+            return JSONResponse({"success": False, "error": "A valid hf_... token is required."}, status_code=400)
+        status = await client.hf_login(token)
+        return JSONResponse({"success": True, "status": status})
+    except Exception as exc:
+        return JSONResponse({"success": False, "error": str(exc)}, status_code=400)
+
+
+async def _hf_logout(request: Request) -> JSONResponse:
+    client = get_client()
+    try:
+        await client.hf_logout()
+        return JSONResponse({"success": True, "status": "invalid"})
+    except Exception as exc:
+        return JSONResponse({"success": False, "error": str(exc)}, status_code=400)
+
+
 async def _invokeai_models(request: Request) -> JSONResponse:
     """Model list for the webapp Generate/Models pages."""
     client = get_client()
@@ -378,6 +408,9 @@ routes = [
     Route("/api/llm/chat", _llm_chat, methods=["POST"]),
     Route("/api/invokeai/status", _invokeai_status),
     Route("/api/invokeai/models", _invokeai_models),
+    Route("/api/invokeai/hf/status", _hf_status),
+    Route("/api/invokeai/hf/login", _hf_login, methods=["POST"]),
+    Route("/api/invokeai/hf/logout", _hf_logout, methods=["DELETE"]),
     Route("/api/invokeai/image/{name}", _invokeai_image),
     Route("/api/invokeai/upload", _invokeai_upload, methods=["POST"]),
     Route("/api/invokeai/plugins", _invokeai_plugins),

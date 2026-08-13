@@ -232,14 +232,25 @@ class InvokeAIClient:
         return await self._request("GET", f"/v2/models/i/{key}")
 
     async def install_model(
-        self, source: str, *, config: dict[str, Any] | None = None, inplace: bool = False
+        self, source: str, *, config: dict[str, Any] | None = None, inplace: bool = False, access_token: str | None = None
     ) -> dict[str, Any]:
-        return await self._request(
-            "POST",
-            "/v2/models/install",
-            params={"source": source, "inplace": str(inplace).lower()},
-            json=config or {},
-        )
+        params: dict[str, Any] = {"source": source, "inplace": str(inplace).lower()}
+        if access_token:
+            params["access_token"] = access_token
+        return await self._request("POST", "/v2/models/install", params=params, json=config or {})
+
+    # -------------------------------------------------------- huggingface login
+    async def hf_status(self) -> str:
+        """HFTokenStatus: valid | invalid | unknown."""
+        data = await self._request("GET", "/v2/models/hf_login")
+        return data if isinstance(data, str) else str(data or "invalid")
+
+    async def hf_login(self, token: str) -> str:
+        data = await self._request("POST", "/v2/models/hf_login", json={"token": token})
+        return data if isinstance(data, str) else str(data or "invalid")
+
+    async def hf_logout(self) -> None:
+        await self._request("DELETE", "/v2/models/hf_login")
 
     async def update_model(self, key: str, config: dict[str, Any]) -> dict[str, Any]:
         return await self._request("PATCH", f"/v2/models/i/{key}", json=config)

@@ -8,7 +8,9 @@
 
 ### Fixed
 - Image quality: GPU noise (was CPU RNG), SDXL cfg_rescale 0.7 (was 0 -
-  the muddy/oversaturated SDXL failure mode), default steps 35
+  the muddy/oversaturated SDXL failure mode), default steps 35, scheduler
+  dpmpp_2m_sde; Juggernaut XL v9 installed as the structural-quality SDXL
+  checkpoint (SDXL base 1.0 is a 2023 model - malformed geometry is model-level)
 
 ## [0.1.3] - 2026-08-12
 

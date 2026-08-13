@@ -52,6 +52,23 @@ precision: float16
 Without the VRAM cap the engine assumes it owns all 24 GB and OOMs during
 generation when other apps (Discord, Notion, Edge, Steam) hold ~11 GB.
 
+## HuggingFace integration
+
+Two ways to authenticate with HuggingFace for gated model downloads:
+
+| Method | Where | Persists |
+|--------|-------|----------|
+| **Engine login** | Settings page > HuggingFace (or Models > HuggingFace tab) - token field | Engine HF cache (recommended; enables gated repos) |
+| `INVOKEAI_ACCESS_TOKEN` | `.env` / mcpServers env | Env only; passed per-install as Bearer |
+
+Token: create at https://huggingface.co/settings/tokens (read scope is enough).
+Gated repos (FLUX.1-dev/schnell, SD3.5, many community checkpoints) additionally
+require accepting the repo license once in the browser on huggingface.co.
+
+REST surface: `GET /api/invokeai/hf/status`, `POST /api/invokeai/hf/login` `{token}`,
+`DELETE /api/invokeai/hf/logout` - mirrored as Settings > HuggingFace and the
+Models page HuggingFace tab.
+
 ## Queue destination
 
 Enqueued batches carry `destination: "mcp"` (or `"webapp"` for UI-triggered

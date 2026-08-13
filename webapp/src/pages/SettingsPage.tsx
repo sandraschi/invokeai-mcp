@@ -1,5 +1,5 @@
 import { ArrowRight, Cpu, Zap } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { PageHeader, SectionCard, StatusPill } from "../components/ui";
 import { apiGet } from "../lib/api";
@@ -22,7 +22,70 @@ export default function SettingsPage() {
   } = useLlmStore();
   const [invokeaiUrl, setInvokeaiUrl] = useState("");
   const [version, setVersion] = useState("");
+  const [hfStatus, setHfStatus] = useState("unknown");
+  const [hfToken, setHfToken] = useState("");
+  const [hfBusy, setHfBusy] = useState(false);
+  const [hfMsg, setHfMsg] = useState("");
+  const [hfErr, setHfErr] = useState("");
 
+  const loadHf = useCallback(async () => {
+    try {
+      const r = await fetch("/api/invokeai/hf/status");
+      if (r.ok) {
+        const j = (await r.json()) as { status: string };
+        setHfStatus(j.status);
+      }
+    } catch {
+      /* degraded */
+    }
+  }, []);
+
+  useEffect(() => {
+    loadHf();
+  }, [loadHf]);
+
+  const hfLogin = async () => {
+    setHfBusy(true);
+    setHfErr("");
+    setHfMsg("");
+    try {
+      const r = await fetch("/api/invokeai/hf/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: hfToken.trim() }),
+      });
+      const j = (await r.json()) as {
+        success: boolean;
+        status?: string;
+        error?: string;
+      };
+      if (j.success) {
+        setHfStatus(j.status ?? "unknown");
+        setHfMsg(
+          j.status === "valid"
+            ? "Logged in - gated models now installable."
+            : "Token accepted (unverified).",
+        );
+        setHfToken("");
+      } else {
+        setHfErr(j.error ?? "login failed");
+      }
+    } catch (e) {
+      setHfErr(e instanceof Error ? e.message : "login failed");
+    } finally {
+      setHfBusy(false);
+    }
+  };
+
+  const hfLogout = async () => {
+    try {
+      await fetch("/api/invokeai/hf/logout", { method: "DELETE" });
+      setHfStatus("invalid");
+      setHfMsg("Logged out.");
+    } catch {
+      /* ignore */
+    }
+  };
   useEffect(() => {
     const load = async () => {
       try {
@@ -180,6 +243,60 @@ export default function SettingsPage() {
               Install Ollama or LM Studio to enable AI features.
             </p>
           )}
+        </SectionCard>
+
+        <SectionCard title="HuggingFace" testid="settings-hf">
+          <div className="mb-3 flex items-center gap-3">
+            <StatusPill
+              ok={hfStatus === "valid"}
+              label={
+                hfStatus === "valid"
+                  ? "Logged in"
+                  : hfStatus === "unknown"
+                    ? "Token present, unverified"
+                    : "Anonymous"
+              }
+            />
+            <span className="text-xs text-slate-500" data-testid="hf-status">
+              {hfStatus === "valid"
+                ? "Gated models (FLUX.1, SD3.5) are installable."
+                : "Login to install gated HuggingFace models."}
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="password"
+              value={hfToken}
+              onChange={(e) => setHfToken(e.target.value)}
+              placeholder="hf_... (HuggingFace access token)"
+              className="flex-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm outline-none focus:border-amber-500/60"
+              data-testid="hf-token-input"
+            />
+            <button
+              onClick={hfLogin}
+              disabled={hfBusy || !hfToken.trim()}
+              className="shrink-0 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-400 disabled:opacity-40"
+              data-testid="hf-login"
+            >
+              {hfBusy ? "Logging in..." : "Login"}
+            </button>
+            {hfStatus === "valid" && (
+              <button
+                onClick={hfLogout}
+                className="shrink-0 rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-400 hover:bg-slate-800"
+                data-testid="hf-logout"
+              >
+                Logout
+              </button>
+            )}
+          </div>
+          {hfMsg && <p className="mt-2 text-xs text-emerald-300">{hfMsg}</p>}
+          {hfErr && <p className="mt-2 text-xs text-red-300">{hfErr}</p>}
+          <p className="mt-3 text-[11px] leading-relaxed text-slate-600">
+            The token is stored by the InvokeAI engine (HF login) and used for
+            gated model downloads. Create one at huggingface.co/settings/tokens
+            (read scope is enough).
+          </p>
         </SectionCard>
 
         <SectionCard title="About" testid="settings-about">

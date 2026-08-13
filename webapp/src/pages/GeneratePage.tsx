@@ -195,7 +195,7 @@ export default function GeneratePage() {
   const [height, setHeight] = useState(1024);
   const [steps, setSteps] = useState(35);
   const [cfg, setCfg] = useState(5);
-  const [scheduler, setScheduler] = useState("euler");
+  const [scheduler, setScheduler] = useState("dpmpp_2m_sde");
   const [seed, setSeed] = useState("");
   const [strength, setStrength] = useState(0.75);
   const [history, setHistory] = useState<string[]>(() => {
@@ -931,7 +931,19 @@ export default function GeneratePage() {
                 <label className={labelCls}>Model</label>
                 <select
                   value={modelKey}
-                  onChange={(e) => setModelKey(e.target.value)}
+                  onChange={(e) => {
+                    const key = e.target.value;
+                    setModelKey(key);
+                    const m = models.find((x) => x.key === key);
+                    if (m?.base === "flux") {
+                      setSteps(4);
+                      setCfg(1);
+                      setScheduler("euler");
+                    } else if (m?.base === "sdxl") {
+                      setSteps(35);
+                      setCfg(5);
+                    }
+                  }}
                   className={inputCls}
                   data-testid="model-select"
                 >
