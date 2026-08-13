@@ -27,6 +27,65 @@ export default function SettingsPage() {
   const [hfBusy, setHfBusy] = useState(false);
   const [hfMsg, setHfMsg] = useState("");
   const [hfErr, setHfErr] = useState("");
+  const [engineRunning, setEngineRunning] = useState(false);
+  const [engineVersion, setEngineVersion] = useState("");
+  const [engineUrl, setEngineUrl] = useState("");
+  const [engineBusy, setEngineBusy] = useState(false);
+  const [engineMsg, setEngineMsg] = useState("");
+
+  const loadEngine = useCallback(async () => {
+    try {
+      const r = await fetch("/api/invokeai/engine/status");
+      if (r.ok) {
+        const j = (await r.json()) as {
+          running: boolean;
+          version?: string | null;
+          invokeai_url?: string;
+        };
+        setEngineRunning(j.running);
+        setEngineVersion(j.version ?? "");
+        setEngineUrl(j.invokeai_url ?? "");
+      }
+    } catch {
+      /* degraded */
+    }
+  }, []);
+
+  useEffect(() => {
+    loadEngine();
+  }, [loadEngine]);
+
+  const engineStart = async () => {
+    setEngineBusy(true);
+    setEngineMsg("");
+    try {
+      const r = await fetch("/api/invokeai/engine/start", { method: "POST" });
+      const j = (await r.json()) as {
+        success: boolean;
+        message?: string;
+        error?: string;
+      };
+      setEngineMsg(
+        j.message ?? (j.success ? "Engine starting." : "Start failed."),
+      );
+      await new Promise((res) => setTimeout(res, 8000));
+      await loadEngine();
+    } finally {
+      setEngineBusy(false);
+    }
+  };
+
+  const engineStop = async () => {
+    setEngineBusy(true);
+    setEngineMsg("");
+    try {
+      await fetch("/api/invokeai/engine/stop", { method: "POST" });
+      setEngineRunning(false);
+      setEngineMsg("Engine stopped.");
+    } finally {
+      setEngineBusy(false);
+    }
+  };
 
   const loadHf = useCallback(async () => {
     try {
@@ -243,6 +302,53 @@ export default function SettingsPage() {
               Install Ollama or LM Studio to enable AI features.
             </p>
           )}
+        </SectionCard>
+
+        <SectionCard title="Engine control" testid="settings-engine-control">
+          <div className="mb-3 flex items-center gap-3">
+            <StatusPill
+              ok={engineRunning}
+              label={engineRunning ? `Running (v${engineVersion})` : "Stopped"}
+            />
+            <a
+              href={engineUrl || "http://127.0.0.1:9090"}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-amber-400 hover:text-amber-300"
+            >
+              Open InvokeAI canvas UI
+            </a>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={engineStart}
+              disabled={engineBusy || engineRunning}
+              className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-400 disabled:opacity-40"
+              data-testid="engine-start"
+            >
+              {engineBusy ? "..." : "Start engine"}
+            </button>
+            <button
+              onClick={engineStop}
+              disabled={engineBusy || !engineRunning}
+              className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-300 hover:bg-red-500/20 disabled:opacity-40"
+              data-testid="engine-stop"
+            >
+              Stop engine
+            </button>
+          </div>
+          {engineMsg && (
+            <p className="mt-2 text-xs text-emerald-300">{engineMsg}</p>
+          )}
+          <p
+            className="mt-3 text-[11px] leading-relaxed text-slate-600"
+            data-testid="engine-note"
+          >
+            The engine (InvokeAI 6.13.7, canvas GUI on 9090) is a separate
+            process. This card starts, stops, and reports it - generation tools
+            show 'offline' while it is stopped. Models live on
+            N:\InvokeAI-models.
+          </p>
         </SectionCard>
 
         <SectionCard title="HuggingFace" testid="settings-hf">

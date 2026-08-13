@@ -279,6 +279,75 @@ async def _hf_logout(request: Request) -> JSONResponse:
         return JSONResponse({"success": False, "error": str(exc)}, status_code=400)
 
 
+async def _engine_status(request: Request) -> JSONResponse:
+    """Engine lifecycle status: running, pid, version, uptime."""
+    client = get_client()
+    import subprocess
+
+    running = False
+    pid = None
+    try:
+        version = await client.app_version()
+        running = True
+    except Exception:
+        version = {}
+    if running:
+        try:
+            out = subprocess.run(
+                ["tasklist", "/FI", "IMAGENAME eq invokeai-web.exe", "/FO", "CSV", "/NH"],
+                capture_output=True, text=True, timeout=10,
+            ).stdout
+            if "invokeai-web.exe" in out:
+                pid = int(out.split('"')[3])
+        except Exception:
+            pid = None
+    return JSONResponse(
+        {
+            "running": running,
+            "pid": pid,
+            "version": version.get("version") if isinstance(version, dict) else None,
+            "invokeai_url": get_settings().invokeai_url,
+        }
+    )
+
+
+async def _engine_start(request: Request) -> JSONResponse:
+    """Spawn the InvokeAI engine (detached, logs to D:\\InvokeAI\\engine.log)."""
+    import subprocess
+
+    client = get_client()
+    try:
+        if await client.ping():
+            return JSONResponse({"success": True, "message": "Engine already running."})
+        log("INFO", "engine", "starting engine via start-engine.ps1")
+        subprocess.Popen(
+            [
+                "powershell.exe",
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                r"D:\InvokeAI\start-engine.ps1",
+            ],
+            creationflags=0x00000008 | 0x08000000,  # DETACHED_PROCESS | CREATE_NO_WINDOW
+        )
+        return JSONResponse({"success": True, "message": "Engine starting - health flips when ready."})
+    except Exception as exc:
+        return JSONResponse({"success": False, "error": str(exc)}, status_code=500)
+
+
+async def _engine_stop(request: Request) -> JSONResponse:
+    """Kill the InvokeAI engine process."""
+    import subprocess
+
+    try:
+        subprocess.run(["taskkill", "/F", "/IM", "invokeai-web.exe", "/T"], capture_output=True, timeout=30)
+        log("WARNING", "engine", "engine stopped")
+        return JSONResponse({"success": True, "message": "Engine stopped."})
+    except Exception as exc:
+        return JSONResponse({"success": False, "error": str(exc)}, status_code=500)
+
+
 async def _invokeai_models(request: Request) -> JSONResponse:
     """Model list for the webapp Generate/Models pages."""
     client = get_client()
@@ -411,6 +480,9 @@ routes = [
     Route("/api/invokeai/hf/status", _hf_status),
     Route("/api/invokeai/hf/login", _hf_login, methods=["POST"]),
     Route("/api/invokeai/hf/logout", _hf_logout, methods=["DELETE"]),
+    Route("/api/invokeai/engine/status", _engine_status),
+    Route("/api/invokeai/engine/start", _engine_start, methods=["POST"]),
+    Route("/api/invokeai/engine/stop", _engine_stop, methods=["POST"]),
     Route("/api/invokeai/image/{name}", _invokeai_image),
     Route("/api/invokeai/upload", _invokeai_upload, methods=["POST"]),
     Route("/api/invokeai/plugins", _invokeai_plugins),
