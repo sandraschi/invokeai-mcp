@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.5] - 2026-08-12
+
+### Added
+- CogView4-6B graph builder + install (Apache-2.0, no token) - live-verified
+- Engine lifecycle control: Settings > Engine control (start/stop/status,
+  canvas UI link); REST /api/invokeai/engine/status|start|stop
+- HuggingFace token login: Settings + Models HF tab (engine-stored token,
+  gated repos installable); REST /api/invokeai/hf/status|login|logout
+- Models page horizontal tabs: Local | HuggingFace
+- Model catalog documented in README (2026 generation, VRAM/license/fit)
+- models_dir moved to N:\InvokeAI-models (715 GB free); Juggernaut XL v9
+  default (2023 SDXL base removed)
+- Generate: model-aware defaults (flux -> 4 steps / cfg 1.0)
+
 ## [0.1.4] - 2026-08-12
 
 ### Added

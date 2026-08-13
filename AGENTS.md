@@ -26,7 +26,7 @@ models, gallery, boards, workflows + SOTA dark webapp. Onboarding required
 | `src/invokeai_mcp/client.py` | Typed InvokeAI REST client |
 | `src/invokeai_mcp/graphs.py` | Graph builders (sd1/sdxl/flux, inpaint, esrgan upscale) |
 | `src/invokeai_mcp/tools/` | 7 portmanteaus + 4 Prefab cards + help/shutdown |
-| `src/invokeai_mcp/api/routes.py` | REST routes (health, dashboard, skills, tools, logs, llm, generate, queue) |
+| `src/invokeai_mcp/api/routes.py` | REST routes (health, dashboard, skills, tools, logs, llm, generate, queue, upload, image proxy, plugins, hf login, engine control) |
 | `src/invokeai_mcp/skills/invokeai-expert/` | SKILL.md |
 | `webapp/` | Vite React + Tailwind dark UI + Playwright e2e |
 
@@ -42,7 +42,8 @@ just mcpb-pack
 ## Tool surface (portmanteau)
 
 invokeai_generate (txt2img/img2img/inpaint/upscale/outpaint + seamless/
-controlnet/ip-adapter modules - outpaint via webapp pad+mask, API inpaint), invokeai_queue
+controlnet/ip-adapter modules + cogview4 family - outpaint via webapp pad+mask),
+engine control (Settings) + HF token login (Settings + Models HF tab), invokeai_queue
 (status/list/item_status/result/cancel/clear/resume/pause), invokeai_models
 (list/get/install/installs/update/delete/stats), invokeai_gallery
 (list/search/get/metadata/download/delete/star/unstar), invokeai_boards,

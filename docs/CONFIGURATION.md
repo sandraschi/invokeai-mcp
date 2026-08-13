@@ -39,6 +39,21 @@ Copy `.env.example` to `.env` in the repo root, or set them in
 | 11155 | webapp frontend (Vite dev) | same |
 | 9090 | InvokeAI engine (owned by InvokeAI, not this repo) | n/a |
 
+## Engine process control
+
+The engine is a separate process (invokeai-web). Control it from the webapp
+Settings > Engine control (start/stop/status), or REST:
+
+- `GET  /api/invokeai/engine/status` - running, pid, version
+- `POST /api/invokeai/engine/start` - spawn detached (logs to D:\InvokeAI\engine.log)
+- `POST /api/invokeai/engine/stop` - kill the engine process
+
+## Models location
+
+Models live on **N:\InvokeAI-models** (engine `models_dir` in invokeai.yaml) -
+715 GB free; D: holds only the install. Move the dir + update `models_dir`
+when relocating.
+
 ## Engine-side tuning (invokeai.yaml)
 
 The InvokeAI engine reads `D:\InvokeAI\invokeai.yaml` (or the install root).

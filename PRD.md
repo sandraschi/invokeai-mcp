@@ -16,7 +16,8 @@ InvokeAI creative engine (SD1.5/SDXL/Flux/SD3.5/Qwen Image) on the user's GPU.
 5. Workflow library CRUD
 6. SOTA webapp (catch-them-all pages) with declared MOCK-until-onboarded UX;
    Generate page: 8 mode tabs, 60-style/24-material catalog, batch generation
-   with live progress, AI prompt refiner; Plugins page (node packs + catalog)
+   with live progress, AI prompt refiner; Plugins page (node packs + catalog);
+   engine lifecycle control; HuggingFace token login; CogView4 support
 7. MCPB + dual transport (stdio/HTTP) + Prefab cards
 
 ## Non-goals (v0.1)
