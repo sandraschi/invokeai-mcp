@@ -13,6 +13,7 @@ from functools import lru_cache
 from typing import Any
 
 _DATA = pathlib.Path(__file__).parent / "data" / "styles.json"
+_COMMUNITY_DATA = pathlib.Path(__file__).parent / "data" / "community_styles.json"
 
 
 @lru_cache(maxsize=1)
@@ -22,13 +23,36 @@ def load_styles() -> list[dict[str, Any]]:
     return json.loads(_DATA.read_text(encoding="utf-8"))
 
 
+@lru_cache(maxsize=1)
+def load_community() -> list[dict[str, Any]]:
+    """Community-imported A1111 style packs (fetch-community-styles.py)."""
+    if not _COMMUNITY_DATA.exists():
+        return []
+    return json.loads(_COMMUNITY_DATA.read_text(encoding="utf-8"))
+
+
 def list_styles() -> list[dict[str, Any]]:
     """All style presets (id, name, prompt, negative, cfg, steps)."""
     return load_styles()
 
 
+def community_styles(query: str | None = None, limit: int = 200) -> list[dict[str, Any]]:
+    """Community pack styles, optionally filtered by free text."""
+    entries = load_community()
+    if query:
+        q = query.lower()
+        entries = [
+            e for e in entries
+            if q in e["id"].lower() or q in e["name"].lower() or q in e["prompt"].lower()
+        ]
+    return entries[:limit]
+
+
 def get_style(style_id: str) -> dict[str, Any] | None:
     for s in load_styles():
+        if s["id"] == style_id:
+            return s
+    for s in load_community():
         if s["id"] == style_id:
             return s
     return None

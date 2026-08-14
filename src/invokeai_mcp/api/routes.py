@@ -468,16 +468,33 @@ async def _queue_list_rest(request: Request) -> JSONResponse:
 
 
 async def _invokeai_styles(request: Request) -> JSONResponse:
-    """GET /api/invokeai/styles - style catalog (list, ?query=, ?limit=)."""
-    from invokeai_mcp.styles import list_styles, search_styles
+    """GET /api/invokeai/styles - style catalog (list, ?query=, ?community=1)."""
+    from invokeai_mcp.styles import (
+        community_styles,
+        list_styles,
+        load_community,
+        search_styles,
+    )
 
     query = request.query_params.get("query")
-    limit = min(int(request.query_params.get("limit", 100)), 200)
+    limit = min(int(request.query_params.get("limit", 100)), 300)
     if query:
         styles = search_styles(query, limit=limit)
+        if request.query_params.get("community") == "1":
+            styles = styles + [s for s in community_styles(query, limit=limit) if s["id"] not in {x["id"] for x in styles}]
     else:
         styles = list_styles()[:limit]
-    return JSONResponse({"styles": styles, "count": len(styles), "total": len(list_styles())})
+        if request.query_params.get("community") == "1":
+            styles = styles + community_styles(None, limit=limit)
+    total = len(list_styles()) + len(load_community())
+    return JSONResponse(
+        {
+            "styles": styles,
+            "count": len(styles),
+            "total": total,
+            "community": request.query_params.get("community") == "1",
+        }
+    )
 
 
 async def _invokeai_artists(request: Request) -> JSONResponse:

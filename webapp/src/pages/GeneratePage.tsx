@@ -163,6 +163,7 @@ export default function GeneratePage() {
   const configured = useHealthStore((s) => s.configured);
   const { selectedProvider, selectedModel } = useLlmStore();
   const [styles, setStyles] = useState(STYLES_CATALOG);
+  const [includeCommunity, setIncludeCommunity] = useState(false);
   useEffect(() => {
     apiGet<{
       styles?: {
@@ -173,14 +174,14 @@ export default function GeneratePage() {
         cfg?: number | null;
         steps?: number | null;
       }[];
-    }>("/invokeai/styles")
+    }>(`/invokeai/styles?community=${includeCommunity ? "1" : "0"}`)
       .then((d) => {
         if (d.styles?.length) setStyles(d.styles as typeof STYLES_CATALOG);
       })
       .catch(() => {
         /* backend offline - bundled catalog */
       });
-  }, []);
+  }, [includeCommunity]);
   const [models, setModels] = useState<ModelOption[]>([]);
   const [controlModels, setControlModels] = useState<ModelOption[]>([]);
   const [ipModels, setIpModels] = useState<ModelOption[]>([]);
@@ -1440,7 +1441,7 @@ export default function GeneratePage() {
               )}
               {batchPanelOpen && (
                 <>
-                  <div className="mb-2">
+                  <div className="mb-2 flex items-center gap-3">
                     <input
                       value={styleFilter}
                       onChange={(e) => setStyleFilter(e.target.value)}
@@ -1448,6 +1449,16 @@ export default function GeneratePage() {
                       className={`${inputCls} max-w-xs`}
                       data-testid="style-filter"
                     />
+                    <label className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                      <input
+                        type="checkbox"
+                        checked={includeCommunity}
+                        onChange={(e) => setIncludeCommunity(e.target.checked)}
+                        className="accent-amber-500"
+                        data-testid="community-styles-toggle"
+                      />
+                      Include community pack
+                    </label>
                   </div>
                   <div className="mb-3">
                     <div className="mb-1.5 flex items-center justify-between">
