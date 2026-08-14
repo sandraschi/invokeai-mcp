@@ -531,35 +531,76 @@ async def _gallery_list_rest(request: Request) -> JSONResponse:
         if not images:
             return JSONResponse({"images": [], "count": 0, "total": 0, "has_more": False})
 
+        # Exact attribution: image.session_id == the queue item's session_id;
+        # the registry stores which styles each item ran with.
+        from invokeai_mcp.attribution import session_map
+
+        attrib = await session_map()
+        session_items = await client.queue_list(limit=1000)
+        session_to_item: dict[str, int] = {}
+        for it in session_items:
+            sid = it.get("session_id")
+            iid = it.get("item_id")
+            if sid and isinstance(iid, int):
+                session_to_item[str(sid)] = iid
+
+        def _styles_for(image: dict) -> list[str]:
+            sid = image.get("session_id")
+            if not sid:
+                return []
+            item = session_to_item.get(str(sid))
+            if item is None:
+                return []
+            entry = attrib.get(str(item))
+            return list(entry.get("styles", [])) if entry else []
+
+        for image in images:
+            image["styles"] = _styles_for(image)
+
         if starred_only:
             images = [i for i in images if i.get("starred")]
 
         styles_matched: list[str] = []
         if style_ids:
-            styles_map = {sid: get_style(sid) for sid in style_ids}
-            valid = {sid: s for sid, s in styles_map.items() if s}
+            style_set = set(style_ids)
+            exact: list[dict] = []
+            rest: list[dict] = []
+            for image in images:
+                if any(s in style_set for s in image.get("styles", [])):
+                    exact.append(image)
+                else:
+                    rest.append(image)
+            if exact:
+                images = exact
+                styles_matched = [s for s in style_ids if any(
+                    s in img.get("styles", []) for img in images
+                )]
+            else:
+                # fallback: prompt-signature matching for pre-registry images
+                styles_map = {sid: get_style(sid) for sid in style_ids}
+                valid = {sid: s for sid, s in styles_map.items() if s}
 
-            async def _prompt_of(image: dict) -> str:
-                try:
-                    meta = await client.get_image_metadata(image["image_name"])
-                    return str(meta.get("positive_prompt") or "")
-                except Exception:
-                    return ""
+                async def _prompt_of(image: dict) -> str:
+                    try:
+                        meta = await client.get_image_metadata(image["image_name"])
+                        return str(meta.get("positive_prompt") or "")
+                    except Exception:
+                        return ""
 
-            sem = asyncio.Semaphore(8)
+                sem = asyncio.Semaphore(8)
 
-            async def _matched(image: dict) -> bool:
-                async with sem:
-                    prompt = await _prompt_of(image)
-                for sid, s in valid.items():
-                    if match_style_for_prompt(s, prompt):
-                        if sid not in styles_matched:
-                            styles_matched.append(sid)
-                        return True
-                return False
+                async def _matched(image: dict) -> bool:
+                    async with sem:
+                        prompt = await _prompt_of(image)
+                    for sid, s in valid.items():
+                        if match_style_for_prompt(s, prompt):
+                            if sid not in styles_matched:
+                                styles_matched.append(sid)
+                            return True
+                    return False
 
-            results = await asyncio.gather(*(_matched(i) for i in images))
-            images = [i for i, keep in zip(images, results, strict=True) if keep]
+                results = await asyncio.gather(*(_matched(i) for i in rest))
+                images = [i for i, keep in zip(rest, results, strict=True) if keep]
 
         if sort == "name":
             images.sort(key=lambda i: i.get("image_name", ""), reverse=(order == "DESC"))

@@ -29,6 +29,7 @@ interface GalleryImage {
   starred?: boolean;
   board_id?: string | null;
   created_at?: string;
+  styles?: string[];
 }
 
 interface Board {
@@ -415,6 +416,24 @@ export default function GalleryPage() {
                   <MockBadge />
                 </div>
               )}
+              {!mock && img.styles && img.styles.length > 0 && (
+                <div className="absolute right-1.5 top-1.5 flex max-w-[80%] flex-col items-end gap-0.5">
+                  {img.styles.slice(0, 3).map((s) => (
+                    <span
+                      key={s}
+                      className="rounded bg-slate-950/80 px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-amber-300"
+                      title="Generated with this style"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                  {img.styles.length > 3 && (
+                    <span className="rounded bg-slate-950/80 px-1.5 py-0.5 text-[9px] text-slate-400">
+                      +{img.styles.length - 3}
+                    </span>
+                  )}
+                </div>
+              )}
               {!mock && (
                 <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-slate-950/90 to-transparent p-2 opacity-0 transition group-hover:opacity-100">
                   <button
@@ -462,9 +481,23 @@ export default function GalleryPage() {
               className="max-h-[80vh] w-full object-contain"
             />
             <div className="flex items-center justify-between bg-slate-900 px-4 py-3">
-              <code className="text-xs text-slate-400">
-                {selected.image_name}
-              </code>
+              <div className="flex min-w-0 items-center gap-2">
+                {selected.styles && selected.styles.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {selected.styles.map((s) => (
+                      <span
+                        key={s}
+                        className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-amber-300"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <code className="truncate text-xs text-slate-400">
+                  {selected.image_name}
+                </code>
+              </div>
               <div className="flex items-center gap-2">
                 {selected.starred && (
                   <Star className="h-3.5 w-3.5 fill-amber-300 text-amber-300" />

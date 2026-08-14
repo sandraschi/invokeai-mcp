@@ -54,9 +54,12 @@ class FakeClient:
 
 
 @pytest.fixture
-def fake(monkeypatch):
+def fake(monkeypatch, tmp_path):
     fc = FakeClient()
     monkeypatch.setattr(runtime, "_client", fc)
+    import invokeai_mcp.attribution as attribution
+
+    monkeypatch.setattr(attribution, "_REGISTRY", tmp_path / "attribution.json")
     return fc
 
 
@@ -84,6 +87,16 @@ async def test_generate_multi_style_enqueues_one_per_style(fake):
     ]
     assert prompts[0].startswith("a lone detective in the rain, photorealistic")
     assert "watercolor" in prompts[1]
+
+    from invokeai_mcp.attribution import session_map
+
+    attrib = await session_map()
+    per_item = {k: a["styles"] for k, a in sorted(attrib.items())}
+    assert per_item == {
+        "1": ["photorealistic"],
+        "2": ["watercolor"],
+        "3": ["film-noir"],
+    }, f"per-item attribution wrong: {per_item}"
 
 
 async def test_generate_multi_style_random_seeds(fake):

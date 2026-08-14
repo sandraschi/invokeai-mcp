@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.8] - 2026-08-12
+
+### Added
+- Exact per-image style attribution: enqueue-time registry
+  (data/attribution.json, item_id -> styles), joined through
+  image.session_id == queue item session_id
+- Gallery feed returns per-image styles[]; style filter matches exactly,
+  falling back to prompt-signature matching for pre-registry images
+- Style chips on gallery tiles + lightbox (up to 3, +N overflow)
+- Fixed per-item attribution bug (was recording the full style set on
+  every job of a batch)
+
 ## [0.1.7] - 2026-08-12
 
 ### Added

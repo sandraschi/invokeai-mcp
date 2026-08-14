@@ -223,7 +223,11 @@ async def invokeai_generate(
         items: list[int] = []
         batch_ids: list[str] = []
         queue_id = settings.queue_id
-        for job in jobs:
+        if style_set:
+            style_ids_for_jobs = [[s["id"]] for s in style_set]
+        else:
+            style_ids_for_jobs = [[] for _ in jobs]
+        for job, job_style_ids in zip(jobs, style_ids_for_jobs, strict=True):
             job_seed = seed if seed is not None else _random_seed()
             graph = build_generation_graph(
                 operation=operation,
@@ -265,6 +269,14 @@ async def invokeai_generate(
             bid = result.get("batch_id")
             if bid:
                 batch_ids.append(str(bid))
+            from invokeai_mcp.attribution import record_items
+
+            await record_items(
+                [int(i) for i in job_items if isinstance(i, int)],
+                styles=job_style_ids,
+                model_key=model.get("key") if model else None,
+                prompt=job["prompt"],
+            )
         first = items[0] if items else None
         log(
             "INFO", "generate", f"{operation} enqueued: {len(items)} item(s) batch={batch_ids[0] if batch_ids else None}"
