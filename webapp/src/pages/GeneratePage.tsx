@@ -249,7 +249,25 @@ export default function GeneratePage() {
     .filter((p): p is string => !!p && p.trim().length > 0)
     .join(", ");
 
-  const batchCount = (selectedStyles.size || 1) * (selectedMaterials.size || 1);
+  const [painters, setPainters] = useState<
+    { id: string; name: string; prompt: string }[]
+  >([]);
+  const [selectedPainters, setSelectedPainters] = useState<Set<string>>(
+    new Set(),
+  );
+  const [painterFilter, setPainterFilter] = useState("");
+  useEffect(() => {
+    apiGet<{ artists?: { id: string; name: string; prompt: string }[] }>(
+      "/invokeai/artists",
+    )
+      .then((d) => setPainters(d.artists ?? []))
+      .catch(() => setPainters([]));
+  }, []);
+
+  const batchCount =
+    (selectedStyles.size || 1) *
+    (selectedMaterials.size || 1) *
+    (selectedPainters.size || 1);
   const doneCount = batch.filter((b) =>
     ["completed", "failed", "canceled"].includes(b.status),
   ).length;
@@ -259,6 +277,9 @@ export default function GeneratePage() {
 
   const visibleStyles = styles.filter((s) =>
     s.name.toLowerCase().includes(styleFilter.toLowerCase()),
+  );
+  const visiblePainters = painters.filter((p) =>
+    p.name.toLowerCase().includes(painterFilter.toLowerCase()),
   );
 
   const loadModels = useCallback(async () => {
@@ -527,25 +548,44 @@ export default function GeneratePage() {
     }
     const selectedStyleObjs = styles.filter((s) => selectedStyles.has(s.id));
     const materials = MATERIALS.filter((m) => selectedMaterials.has(m.id));
-    if (selectedStyleObjs.length === 0 && materials.length === 0) {
-      setError("Select at least one style or material for the batch.");
+    const painterObjs = painters.filter((p) => selectedPainters.has(p.id));
+    if (
+      selectedStyleObjs.length === 0 &&
+      materials.length === 0 &&
+      painterObjs.length === 0
+    ) {
+      setError(
+        "Select at least one style, material, or painter for the batch.",
+      );
       return;
     }
     const stylePool = selectedStyleObjs.length ? selectedStyleObjs : [null];
     const materialPool = materials.length ? materials : [null];
-    const combos: { label: string; prompt: string; negative: string }[] = [];
+    const painterPool = painterObjs.length ? painterObjs : [null];
+    const combos: {
+      label: string;
+      prompt: string;
+      negative: string;
+      styleId?: string;
+      artistId?: string;
+    }[] = [];
     for (const s of stylePool) {
       for (const m of materialPool) {
-        combos.push({
-          label:
-            [s?.name, m?.id !== "none" ? m?.name : null]
+        for (const a of painterPool) {
+          combos.push({
+            label:
+              [s?.name, m?.id !== "none" ? m?.name : null, a?.name]
+                .filter(Boolean)
+                .join(" × ") || "plain",
+            // priority: base -> style -> material -> quality -> painter (painter last = strongest cue)
+            prompt: [prompt, s?.prompt, m?.prompt, QUALITY_TAGS, a?.prompt]
               .filter(Boolean)
-              .join(" × ") || "plain",
-          prompt: [prompt, s?.prompt, m?.prompt, QUALITY_TAGS]
-            .filter(Boolean)
-            .join(", "),
-          negative: [negative, s?.negative].filter(Boolean).join(", "),
-        });
+              .join(", "),
+            negative: [negative, s?.negative].filter(Boolean).join(", "),
+            styleId: s?.id,
+            artistId: a?.id,
+          });
+        }
       }
     }
     if (combos.length > MAX_BATCH) {
@@ -567,6 +607,8 @@ export default function GeneratePage() {
           operation: "txt2img",
           prompt: c.prompt,
           negative_prompt: c.negative || null,
+          styles: c.styleId ? [c.styleId] : undefined,
+          artists: c.artistId ? [c.artistId] : undefined,
           ...baseParams(),
           runs: 1,
         });
@@ -1462,6 +1504,74 @@ export default function GeneratePage() {
                       {m.name}
                     </label>
                   ))}
+                </div>
+              </div>
+              <div className="mt-3">
+                <div className="mb-1.5 flex items-center justify-between">
+                  <span className="text-xs font-medium text-slate-500">
+                    Painters{" "}
+                    <span className="text-slate-600">
+                      ({selectedPainters.size}/{painters.length}) - Giotto to
+                      Giger
+                    </span>
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() =>
+                        setSelectedPainters(new Set(painters.map((p) => p.id)))
+                      }
+                      className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-amber-300"
+                      data-testid="select-all-painters"
+                    >
+                      <CheckSquare className="h-3 w-3" /> All
+                    </button>
+                    <button
+                      onClick={() => setSelectedPainters(new Set())}
+                      className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-red-400"
+                      data-testid="clear-painters"
+                    >
+                      <Square className="h-3 w-3" /> None
+                    </button>
+                  </div>
+                </div>
+                <input
+                  value={painterFilter}
+                  onChange={(e) => setPainterFilter(e.target.value)}
+                  placeholder="Search painters..."
+                  className={`${inputCls} mb-1.5 max-w-xs`}
+                  data-testid="painter-filter"
+                />
+                <div
+                  className="flex max-h-40 flex-wrap gap-1.5 overflow-y-auto"
+                  data-testid="painter-checks"
+                >
+                  {visiblePainters.map((p) => (
+                    <label
+                      key={p.id}
+                      className={checkCls}
+                      data-testid={`painter-check-${p.id}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedPainters.has(p.id)}
+                        onChange={() =>
+                          setSelectedPainters((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(p.id)) next.delete(p.id);
+                            else next.add(p.id);
+                            return next;
+                          })
+                        }
+                        className="accent-amber-500"
+                      />
+                      {p.name}
+                    </label>
+                  ))}
+                  {visiblePainters.length === 0 && (
+                    <span className="text-xs text-slate-600">
+                      No painters match.
+                    </span>
+                  )}
                 </div>
               </div>
               <label className="mt-3 flex items-center gap-2 text-xs text-slate-500">

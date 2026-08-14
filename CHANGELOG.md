@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.9] - 2026-08-12
+
+### Added
+- invokeai_artists tool + 60-painter catalog (Giotto to Giger) with
+  curated one-line signatures; painters anchor the prompt LAST
+  (base -> style -> material -> painter = strongest cue)
+- invokeai_generate artists=[...] param; styles x artists cartesian
+  (capped 100); per-item attribution now records styles + artists
+- Gallery: painter filter (exact + fallback) and painter chips
+- Fixed broken images: engine returns RELATIVE image urls - feed now
+  normalizes to absolute (browser was 404ing against the webapp origin)
+- display_name: prompt-slug + short id (marlowe-in-rain-2774b797)
+  instead of the raw uuid; Generate page painter checkboxes (search,
+  select-all) cross-batched with styles x materials
+
 ## [0.1.8] - 2026-08-12
 
 ### Added

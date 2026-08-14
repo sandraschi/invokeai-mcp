@@ -130,6 +130,14 @@ async def invokeai_generate(
         bool,
         Field(description="Apply each style's cfg/steps when styles are used (default true)."),
     ] = True,
+    artists: Annotated[
+        list[str] | None,
+        Field(
+            description="Painter ids from invokeai_artists list (Giotto to Giger). "
+            "Each painter appends an 'in the style of X' anchor LAST - the strongest "
+            "style cue. Combines with styles as a cartesian product (styles x artists)."
+        ),
+    ] = None,
     ctx: Context | None = None,  # noqa: B008
 ) -> dict:
     """Generate images through the local InvokeAI creative engine.
@@ -190,6 +198,21 @@ async def invokeai_generate(
                 }
             style_set.append(s)
 
+    artist_set: list[dict] | None = None
+    if artists:
+        from invokeai_mcp.artists import get_artist
+
+        artist_set = []
+        for aid in artists:
+            a = get_artist(aid)
+            if not a:
+                return {
+                    "success": False,
+                    "error": "not_found",
+                    "message": f"Unknown painter '{aid}'. Use invokeai_artists(operation='list') for valid ids.",
+                }
+            artist_set.append(a)
+
     try:
         model = await _resolve_model(client, model_key)
         eff_width, eff_height = width, height
@@ -202,32 +225,50 @@ async def invokeai_generate(
             except InvokeAIError:
                 pass
 
+        from invokeai_mcp.artists import apply_artist
         from invokeai_mcp.styles import apply_style
 
+        # Prompt composition priority: base -> style -> painter (painter LAST).
         jobs: list[dict] = [{"prompt": prompt, "negative": negative_prompt, "steps": steps, "cfg": cfg_scale}]
-        if style_set:
+        job_attrib: list[dict] = [{"styles": [], "artists": []}]
+        style_pool = style_set or [None]
+        artist_pool = artist_set or [None]
+        combos = [(s, a) for s in style_pool for a in artist_pool]
+        if len(combos) > 100:
+            return {
+                "success": False,
+                "error": "validation",
+                "message": f"styles x artists = {len(combos)} jobs exceeds the 100 cap.",
+            }
+        if style_set or artist_set:
             jobs = []
-            for s in style_set:
+            job_attrib = []
+            for s, a in combos:
+                combined = prompt
+                if s is not None:
+                    combined = apply_style(s, combined)
+                if a is not None:
+                    combined = apply_artist(a, combined)
                 job: dict = {
-                    "prompt": apply_style(s, prompt),
-                    "negative": negative_prompt if negative_prompt is not None else s.get("negative") or "",
+                    "prompt": combined,
+                    "negative": negative_prompt if negative_prompt is not None else (
+                        s.get("negative") if s is not None else ""
+                    ),
                 }
-                if style_cfg:
+                if style_cfg and s is not None:
                     job["steps"] = int(s.get("steps") or steps)
                     job["cfg"] = float(s.get("cfg") or cfg_scale)
                 else:
                     job["steps"] = steps
                     job["cfg"] = cfg_scale
                 jobs.append(job)
-
+                job_attrib.append(
+                    {"styles": [s["id"]] if s else [], "artists": [a["id"]] if a else []}
+                )
         items: list[int] = []
         batch_ids: list[str] = []
         queue_id = settings.queue_id
-        if style_set:
-            style_ids_for_jobs = [[s["id"]] for s in style_set]
-        else:
-            style_ids_for_jobs = [[] for _ in jobs]
-        for job, job_style_ids in zip(jobs, style_ids_for_jobs, strict=True):
+        for job, attr in zip(jobs, job_attrib, strict=True):
             job_seed = seed if seed is not None else _random_seed()
             graph = build_generation_graph(
                 operation=operation,
@@ -273,7 +314,8 @@ async def invokeai_generate(
 
             await record_items(
                 [int(i) for i in job_items if isinstance(i, int)],
-                styles=job_style_ids,
+                styles=attr["styles"],
+                artists=attr["artists"],
                 model_key=model.get("key") if model else None,
                 prompt=job["prompt"],
             )
@@ -289,6 +331,7 @@ async def invokeai_generate(
             "batch_ids": batch_ids,
             "queue_id": queue_id,
             "style_count": len(style_set) if style_set else None,
+            "artist_count": len(artist_set) if artist_set else None,
             "message": f"{operation} job enqueued ({len(items)} item(s), first {first}). Poll with invokeai_queue(operation='item_status').",
             "poll": {
                 "tool": "invokeai_queue",

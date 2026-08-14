@@ -42,12 +42,12 @@ just mcpb-pack
 ## Tool surface (portmanteau)
 
 invokeai_generate (txt2img/img2img/inpaint/upscale/outpaint + seamless/
-controlnet/ip-adapter modules + cogview4 family + styles=[...] multi-style batches - outpaint via webapp pad+mask),
+controlnet/ip-adapter modules + cogview4 family + styles=[...] + artists=[...] multi-dim batches - outpaint via webapp pad+mask),
 engine control (Settings) + HF token login (Settings + Models HF tab), invokeai_queue
 (status/list/item_status/result/cancel/clear/resume/pause), invokeai_models
 (list/get/install/installs/update/delete/stats), invokeai_gallery
 (list/search/get/metadata/download/delete/star/unstar), invokeai_boards,
-invokeai_styles (list/get/search), invokeai_workflows, invokeai_system (health/version/config/stats), 4 Prefab
+invokeai_styles (list/get/search), invokeai_artists (list/get/search), invokeai_workflows, invokeai_system (health/version/config/stats), 4 Prefab
 cards, invokeai_help, invokeai_shutdown.
 
 ## Honesty

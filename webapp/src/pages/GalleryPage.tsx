@@ -30,6 +30,8 @@ interface GalleryImage {
   board_id?: string | null;
   created_at?: string;
   styles?: string[];
+  artists?: string[];
+  display_name?: string;
 }
 
 interface Board {
@@ -64,11 +66,13 @@ export default function GalleryPage() {
   const [styleFilter, setStyleFilter] = useState("");
   const [boards, setBoards] = useState<Board[]>([]);
   const [styles, setStyles] = useState<{ id: string; name: string }[]>([]);
+  const [artists, setArtists] = useState<{ id: string; name: string }[]>([]);
   const [selected, setSelected] = useState<GalleryImage | null>(null);
   const [selectMode, setSelectMode] = useState(false);
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [batchBusy, setBatchBusy] = useState(false);
   const [notice, setNotice] = useState("");
+  const [artistFilter, setArtistFilter] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -78,6 +82,7 @@ export default function GalleryPage() {
       if (starredOnly) qs.set("starred", "1");
       if (boardFilter) qs.set("board", boardFilter);
       if (styleFilter) qs.set("style", styleFilter);
+      if (artistFilter) qs.set("artist", artistFilter);
       const data = await apiGet<GalleryResponse>(`/invokeai/gallery?${qs}`);
       setImages(data.images ?? []);
     } catch {
@@ -85,7 +90,7 @@ export default function GalleryPage() {
     } finally {
       setLoading(false);
     }
-  }, [query, sort, starredOnly, boardFilter, styleFilter]);
+  }, [query, sort, starredOnly, boardFilter, styleFilter, artistFilter]);
 
   useEffect(() => {
     load();
@@ -98,6 +103,9 @@ export default function GalleryPage() {
     apiGet<{ styles?: { id: string; name: string }[] }>("/invokeai/styles")
       .then((d) => setStyles(d.styles ?? []))
       .catch(() => setStyles([]));
+    apiGet<{ artists?: { id: string; name: string }[] }>("/invokeai/artists")
+      .then((d) => setArtists(d.artists ?? []))
+      .catch(() => setArtists([]));
   }, []);
 
   const action = async (op: string, imageName?: string) => {
@@ -276,6 +284,20 @@ export default function GalleryPage() {
             </option>
           ))}
         </select>
+        <select
+          value={artistFilter}
+          onChange={(e) => setArtistFilter(e.target.value)}
+          className="rounded-lg border border-slate-700 bg-slate-900 px-2 py-2 text-xs text-slate-200 outline-none"
+          title="Painter"
+          data-testid="gallery-artist-filter"
+        >
+          <option value="">All painters</option>
+          {artists.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.name}
+            </option>
+          ))}
+        </select>
         <button
           onClick={() => {
             setSelectMode((v) => {
@@ -434,6 +456,19 @@ export default function GalleryPage() {
                   )}
                 </div>
               )}
+              {!mock && img.artists && img.artists.length > 0 && (
+                <div className="absolute left-1.5 top-1.5 flex max-w-[80%] flex-col items-start gap-0.5">
+                  {img.artists.slice(0, 2).map((a) => (
+                    <span
+                      key={a}
+                      className="rounded bg-slate-950/80 px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-sky-300"
+                      title="Generated in the style of this painter"
+                    >
+                      {a}
+                    </span>
+                  ))}
+                </div>
+              )}
               {!mock && (
                 <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-slate-950/90 to-transparent p-2 opacity-0 transition group-hover:opacity-100">
                   <button
@@ -494,8 +529,23 @@ export default function GalleryPage() {
                     ))}
                   </div>
                 )}
-                <code className="truncate text-xs text-slate-400">
-                  {selected.image_name}
+                {selected.artists && selected.artists.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {selected.artists.map((a) => (
+                      <span
+                        key={a}
+                        className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-sky-300"
+                      >
+                        {a}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <code
+                  className="truncate text-xs text-slate-400"
+                  title={selected.image_name}
+                >
+                  {selected.display_name ?? selected.image_name}
                 </code>
               </div>
               <div className="flex items-center gap-2">

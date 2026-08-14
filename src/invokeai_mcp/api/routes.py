@@ -480,6 +480,19 @@ async def _invokeai_styles(request: Request) -> JSONResponse:
     return JSONResponse({"styles": styles, "count": len(styles), "total": len(list_styles())})
 
 
+async def _invokeai_artists(request: Request) -> JSONResponse:
+    """GET /api/invokeai/artists - painter catalog (list, ?query=, ?limit=)."""
+    from invokeai_mcp.artists import list_artists, search_artists
+
+    query = request.query_params.get("query")
+    limit = min(int(request.query_params.get("limit", 100)), 200)
+    if query:
+        artists = search_artists(query, limit=limit)
+    else:
+        artists = list_artists()[:limit]
+    return JSONResponse({"artists": artists, "count": len(artists), "total": len(list_artists())})
+
+
 async def _invokeai_workflow_templates(request: Request) -> JSONResponse:
     """GET /api/invokeai/workflow-templates - editor node templates."""
     from invokeai_mcp.client import InvokeAIError
@@ -518,8 +531,9 @@ async def _gallery_list_rest(request: Request) -> JSONResponse:
         board_id = params.get("board") or None
         search = params.get("query") or None
         style_ids = [s for s in (params.get("style") or "").split(",") if s]
+        artist_ids = [a for a in (params.get("artist") or "").split(",") if a]
 
-        fetch_limit = max(limit, 300) if (starred_only or style_ids or sort == "name") else limit
+        fetch_limit = max(limit, 300) if (starred_only or style_ids or artist_ids or sort == "name") else limit
         data = await client.list_images(
             limit=fetch_limit,
             offset=offset,
@@ -554,11 +568,65 @@ async def _gallery_list_rest(request: Request) -> JSONResponse:
             entry = attrib.get(str(item))
             return list(entry.get("styles", [])) if entry else []
 
+        def _artists_for(image: dict) -> list[str]:
+            sid = image.get("session_id")
+            if not sid:
+                return []
+            item = session_to_item.get(str(sid))
+            if item is None:
+                return []
+            entry = attrib.get(str(item))
+            return list(entry.get("artists", [])) if entry else []
+
         for image in images:
             image["styles"] = _styles_for(image)
+            image["artists"] = _artists_for(image)
+
+        # Absolute URLs (the engine returns relative paths - the browser
+        # would resolve them against the webapp origin and 404).
+        engine_base = get_settings().api_base.rstrip("/")
+
+        def _abs(url: str | None) -> str | None:
+            if not url:
+                return None
+            if url.startswith("http"):
+                return url
+            return f"{engine_base}/{url.lstrip('/')}"
+
+        for image in images:
+            image["image_url"] = _abs(image.get("image_url"))
+            image["thumbnail_url"] = _abs(image.get("thumbnail_url"))
+            image["url"] = image["image_url"]
+
+        # display_name: prompt slug + short id (never the raw uuid alone)
+        from invokeai_mcp.attribution import prompt_slug, short_id
+
+        async def _slug_for(image: dict) -> str:
+            item = session_to_item.get(str(image.get("session_id"))) if image.get("session_id") else None
+            entry = attrib.get(str(item)) if item is not None else None
+            if entry and entry.get("prompt"):
+                return prompt_slug(str(entry["prompt"]))
+            try:
+                meta = await client.get_image_metadata(image["image_name"])
+                return prompt_slug(str(meta.get("positive_prompt") or ""))
+            except Exception:
+                return "image"
+
+        slugs = await asyncio.gather(*(_slug_for(i) for i in images))
+        for image, slug in zip(images, slugs, strict=True):
+            image["display_name"] = f"{slug}-{short_id(image['image_name'])}"
 
         if starred_only:
             images = [i for i in images if i.get("starred")]
+
+        async def _prompt_of(image: dict) -> str:
+            try:
+                meta = await client.get_image_metadata(image["image_name"])
+                return str(meta.get("positive_prompt") or "")
+            except Exception:
+                return ""
+
+        sem = asyncio.Semaphore(8)
 
         styles_matched: list[str] = []
         if style_ids:
@@ -580,15 +648,6 @@ async def _gallery_list_rest(request: Request) -> JSONResponse:
                 styles_map = {sid: get_style(sid) for sid in style_ids}
                 valid = {sid: s for sid, s in styles_map.items() if s}
 
-                async def _prompt_of(image: dict) -> str:
-                    try:
-                        meta = await client.get_image_metadata(image["image_name"])
-                        return str(meta.get("positive_prompt") or "")
-                    except Exception:
-                        return ""
-
-                sem = asyncio.Semaphore(8)
-
                 async def _matched(image: dict) -> bool:
                     async with sem:
                         prompt = await _prompt_of(image)
@@ -600,6 +659,43 @@ async def _gallery_list_rest(request: Request) -> JSONResponse:
                     return False
 
                 results = await asyncio.gather(*(_matched(i) for i in rest))
+                images = [i for i, keep in zip(rest, results, strict=True) if keep]
+
+        artists_matched: list[str] = []
+        if artist_ids:
+            from invokeai_mcp.artists import get_artist
+
+            artist_set_ids = set(artist_ids)
+            exact: list[dict] = []
+            rest: list[dict] = []
+            for image in images:
+                if any(a in artist_set_ids for a in image.get("artists", [])):
+                    exact.append(image)
+                else:
+                    rest.append(image)
+            if exact:
+                images = exact
+                artists_matched = [a for a in artist_ids if any(
+                    a in img.get("artists", []) for img in images
+                )]
+            else:
+                valid_a: dict[str, dict] = {}
+                for aid in artist_ids:
+                    a = get_artist(aid)
+                    if a:
+                        valid_a[aid] = a
+
+                async def _artist_matched(image: dict) -> bool:
+                    async with sem:
+                        prompt = await _prompt_of(image)
+                    for aid, a in valid_a.items():
+                        if a["name"].lower() in prompt.lower():
+                            if aid not in artists_matched:
+                                artists_matched.append(aid)
+                            return True
+                    return False
+
+                results = await asyncio.gather(*(_artist_matched(i) for i in rest))
                 images = [i for i, keep in zip(rest, results, strict=True) if keep]
 
         if sort == "name":
@@ -615,6 +711,7 @@ async def _gallery_list_rest(request: Request) -> JSONResponse:
                 "total": len(images),
                 "has_more": len(images) > limit,
                 "styles_matched": styles_matched,
+                "artists_matched": artists_matched,
             }
         )
     except InvokeAIError as exc:
@@ -729,6 +826,7 @@ routes = [
     Route("/api/invokeai/plugins/{name}", _invokeai_plugin_action, methods=["DELETE"]),
     Route("/api/invokeai/workflow-templates", _invokeai_workflow_templates),
     Route("/api/invokeai/styles", _invokeai_styles),
+    Route("/api/invokeai/artists", _invokeai_artists),
     Route("/api/invokeai/gallery/batch", _gallery_batch, methods=["POST"]),
     Route("/api/invokeai/gallery/board", _gallery_board, methods=["POST", "DELETE"]),
     Route("/api/invokeai/gallery/zip", _gallery_zip, methods=["POST"]),

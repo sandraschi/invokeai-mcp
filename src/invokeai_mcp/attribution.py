@@ -35,11 +35,12 @@ def _save(data: dict[str, Any]) -> None:
 
 async def record_items(
     item_ids: list[int],
-    styles: list[str],
+    styles: list[str] | None = None,
+    artists: list[str] | None = None,
     model_key: str | None = None,
     prompt: str = "",
 ) -> None:
-    """Associate queue items with the styles that produced them."""
+    """Associate queue items with the styles/painters that produced them."""
     if not item_ids:
         return
     async with _lock:
@@ -48,7 +49,8 @@ async def record_items(
         now = time.time()
         for item_id in item_ids:
             entries[str(item_id)] = {
-                "styles": styles,
+                "styles": list(styles or []),
+                "artists": list(artists or []),
                 "model_key": model_key,
                 "prompt": prompt[:2000],
                 "ts": now,
@@ -70,3 +72,27 @@ async def session_map() -> dict[str, dict[str, Any]]:
     """item_id -> attribution entry, loaded once per call."""
     async with _lock:
         return dict(_load()["entries"])
+
+
+def prompt_slug(prompt: str, max_words: int = 5, max_len: int = 24) -> str:
+    """Short human slug from the first words of a prompt (display names).
+
+    'Philip Marlowe, a lone detective...' -> 'philip-marlowe-a-lone'
+    """
+    words = []
+    for token in prompt.lower().replace(",", " ").split():
+        clean = "".join(ch for ch in token if ch.isalnum())
+        if clean and clean not in ("a", "an", "the", "in", "of", "on", "at", "with"):
+            words.append(clean)
+        if len(words) >= max_words:
+            break
+    if not words:
+        return "image"
+    slug = "-".join(words)
+    return slug[:max_len].rstrip("-")
+
+
+def short_id(image_name: str, length: int = 8) -> str:
+    """Terse id suffix: uuid.png -> first 8 chars of the uuid."""
+    stem = image_name.rsplit(".", 1)[0]
+    return stem[:length]

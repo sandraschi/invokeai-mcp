@@ -18,10 +18,13 @@ ENGINE = "http://127.0.0.1:9090"
 MODEL_NAME = "Juggernaut XL v9"
 PROMPT = (
     "Philip Marlowe, a lone detective in a trench coat and fedora, standing in a "
-    "rain-soaked street at night, film noir, 1950s Los Angeles, neon signs "
-    "reflecting in wet asphalt puddles, cigarette smoke curling in the rain, "
-    "chiaroscuro lighting, dramatic shadows, cinematic"
+    "rain-soaked street at night, 1950s Los Angeles, neon signs reflecting in wet "
+    "asphalt puddles, cigarette smoke curling in the rain"
 )
+# NOTE: the base prompt is style-neutral (subject + scene only). Style words
+# (film noir, anime, watercolor, cinematic lighting...) live in the style
+# presets - putting them in the base prompt clashes with the style suffix
+# and pollutes attribution. Add content, not mood.
 
 
 def main() -> None:
