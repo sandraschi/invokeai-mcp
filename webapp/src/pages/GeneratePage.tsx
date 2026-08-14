@@ -238,17 +238,8 @@ export default function GeneratePage() {
   const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const modeDef = MODES.find((m) => m.id === mode) ?? MODES[0];
-  const primaryStyle = styles.find((s) => selectedStyles.has(s.id)) ?? null;
-  const primaryMaterial =
-    MATERIALS.find((m) => selectedMaterials.has(m.id) && m.id !== "none") ??
-    null;
 
-  const composedPrompt = [
-    prompt,
-    primaryStyle?.prompt,
-    primaryMaterial?.prompt,
-    QUALITY_TAGS,
-  ]
+  const composedPrompt = [prompt, QUALITY_TAGS]
     .filter((p): p is string => !!p && p.trim().length > 0)
     .join(", ");
 
@@ -792,8 +783,8 @@ export default function GeneratePage() {
     if (applyStyleSettings) {
       const s = styles.find((x) => x.id === id);
       if (s) {
-        setCfg(s.cfg);
-        setSteps(s.steps);
+        if (s.cfg !== undefined) setCfg(s.cfg);
+        if (s.steps !== undefined) setSteps(s.steps);
       }
     }
   };

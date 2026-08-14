@@ -7,13 +7,12 @@ export interface StylePreset {
   id: string;
   name: string;
   prompt: string;
-  negative: string;
-  cfg: number;
-  steps: number;
+  negative?: string;
+  cfg?: number;
+  steps?: number;
 }
 
 export const STYLES: StylePreset[] = [
-  // Photography
   {
     id: "photorealistic",
     name: "Photorealistic",
@@ -21,7 +20,7 @@ export const STYLES: StylePreset[] = [
       "photorealistic, ultra detailed, natural lighting, shot on 85mm f/1.4, shallow depth of field",
     negative: "cartoon, painting, illustration, 3d render, anime, sketch",
     cfg: 6.5,
-    steps: 34,
+    steps: 34.0,
   },
   {
     id: "cinematic",
@@ -30,7 +29,7 @@ export const STYLES: StylePreset[] = [
       "cinematic still, dramatic lighting, film grain, anamorphic lens flare, color graded, movie frame",
     negative: "flat lighting, amateur snapshot, low quality",
     cfg: 6.0,
-    steps: 36,
+    steps: 36.0,
   },
   {
     id: "film-noir",
@@ -39,7 +38,7 @@ export const STYLES: StylePreset[] = [
       "film noir, high contrast, hard shadows, black and white, venetian blinds, 1940s detective mood",
     negative: "color, bright, cheerful, modern lighting",
     cfg: 7.0,
-    steps: 30,
+    steps: 30.0,
   },
   {
     id: "tilt-shift",
@@ -48,7 +47,7 @@ export const STYLES: StylePreset[] = [
       "tilt-shift photography, miniature diorama effect, selective focus, exaggerated depth of field, birds eye view, toy town look",
     negative: "sharp full focus, wide depth of field, realistic scale",
     cfg: 7.0,
-    steps: 32,
+    steps: 32.0,
   },
   {
     id: "long-exposure",
@@ -57,7 +56,7 @@ export const STYLES: StylePreset[] = [
       "long exposure photography, silky smooth water, light trails, motion blur, dreamy atmosphere",
     negative: "sharp water, frozen motion",
     cfg: 6.5,
-    steps: 34,
+    steps: 34.0,
   },
   {
     id: "macro",
@@ -66,7 +65,7 @@ export const STYLES: StylePreset[] = [
       "extreme macro photography, incredible detail, shallow depth of field, bokeh background",
     negative: "wide shot, blurred subject",
     cfg: 6.5,
-    steps: 34,
+    steps: 34.0,
   },
   {
     id: "aerial",
@@ -75,7 +74,7 @@ export const STYLES: StylePreset[] = [
       "aerial drone photography, top-down view, geographic patterns, crisp daylight",
     negative: "ground level, low angle",
     cfg: 6.5,
-    steps: 32,
+    steps: 32.0,
   },
   {
     id: "polaroid",
@@ -84,7 +83,7 @@ export const STYLES: StylePreset[] = [
       "polaroid photo, instant film aesthetic, slightly faded colors, white frame edges, vintage snapshot",
     negative: "digital render, sharp modern look",
     cfg: 6.5,
-    steps: 28,
+    steps: 28.0,
   },
   {
     id: "product-shot",
@@ -93,7 +92,7 @@ export const STYLES: StylePreset[] = [
       "professional product photography, softbox lighting, seamless background, commercial advertising quality",
     negative: "amateur, cluttered background, harsh shadows, low quality",
     cfg: 6.0,
-    steps: 32,
+    steps: 32.0,
   },
   {
     id: "golden-hour",
@@ -102,72 +101,7 @@ export const STYLES: StylePreset[] = [
       "golden hour lighting, warm amber sun, long shadows, glowing atmosphere",
     negative: "harsh midday light, blue tint",
     cfg: 6.5,
-    steps: 32,
-  },
-
-  // Painting
-  {
-    id: "watercolor",
-    name: "Watercolor",
-    prompt:
-      "watercolor painting, soft washes, textured paper, artistic, loose expressive brushwork",
-    negative: "photograph, digital art, sharp vector edges",
-    cfg: 7.5,
-    steps: 28,
-  },
-  {
-    id: "oil-painting",
-    name: "Oil Painting",
-    prompt:
-      "oil painting, impasto brushstrokes, classical technique, rich colors, visible canvas texture",
-    negative: "photograph, digital smooth gradient, pixelated",
-    cfg: 7.5,
-    steps: 30,
-  },
-  {
-    id: "acrylic",
-    name: "Acrylic",
-    prompt:
-      "acrylic painting, bold flat color blocks, modern canvas art, textured strokes",
-    negative: "oil impasto, watercolor wash",
-    cfg: 7.5,
-    steps: 28,
-  },
-  {
-    id: "gouache",
-    name: "Gouache",
-    prompt:
-      "gouache painting, matte finish, opaque layers, flat illustration style",
-    negative: "glossy, transparent watercolor",
-    cfg: 7.5,
-    steps: 28,
-  },
-  {
-    id: "pastel",
-    name: "Pastel Drawing",
-    prompt:
-      "soft pastel drawing, chalk texture, muted powdery colors, gentle strokes",
-    negative: "oil paint, sharp digital lines",
-    cfg: 7.5,
-    steps: 28,
-  },
-  {
-    id: "pencil-sketch",
-    name: "Pencil Sketch",
-    prompt:
-      "detailed pencil sketch, graphite shading, hatching, paper texture, monochrome",
-    negative: "color, painted, digital render",
-    cfg: 7.5,
-    steps: 26,
-  },
-  {
-    id: "charcoal",
-    name: "Charcoal",
-    prompt:
-      "charcoal drawing, dramatic smudged shading, high contrast, gritty paper texture",
-    negative: "clean digital lines, color",
-    cfg: 7.5,
-    steps: 26,
+    steps: 32.0,
   },
   {
     id: "ukiyo-e",
@@ -176,7 +110,7 @@ export const STYLES: StylePreset[] = [
       "ukiyo-e woodblock print, japanese woodcut, bold outlines, flat colors, wave patterns, washi paper",
     negative: "modern digital, photographic",
     cfg: 7.5,
-    steps: 30,
+    steps: 30.0,
   },
   {
     id: "art-nouveau",
@@ -185,7 +119,7 @@ export const STYLES: StylePreset[] = [
       "art nouveau, ornate flowing lines, decorative borders, botanical motifs, muted gold and green palette",
     negative: "minimalist, brutalist, photographic",
     cfg: 7.5,
-    steps: 32,
+    steps: 32.0,
   },
   {
     id: "art-deco",
@@ -194,7 +128,7 @@ export const STYLES: StylePreset[] = [
       "art deco, geometric patterns, gold and black palette, symmetrical elegance, 1920s style",
     negative: "organic curves, muted colors",
     cfg: 7.5,
-    steps: 32,
+    steps: 32.0,
   },
   {
     id: "baroque",
@@ -203,7 +137,7 @@ export const STYLES: StylePreset[] = [
       "baroque painting, dramatic chiaroscuro, opulent detail, rich dark palette, classical grandeur",
     negative: "flat lighting, modern minimalism",
     cfg: 7.5,
-    steps: 34,
+    steps: 34.0,
   },
   {
     id: "impressionist",
@@ -212,7 +146,7 @@ export const STYLES: StylePreset[] = [
       "impressionist painting, visible brushstrokes, dappled light, plein air feel, soft focus details",
     negative: "sharp photorealism, hard edges",
     cfg: 7.5,
-    steps: 32,
+    steps: 32.0,
   },
   {
     id: "pointillism",
@@ -221,25 +155,7 @@ export const STYLES: StylePreset[] = [
       "pointillism, tiny distinct dots of color, seurat style, mosaic of paint dots",
     negative: "smooth blending, broad strokes",
     cfg: 7.5,
-    steps: 32,
-  },
-  {
-    id: "stained-glass",
-    name: "Stained Glass",
-    prompt:
-      "stained glass window, colorful glass panels, lead lines, glowing backlight, intricate mosaic",
-    negative: "painted, blurry, photographic",
-    cfg: 7.5,
-    steps: 32,
-  },
-  {
-    id: "fresco",
-    name: "Fresco",
-    prompt:
-      "fresco mural, ancient wall painting, chalky texture, muted earthy pigments, historical",
-    negative: "glossy, digital smoothness",
-    cfg: 7.5,
-    steps: 32,
+    steps: 32.0,
   },
   {
     id: "surrealism",
@@ -248,7 +164,7 @@ export const STYLES: StylePreset[] = [
       "surrealist painting, dreamlike impossible scene, daliesque melting forms, symbolic imagery",
     negative: "literal, mundane, realistic composition",
     cfg: 7.5,
-    steps: 34,
+    steps: 34.0,
   },
   {
     id: "pop-art",
@@ -257,10 +173,8 @@ export const STYLES: StylePreset[] = [
       "pop art, bold halftone dots, saturated primary colors, comic book style, warhol aesthetic",
     negative: "subtle palette, photorealism",
     cfg: 7.0,
-    steps: 28,
+    steps: 28.0,
   },
-
-  // Illustration & Digital
   {
     id: "anime",
     name: "Anime",
@@ -268,7 +182,7 @@ export const STYLES: StylePreset[] = [
       "anime style, vibrant colors, cel shading, detailed lineart, studio quality key visual",
     negative: "photorealistic, 3d render, realistic skin texture",
     cfg: 7.0,
-    steps: 30,
+    steps: 30.0,
   },
   {
     id: "manga",
@@ -277,16 +191,7 @@ export const STYLES: StylePreset[] = [
       "manga panel, black and white ink, screentone shading, dynamic speed lines, japanese comic",
     negative: "color, painted, 3d",
     cfg: 7.5,
-    steps: 30,
-  },
-  {
-    id: "pixel-art",
-    name: "Pixel Art",
-    prompt:
-      "pixel art, 16-bit, crisp pixels, retro game aesthetic, limited color palette",
-    negative: "smooth gradients, blurry, realistic detail",
-    cfg: 6.5,
-    steps: 24,
+    steps: 30.0,
   },
   {
     id: "low-poly",
@@ -295,7 +200,7 @@ export const STYLES: StylePreset[] = [
       "low poly art, geometric faceted surfaces, flat shading, stylized 3d, game asset look",
     negative: "smooth high poly, realistic textures",
     cfg: 6.5,
-    steps: 30,
+    steps: 30.0,
   },
   {
     id: "voxel",
@@ -304,34 +209,7 @@ export const STYLES: StylePreset[] = [
       "voxel art, blocky cube-based 3d, minecraft-like, chunky pixels, colorful",
     negative: "smooth surfaces, realistic lighting",
     cfg: 6.5,
-    steps: 28,
-  },
-  {
-    id: "papercraft",
-    name: "Papercraft",
-    prompt:
-      "papercraft, layered cut paper, origami folds, 3d paper diorama, visible paper edges",
-    negative: "photograph, digital painting",
-    cfg: 7.0,
-    steps: 30,
-  },
-  {
-    id: "claymation",
-    name: "Claymation",
-    prompt:
-      "claymation, stop motion clay figures, fingerprint texture, plasticine, handmade charm",
-    negative: "smooth cgi, digital render",
-    cfg: 7.0,
-    steps: 30,
-  },
-  {
-    id: "lego",
-    name: "Lego Brick",
-    prompt:
-      "lego minifigure style, plastic brick construction, studs visible, toy diorama, vibrant plastic",
-    negative: "realistic skin, fabric texture",
-    cfg: 7.0,
-    steps: 30,
+    steps: 28.0,
   },
   {
     id: "isometric",
@@ -340,7 +218,7 @@ export const STYLES: StylePreset[] = [
       "isometric illustration, 3/4 angle view, clean vector shapes, detailed environment",
     negative: "perspective view, flat 2d",
     cfg: 6.5,
-    steps: 32,
+    steps: 32.0,
   },
   {
     id: "flat-design",
@@ -349,7 +227,7 @@ export const STYLES: StylePreset[] = [
       "flat vector design, solid colors, no gradients, minimal shapes, modern UI illustration",
     negative: "texture, gradient, 3d depth",
     cfg: 6.5,
-    steps: 26,
+    steps: 26.0,
   },
   {
     id: "line-art",
@@ -358,7 +236,7 @@ export const STYLES: StylePreset[] = [
       "clean line art, single stroke weight, white background, minimal, elegant outlines",
     negative: "shading, color, texture",
     cfg: 7.0,
-    steps: 26,
+    steps: 26.0,
   },
   {
     id: "sticker",
@@ -367,7 +245,7 @@ export const STYLES: StylePreset[] = [
       "die-cut sticker, thick white border, glossy finish, cute illustration, vinyl look",
     negative: "photographic, complex background",
     cfg: 7.0,
-    steps: 28,
+    steps: 28.0,
   },
   {
     id: "tattoo",
@@ -376,7 +254,7 @@ export const STYLES: StylePreset[] = [
       "tattoo design, bold black ink, fine linework, stencil style, traditional flash art",
     negative: "color wash, blurry, photographic",
     cfg: 7.5,
-    steps: 30,
+    steps: 30.0,
   },
   {
     id: "graffiti",
@@ -385,16 +263,7 @@ export const STYLES: StylePreset[] = [
       "graffiti street art, spray paint texture, bold lettering, vivid splashes, urban wall",
     negative: "clean digital, gallery art",
     cfg: 7.5,
-    steps: 30,
-  },
-  {
-    id: "super-mario",
-    name: "Super Mario",
-    prompt:
-      "super mario world style, bright cheerful platformer, blocky pipes, cartoon clouds, 90s nintendo art",
-    negative: "realistic, dark, gritty",
-    cfg: 6.5,
-    steps: 28,
+    steps: 30.0,
   },
   {
     id: "disco",
@@ -403,10 +272,8 @@ export const STYLES: StylePreset[] = [
       "disco aesthetic, glitter ball, neon dance floor, 70s retro nightclub, mirror tiles, groovy",
     negative: "modern club, muted colors",
     cfg: 7.0,
-    steps: 30,
+    steps: 30.0,
   },
-
-  // Modern / Digital Art
   {
     id: "cyberpunk",
     name: "Cyberpunk",
@@ -414,7 +281,7 @@ export const STYLES: StylePreset[] = [
       "cyberpunk, neon lights, rain-soaked streets, futuristic megacity, blade runner aesthetic",
     negative: "daylight, rural, medieval, low tech",
     cfg: 7.0,
-    steps: 34,
+    steps: 34.0,
   },
   {
     id: "vaporwave",
@@ -423,7 +290,7 @@ export const STYLES: StylePreset[] = [
       "vaporwave, pastel pink and cyan, retro futurism, greek statues, grid sun, cassette tape nostalgia",
     negative: "realistic, dark, muted",
     cfg: 7.0,
-    steps: 32,
+    steps: 32.0,
   },
   {
     id: "synthwave",
@@ -432,7 +299,7 @@ export const STYLES: StylePreset[] = [
       "synthwave, retro 80s neon, chrome sun, grid perspective, purple and orange, outrun aesthetic",
     negative: "muted colors, natural lighting",
     cfg: 7.0,
-    steps: 32,
+    steps: 32.0,
   },
   {
     id: "steampunk",
@@ -441,7 +308,7 @@ export const STYLES: StylePreset[] = [
       "steampunk, brass gears, victorian machinery, copper pipes, goggles, sepia and bronze tones",
     negative: "modern technology, clean plastic",
     cfg: 7.0,
-    steps: 34,
+    steps: 34.0,
   },
   {
     id: "dieselpunk",
@@ -450,7 +317,7 @@ export const STYLES: StylePreset[] = [
       "dieselpunk, 1940s war machinery, riveted metal, greasy industrial, retro futurism with diesel engines",
     negative: "clean futuristic, victorian elegance",
     cfg: 7.0,
-    steps: 34,
+    steps: 34.0,
   },
   {
     id: "solargoth",
@@ -459,7 +326,7 @@ export const STYLES: StylePreset[] = [
       "solarpunk, sustainable future, lush greenery, solar panels, optimistic architecture, sunlight",
     negative: "dystopian, dark, polluted",
     cfg: 7.0,
-    steps: 34,
+    steps: 34.0,
   },
   {
     id: "dark-fantasy",
@@ -468,7 +335,7 @@ export const STYLES: StylePreset[] = [
       "dark fantasy, ominous atmosphere, gothic ruins, candlelight, intricate armor, moody",
     negative: "bright cheerful, cartoon",
     cfg: 7.0,
-    steps: 36,
+    steps: 36.0,
   },
   {
     id: "fantasy",
@@ -477,7 +344,7 @@ export const STYLES: StylePreset[] = [
       "epic fantasy, magical atmosphere, sweeping vista, dramatic sky, painterly rendering, mythic scale",
     negative: "modern, mundane, plain background, contemporary",
     cfg: 7.0,
-    steps: 36,
+    steps: 36.0,
   },
   {
     id: "sci-fi",
@@ -486,7 +353,7 @@ export const STYLES: StylePreset[] = [
       "sci-fi concept art, futuristic technology, alien landscapes, spaceship design, hard surface detail",
     negative: "fantasy magic, historical",
     cfg: 6.5,
-    steps: 34,
+    steps: 34.0,
   },
   {
     id: "3d-render",
@@ -495,25 +362,7 @@ export const STYLES: StylePreset[] = [
       "3d render, octane render, subsurface scattering, ray traced reflections, depth of field, high poly",
     negative: "2d, flat, drawing, sketch, low poly",
     cfg: 5.5,
-    steps: 36,
-  },
-  {
-    id: "blender-cycles",
-    name: "Blender Cycles",
-    prompt:
-      "blender cycles render, physically based lighting, realistic materials, pristine studio setup",
-    negative: "stylized, painterly",
-    cfg: 5.5,
-    steps: 36,
-  },
-  {
-    id: "unreal-engine",
-    name: "Unreal Engine",
-    prompt:
-      "unreal engine 5 render, nanite detail, lumen global illumination, cinematic post processing, game still",
-    negative: "2d, flat illustration",
-    cfg: 6.0,
-    steps: 34,
+    steps: 36.0,
   },
   {
     id: "minimalist",
@@ -522,7 +371,7 @@ export const STYLES: StylePreset[] = [
       "minimalist, clean composition, generous negative space, muted palette, soft studio lighting",
     negative: "cluttered, busy, ornate, high detail, texture overload",
     cfg: 6.0,
-    steps: 26,
+    steps: 26.0,
   },
   {
     id: "brutalist",
@@ -531,7 +380,7 @@ export const STYLES: StylePreset[] = [
       "brutalist architecture, raw concrete, massive geometric forms, stark shadows, monumental scale",
     negative: "ornate, cozy, colorful",
     cfg: 6.5,
-    steps: 32,
+    steps: 32.0,
   },
   {
     id: "cyber-goth",
@@ -540,7 +389,7 @@ export const STYLES: StylePreset[] = [
       "cyber goth, dark futuristic fashion, neon accents, industrial textures, dramatic makeup",
     negative: "bright, pastel, mainstream fashion",
     cfg: 7.0,
-    steps: 32,
+    steps: 32.0,
   },
   {
     id: "glitch",
@@ -549,7 +398,7 @@ export const STYLES: StylePreset[] = [
       "glitch art, digital distortion, rgb channel shift, scanlines, corrupted data aesthetic",
     negative: "clean image, smooth gradients",
     cfg: 6.5,
-    steps: 26,
+    steps: 26.0,
   },
   {
     id: "hdr",
@@ -558,7 +407,7 @@ export const STYLES: StylePreset[] = [
       "high dynamic range photography, extreme contrast, vivid saturated colors, glowing highlights",
     negative: "flat lighting, muted colors",
     cfg: 6.5,
-    steps: 32,
+    steps: 32.0,
   },
   {
     id: "double-exposure",
@@ -567,7 +416,7 @@ export const STYLES: StylePreset[] = [
       "double exposure, silhouette merged with landscape, film photography effect, ethereal layering",
     negative: "single exposure, plain background",
     cfg: 7.0,
-    steps: 32,
+    steps: 32.0,
   },
   {
     id: "infrared",
@@ -576,7 +425,7 @@ export const STYLES: StylePreset[] = [
       "infrared photography, surreal foliage glow, white pink vegetation, dreamy red-orange palette",
     negative: "natural colors, normal foliage",
     cfg: 6.5,
-    steps: 32,
+    steps: 32.0,
   },
   {
     id: "astrophotography",
@@ -585,7 +434,7 @@ export const STYLES: StylePreset[] = [
       "astrophotography, deep space detail, star trails, milky way, long exposure sky, telescope clarity",
     negative: "flat night sky, city light pollution",
     cfg: 6.5,
-    steps: 36,
+    steps: 36.0,
   },
   {
     id: "bokeh",
@@ -594,43 +443,7 @@ export const STYLES: StylePreset[] = [
       "dreamy bokeh background, glowing circular out-of-focus lights, shallow depth of field, christmas lights feel",
     negative: "sharp busy background",
     cfg: 6.5,
-    steps: 30,
-  },
-  {
-    id: "van-gogh",
-    name: "Van Gogh",
-    prompt:
-      "van gogh style, swirling textured brushstrokes, vivid impasto, expressive color, post-impressionist",
-    negative: "smooth flat painting",
-    cfg: 7.5,
-    steps: 32,
-  },
-  {
-    id: "picasso",
-    name: "Picasso / Cubism",
-    prompt:
-      "cubist painting, fragmented geometric forms, multiple perspectives, picasso style, abstract",
-    negative: "realistic proportions, single viewpoint",
-    cfg: 7.5,
-    steps: 30,
-  },
-  {
-    id: "monet",
-    name: "Monet",
-    prompt:
-      "monet impressionist style, soft water reflections, pastel light, garden scenes, loose strokes",
-    negative: "sharp detail, dark palette",
-    cfg: 7.5,
-    steps: 32,
-  },
-  {
-    id: "banksy",
-    name: "Banksy / Stencil",
-    prompt:
-      "stencil street art, banksy style, stark silhouettes, political satire, sprayed texture, limited palette",
-    negative: "detailed realism, colorful",
-    cfg: 7.0,
-    steps: 28,
+    steps: 30.0,
   },
   {
     id: "gothic",
@@ -639,7 +452,142 @@ export const STYLES: StylePreset[] = [
       "gothic art, pointed arches, dark cathedrals, candlelit gloom, ornate stained light, medieval mystique",
     negative: "modern, bright, cheerful",
     cfg: 7.5,
-    steps: 34,
+    steps: 34.0,
+  },
+  {
+    id: "rococo",
+    name: "Rococo",
+    prompt: "rococo, ornate pastel elegance, gilded curves",
+  },
+  {
+    id: "post-impressionist",
+    name: "Post-Impressionist",
+    prompt: "post-impressionist, bold color blocks, expressive form",
+  },
+  {
+    id: "expressionism",
+    name: "Expressionism",
+    prompt: "expressionist, distorted emotion, bold color, gestural strokes",
+  },
+  {
+    id: "abstract-expressionism",
+    name: "Abstract Expressionism",
+    prompt: "abstract expressionism, gestural color fields, action painting",
+  },
+  {
+    id: "art-brut",
+    name: "Art Brut",
+    prompt: "art brut, raw naive marks, outsider art",
+  },
+  {
+    id: "documentary",
+    name: "Documentary",
+    prompt: "documentary photography, candid realism, natural light",
+  },
+  {
+    id: "editorial",
+    name: "Editorial",
+    prompt: "editorial photography, magazine quality, striking composition",
+  },
+  {
+    id: "fashion",
+    name: "Fashion",
+    prompt: "fashion photography, high-end editorial, studio elegance",
+  },
+  {
+    id: "architectural",
+    name: "Architectural",
+    prompt: "architectural photography, clean lines, geometric composition",
+  },
+  {
+    id: "blue-hour",
+    name: "Blue Hour",
+    prompt: "blue hour, twilight blue tones, city lights",
+  },
+  {
+    id: "cosmic-horror",
+    name: "Cosmic Horror",
+    prompt: "cosmic horror, vast unknowable dread, dark nebulae",
+  },
+  {
+    id: "neon-noir",
+    name: "Neon Noir",
+    prompt: "neon noir, neon-lit night, wet streets, magenta cyan glow",
+  },
+  {
+    id: "retro-futurism",
+    name: "Retro-Futurism",
+    prompt: "retro-futurism, 1950s sci-fi optimism, chrome and plastic",
+  },
+  {
+    id: "mid-century-modern",
+    name: "Mid-Century Modern",
+    prompt: "mid-century modern, clean retro design, atomic age",
+  },
+  {
+    id: "kawaii",
+    name: "Kawaii",
+    prompt: "kawaii, cute pastel, chibi charm",
+  },
+  {
+    id: "dreamy",
+    name: "Dreamy",
+    prompt: "dreamy, soft haze, pastel glow",
+  },
+  {
+    id: "ethereal",
+    name: "Ethereal",
+    prompt: "ethereal, translucent light, otherworldly",
+  },
+  {
+    id: "moody",
+    name: "Moody",
+    prompt: "moody, dramatic shadows, deep contrast",
+  },
+  {
+    id: "gritty",
+    name: "Gritty",
+    prompt: "gritty, raw texture, urban grime",
+  },
+  {
+    id: "whimsical",
+    name: "Whimsical",
+    prompt: "whimsical, playful imagination, storybook charm",
+  },
+  {
+    id: "elegant",
+    name: "Elegant",
+    prompt: "elegant, refined composition, graceful",
+  },
+  {
+    id: "industrial",
+    name: "Industrial",
+    prompt: "industrial, raw mechanical, functional",
+  },
+  {
+    id: "geometric",
+    name: "Geometric",
+    prompt: "geometric abstraction, precise shapes",
+  },
+  {
+    id: "holographic",
+    name: "Holographic",
+    prompt: "holographic, iridescent rainbow sheen",
+  },
+  {
+    id: "halftone",
+    name: "Halftone",
+    prompt: "halftone print, dotted shading, comic print",
+  },
+  {
+    id: "comic-book",
+    name: "Comic Book",
+    prompt: "comic book art, bold ink lines, dynamic panels",
+  },
+  {
+    id: "abstract",
+    name: "Abstract",
+    prompt: "abstract, non-representational forms",
   },
 ];
 
@@ -650,38 +598,146 @@ export interface Material {
 }
 
 export const MATERIALS: Material[] = [
-  { id: "none", name: "No material", prompt: "" },
-  { id: "metal", name: "Brushed metal", prompt: "made of brushed aluminum" },
-  { id: "gold", name: "Gold", prompt: "made of polished gold" },
-  { id: "silver", name: "Silver", prompt: "made of polished silver" },
-  { id: "glass", name: "Glass", prompt: "made of transparent glass" },
-  { id: "wood", name: "Dark oak wood", prompt: "made of dark oak wood" },
-  { id: "stone", name: "Carved stone", prompt: "made of carved stone" },
   {
-    id: "marble",
-    name: "White marble",
-    prompt: "made of polished white marble",
+    id: "none",
+    name: "No material",
+    prompt: "",
   },
-  { id: "fabric", name: "Soft fabric", prompt: "made of soft flowing fabric" },
-  { id: "leather", name: "Brown leather", prompt: "made of brown leather" },
-  { id: "ceramic", name: "Glazed ceramic", prompt: "made of glazed ceramic" },
-  { id: "concrete", name: "Raw concrete", prompt: "made of raw concrete" },
-  { id: "plastic", name: "Glossy plastic", prompt: "made of glossy plastic" },
-  { id: "chrome", name: "Chrome", prompt: "made of mirror-polished chrome" },
-  { id: "copper", name: "Copper", prompt: "made of aged copper" },
   {
-    id: "obsidian",
-    name: "Obsidian",
-    prompt: "made of black volcanic obsidian",
+    id: "chalk",
+    name: "Chalk",
+    prompt: "chalk drawing on dark paper",
   },
-  { id: "crystal", name: "Crystal", prompt: "made of faceted crystal" },
-  { id: "jade", name: "Jade", prompt: "made of carved green jade" },
-  { id: "rubber", name: "Rubber", prompt: "made of matte black rubber" },
-  { id: "carbon", name: "Carbon fiber", prompt: "made of woven carbon fiber" },
-  { id: "paper", name: "Paper", prompt: "made of folded paper" },
-  { id: "bone", name: "Bone / Ivory", prompt: "made of carved bone" },
-  { id: "bronze", name: "Bronze", prompt: "made of weathered bronze" },
-  { id: "titanium", name: "Titanium", prompt: "made of brushed titanium" },
+  {
+    id: "pastel",
+    name: "Soft Pastel",
+    prompt: "soft pastel drawing, powdery texture",
+  },
+  {
+    id: "oil-paint",
+    name: "Oil Paint",
+    prompt: "oil painting, thick visible brushstrokes",
+  },
+  {
+    id: "watercolor",
+    name: "Watercolor",
+    prompt: "watercolor painting, soft washes, paper texture",
+  },
+  {
+    id: "gouache",
+    name: "Gouache",
+    prompt: "gouache painting, flat matte color blocks",
+  },
+  {
+    id: "acrylic",
+    name: "Acrylic",
+    prompt: "acrylic painting, bold opaque strokes",
+  },
+  {
+    id: "pencil",
+    name: "Pencil",
+    prompt: "pencil drawing, graphite shading",
+  },
+  {
+    id: "pen-ink",
+    name: "Pen and Ink",
+    prompt: "pen and ink drawing, fine hatching",
+  },
+  {
+    id: "ink-wash",
+    name: "Ink Wash",
+    prompt: "sumi-e ink wash painting",
+  },
+  {
+    id: "charcoal",
+    name: "Charcoal",
+    prompt: "charcoal sketch, smudged dark strokes",
+  },
+  {
+    id: "marker",
+    name: "Marker",
+    prompt: "marker drawing, vibrant flat color",
+  },
+  {
+    id: "crayon",
+    name: "Crayon",
+    prompt: "wax crayon drawing, waxy texture",
+  },
+  {
+    id: "collage",
+    name: "Collage",
+    prompt: "paper collage, cut-out shapes",
+  },
+  {
+    id: "papercut",
+    name: "Papercut",
+    prompt: "layered papercut art, intricate cut paper",
+  },
+  {
+    id: "crochet",
+    name: "Crochet",
+    prompt: "crocheted fabric, yarn texture",
+  },
+  {
+    id: "knitting",
+    name: "Knitting",
+    prompt: "knitted wool texture",
+  },
+  {
+    id: "embroidery",
+    name: "Embroidery",
+    prompt: "embroidered fabric, thread texture",
+  },
+  {
+    id: "quilting",
+    name: "Quilting",
+    prompt: "patchwork quilt, stitched fabric",
+  },
+  {
+    id: "stained-glass",
+    name: "Stained Glass",
+    prompt: "stained glass artwork, leaded panels",
+  },
+  {
+    id: "mosaic",
+    name: "Mosaic",
+    prompt: "mosaic tiles, grouted pieces",
+  },
+  {
+    id: "origami",
+    name: "Origami",
+    prompt: "origami paper sculpture, folded paper",
+  },
+  {
+    id: "linocut",
+    name: "Linocut",
+    prompt: "linocut print, bold carved blocks",
+  },
+  {
+    id: "woodcut",
+    name: "Woodcut",
+    prompt: "woodcut print, carved grain",
+  },
+  {
+    id: "etching",
+    name: "Etching",
+    prompt: "etching, fine engraved lines",
+  },
+  {
+    id: "screen-print",
+    name: "Screen Print",
+    prompt: "screen print, flat spot colors",
+  },
+  {
+    id: "scratchboard",
+    name: "Scratchboard",
+    prompt: "scratchboard art, white-on-black scratches",
+  },
+  {
+    id: "pixel-art",
+    name: "Pixel Art",
+    prompt: "pixel art, low resolution",
+  },
 ];
 
 export const QUALITY_TAGS = "highly detailed, masterpiece, best quality, 8k";

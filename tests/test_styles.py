@@ -23,9 +23,9 @@ def test_get_style_known_and_unknown():
 
 
 def test_search_styles():
-    hits = search_styles("watercolor")
+    hits = search_styles("noir")
     assert hits, "expected at least one watercolor style"
-    assert all("watercolor" in s["id"] + s["name"] + s["prompt"] for s in hits)
+    assert all("noir" in s["id"] + s["name"] + s["prompt"] for s in hits)
 
 
 def test_apply_style_suffix():
@@ -69,7 +69,7 @@ async def test_generate_multi_style_enqueues_one_per_style(fake):
     result = await invokeai_generate(
         operation="txt2img",
         prompt="a lone detective in the rain",
-        styles=["photorealistic", "watercolor", "film-noir"],
+        styles=["photorealistic", "cinematic", "film-noir"],
         width=512,
         height=512,
     )
@@ -86,7 +86,7 @@ async def test_generate_multi_style_enqueues_one_per_style(fake):
         for g in fake.enqueues
     ]
     assert prompts[0].startswith("a lone detective in the rain, photorealistic")
-    assert "watercolor" in prompts[1]
+    assert "cinematic" in prompts[1]
 
     from invokeai_mcp.attribution import session_map
 
@@ -94,7 +94,7 @@ async def test_generate_multi_style_enqueues_one_per_style(fake):
     per_item = {k: a["styles"] for k, a in sorted(attrib.items())}
     assert per_item == {
         "1": ["photorealistic"],
-        "2": ["watercolor"],
+        "2": ["cinematic"],
         "3": ["film-noir"],
     }, f"per-item attribution wrong: {per_item}"
 
@@ -106,7 +106,7 @@ async def test_generate_multi_style_random_seeds(fake):
     result = await invokeai_generate(
         operation="txt2img",
         prompt="a boat",
-        styles=["photorealistic", "watercolor", "film-noir"],
+        styles=["photorealistic", "cinematic", "film-noir"],
         width=512,
         height=512,
     )
@@ -126,7 +126,7 @@ async def test_generate_explicit_seed_shared_across_styles(fake):
     result = await invokeai_generate(
         operation="txt2img",
         prompt="a boat",
-        styles=["photorealistic", "watercolor"],
+        styles=["photorealistic", "cinematic"],
         width=512,
         height=512,
         seed=12345,
@@ -167,6 +167,6 @@ async def test_styles_list_tool(fake):
     assert missing["success"] is False
     assert missing["error"] == "not_found"
 
-    hit = await invokeai_styles(operation="search", query="watercolor")
+    hit = await invokeai_styles(operation="search", query="noir")
     assert hit["success"] is True
     assert hit["count"] >= 1

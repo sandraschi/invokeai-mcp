@@ -95,7 +95,7 @@ async def test_generate_styles_x_artists_cartesian(fake):
     result = await invokeai_generate(
         operation="txt2img",
         prompt="a lone detective in the rain",
-        styles=["photorealistic", "watercolor"],
+        styles=["photorealistic", "cinematic"],
         artists=["hopper", "caravaggio"],
         width=512,
         height=512,
@@ -108,15 +108,15 @@ async def test_generate_styles_x_artists_cartesian(fake):
     # painter anchor is LAST in every prompt
     for p in prompts:
         assert "in the style of" in p
-        assert p.index("in the style of") > p.index("photorealistic" if "photorealistic" in p else "watercolor")
+        assert p.index("in the style of") > p.index("photorealistic" if "photorealistic" in p else "cinematic")
     # per-item attribution
     attrib = await attribution.session_map()
     per_item = {k: (v["styles"], v["artists"]) for k, v in sorted(attrib.items())}
     assert per_item == {
         "1": (["photorealistic"], ["hopper"]),
         "2": (["photorealistic"], ["caravaggio"]),
-        "3": (["watercolor"], ["hopper"]),
-        "4": (["watercolor"], ["caravaggio"]),
+        "3": (["cinematic"], ["hopper"]),
+        "4": (["cinematic"], ["caravaggio"]),
     }, f"wrong attribution: {per_item}"
 
 
