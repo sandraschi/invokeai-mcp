@@ -57,6 +57,8 @@ test.describe("Fleet Audit", () => {
     for (const tab of ["txt2img", "img2img", "inpaint", "outpaint", "upscale", "controlnet", "ipadapter", "seamless"]) {
       await expect(page.locator(`[data-testid="mode-tab-${tab}"]`)).toBeAttached();
     }
+    await expect(page.locator('[data-testid="batch-panel-toggle"]')).toBeVisible();
+    await page.locator('[data-testid="batch-panel-toggle"]').click();
     await expect(page.locator('[data-testid="style-checks"]')).toBeVisible();
   });
 

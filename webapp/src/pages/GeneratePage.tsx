@@ -1,5 +1,7 @@
 import {
   CheckSquare,
+  ChevronDown,
+  ChevronUp,
   Copy,
   Dices,
   ExternalLink,
@@ -196,6 +198,7 @@ export default function GeneratePage() {
     new Set(),
   );
   const [applyStyleSettings, setApplyStyleSettings] = useState(true);
+  const [batchPanelOpen, setBatchPanelOpen] = useState(false);
   const [imageName, setImageName] = useState("");
   const [maskImageName, setMaskImageName] = useState("");
   const [controlImageName, setControlImageName] = useState("");
@@ -1384,197 +1387,232 @@ export default function GeneratePage() {
 
           {mode === "txt2img" && (
             <SectionCard
-              title="Styles & materials - batch"
+              title="Batch presets - styles, materials, painters"
               testid="batch-panel"
+              actions={
+                <button
+                  onClick={() => setBatchPanelOpen((v) => !v)}
+                  className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-amber-300"
+                  data-testid="batch-panel-toggle"
+                >
+                  {batchPanelOpen ? (
+                    <ChevronUp className="h-3.5 w-3.5" />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  )}
+                  {batchPanelOpen ? "Hide" : "Show"}
+                  <span className="text-slate-600">
+                    ({selectedStyles.size} styles · {selectedMaterials.size}{" "}
+                    mats · {selectedPainters.size} painters)
+                  </span>
+                </button>
+              }
             >
-              <div className="mb-2">
-                <input
-                  value={styleFilter}
-                  onChange={(e) => setStyleFilter(e.target.value)}
-                  placeholder="Search styles..."
-                  className={`${inputCls} max-w-xs`}
-                  data-testid="style-filter"
-                />
-              </div>
-              <div className="mb-3">
-                <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-xs font-medium text-slate-500">
-                    Styles{" "}
-                    <span className="text-slate-600">
-                      ({selectedStyles.size}/{styles.length})
-                    </span>
-                  </span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() =>
-                        setSelectedStyles(new Set(styles.map((s) => s.id)))
-                      }
-                      className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-amber-300"
-                      data-testid="select-all-styles"
-                    >
-                      <CheckSquare className="h-3 w-3" /> All
-                    </button>
-                    <button
-                      onClick={() => setSelectedStyles(new Set())}
-                      className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-red-400"
-                      data-testid="clear-styles"
-                    >
-                      <Square className="h-3 w-3" /> None
-                    </button>
+              {!batchPanelOpen && (
+                <p className="text-xs text-slate-600">
+                  Checkbox presets are hidden - expand to pick styles,
+                  materials, and painters for a batch.
+                </p>
+              )}
+              {batchPanelOpen && (
+                <>
+                  <div className="mb-2">
+                    <input
+                      value={styleFilter}
+                      onChange={(e) => setStyleFilter(e.target.value)}
+                      placeholder="Search styles..."
+                      className={`${inputCls} max-w-xs`}
+                      data-testid="style-filter"
+                    />
                   </div>
-                </div>
-                <div
-                  className="flex max-h-48 flex-wrap gap-1.5 overflow-y-auto"
-                  data-testid="style-checks"
-                >
-                  {visibleStyles.map((s) => (
-                    <label
-                      key={s.id}
-                      className={checkCls}
-                      data-testid={`style-check-${s.id}`}
+                  <div className="mb-3">
+                    <div className="mb-1.5 flex items-center justify-between">
+                      <span className="text-xs font-medium text-slate-500">
+                        Styles{" "}
+                        <span className="text-slate-600">
+                          ({selectedStyles.size}/{styles.length})
+                        </span>
+                      </span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() =>
+                            setSelectedStyles(new Set(styles.map((s) => s.id)))
+                          }
+                          className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-amber-300"
+                          data-testid="select-all-styles"
+                        >
+                          <CheckSquare className="h-3 w-3" /> All
+                        </button>
+                        <button
+                          onClick={() => setSelectedStyles(new Set())}
+                          className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-red-400"
+                          data-testid="clear-styles"
+                        >
+                          <Square className="h-3 w-3" /> None
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      className="flex max-h-48 flex-wrap gap-1.5 overflow-y-auto"
+                      data-testid="style-checks"
                     >
-                      <input
-                        type="checkbox"
-                        checked={selectedStyles.has(s.id)}
-                        onChange={() => toggleStyle(s.id)}
-                        className="accent-amber-500"
-                      />
-                      {s.name}
-                    </label>
-                  ))}
-                  {visibleStyles.length === 0 && (
-                    <span className="text-xs text-slate-600">
-                      No styles match.
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div>
-                <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-xs font-medium text-slate-500">
-                    Materials{" "}
-                    <span className="text-slate-600">
-                      ({selectedMaterials.size}/{MATERIALS.length})
-                    </span>
-                  </span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() =>
-                        setSelectedMaterials(
-                          new Set(MATERIALS.map((m) => m.id)),
-                        )
-                      }
-                      className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-amber-300"
-                      data-testid="select-all-materials"
-                    >
-                      <CheckSquare className="h-3 w-3" /> All
-                    </button>
-                    <button
-                      onClick={() => setSelectedMaterials(new Set())}
-                      className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-red-400"
-                      data-testid="clear-materials"
-                    >
-                      <Square className="h-3 w-3" /> None
-                    </button>
+                      {visibleStyles.map((s) => (
+                        <label
+                          key={s.id}
+                          className={checkCls}
+                          data-testid={`style-check-${s.id}`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedStyles.has(s.id)}
+                            onChange={() => toggleStyle(s.id)}
+                            className="accent-amber-500"
+                          />
+                          {s.name}
+                        </label>
+                      ))}
+                      {visibleStyles.length === 0 && (
+                        <span className="text-xs text-slate-600">
+                          No styles match.
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div
-                  className="flex max-h-40 flex-wrap gap-1.5 overflow-y-auto"
-                  data-testid="material-checks"
-                >
-                  {MATERIALS.map((m) => (
-                    <label
-                      key={m.id}
-                      className={checkCls}
-                      data-testid={`material-check-${m.id}`}
+                  <div>
+                    <div className="mb-1.5 flex items-center justify-between">
+                      <span className="text-xs font-medium text-slate-500">
+                        Materials{" "}
+                        <span className="text-slate-600">
+                          ({selectedMaterials.size}/{MATERIALS.length})
+                        </span>
+                      </span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() =>
+                            setSelectedMaterials(
+                              new Set(MATERIALS.map((m) => m.id)),
+                            )
+                          }
+                          className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-amber-300"
+                          data-testid="select-all-materials"
+                        >
+                          <CheckSquare className="h-3 w-3" /> All
+                        </button>
+                        <button
+                          onClick={() => setSelectedMaterials(new Set())}
+                          className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-red-400"
+                          data-testid="clear-materials"
+                        >
+                          <Square className="h-3 w-3" /> None
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      className="flex max-h-40 flex-wrap gap-1.5 overflow-y-auto"
+                      data-testid="material-checks"
                     >
-                      <input
-                        type="checkbox"
-                        checked={selectedMaterials.has(m.id)}
-                        onChange={() =>
-                          setSelectedMaterials((prev) => {
-                            const next = new Set(prev);
-                            if (next.has(m.id)) next.delete(m.id);
-                            else next.add(m.id);
-                            return next;
-                          })
-                        }
-                        className="accent-amber-500"
-                      />
-                      {m.name}
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div className="mt-3">
-                <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-xs font-medium text-slate-500">
-                    Painters{" "}
-                    <span className="text-slate-600">
-                      ({selectedPainters.size}/{painters.length}) - Giotto to
-                      Giger
-                    </span>
-                  </span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() =>
-                        setSelectedPainters(new Set(painters.map((p) => p.id)))
-                      }
-                      className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-amber-300"
-                      data-testid="select-all-painters"
-                    >
-                      <CheckSquare className="h-3 w-3" /> All
-                    </button>
-                    <button
-                      onClick={() => setSelectedPainters(new Set())}
-                      className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-red-400"
-                      data-testid="clear-painters"
-                    >
-                      <Square className="h-3 w-3" /> None
-                    </button>
+                      {MATERIALS.map((m) => (
+                        <label
+                          key={m.id}
+                          className={checkCls}
+                          data-testid={`material-check-${m.id}`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedMaterials.has(m.id)}
+                            onChange={() =>
+                              setSelectedMaterials((prev) => {
+                                const next = new Set(prev);
+                                if (next.has(m.id)) next.delete(m.id);
+                                else next.add(m.id);
+                                return next;
+                              })
+                            }
+                            className="accent-amber-500"
+                          />
+                          {m.name}
+                        </label>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                <input
-                  value={painterFilter}
-                  onChange={(e) => setPainterFilter(e.target.value)}
-                  placeholder="Search painters..."
-                  className={`${inputCls} mb-1.5 max-w-xs`}
-                  data-testid="painter-filter"
-                />
-                <div
-                  className="flex max-h-40 flex-wrap gap-1.5 overflow-y-auto"
-                  data-testid="painter-checks"
-                >
-                  {visiblePainters.map((p) => (
-                    <label
-                      key={p.id}
-                      className={checkCls}
-                      data-testid={`painter-check-${p.id}`}
+                  <div className="mt-3">
+                    <div className="mb-1.5 flex items-center justify-between">
+                      <span className="text-xs font-medium text-slate-500">
+                        Painters{" "}
+                        <span className="text-slate-600">
+                          ({selectedPainters.size}/{painters.length}) - Giotto
+                          to Giger
+                        </span>
+                      </span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() =>
+                            setSelectedPainters(
+                              new Set(painters.map((p) => p.id)),
+                            )
+                          }
+                          className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-amber-300"
+                          data-testid="select-all-painters"
+                        >
+                          <CheckSquare className="h-3 w-3" /> All
+                        </button>
+                        <button
+                          onClick={() => setSelectedPainters(new Set())}
+                          className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-red-400"
+                          data-testid="clear-painters"
+                        >
+                          <Square className="h-3 w-3" /> None
+                        </button>
+                      </div>
+                    </div>
+                    <input
+                      value={painterFilter}
+                      onChange={(e) => setPainterFilter(e.target.value)}
+                      placeholder="Search painters..."
+                      className={`${inputCls} mb-1.5 max-w-xs`}
+                      data-testid="painter-filter"
+                    />
+                    <div
+                      className="flex max-h-40 flex-wrap gap-1.5 overflow-y-auto"
+                      data-testid="painter-checks"
                     >
-                      <input
-                        type="checkbox"
-                        checked={selectedPainters.has(p.id)}
-                        onChange={() =>
-                          setSelectedPainters((prev) => {
-                            const next = new Set(prev);
-                            if (next.has(p.id)) next.delete(p.id);
-                            else next.add(p.id);
-                            return next;
-                          })
-                        }
-                        className="accent-amber-500"
-                      />
-                      {p.name}
-                    </label>
-                  ))}
-                  {visiblePainters.length === 0 && (
-                    <span className="text-xs text-slate-600">
-                      No painters match.
-                    </span>
-                  )}
-                </div>
-              </div>
-              <label className="mt-3 flex items-center gap-2 text-xs text-slate-500">
+                      {visiblePainters.map((p) => (
+                        <label
+                          key={p.id}
+                          className={checkCls}
+                          data-testid={`painter-check-${p.id}`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedPainters.has(p.id)}
+                            onChange={() =>
+                              setSelectedPainters((prev) => {
+                                const next = new Set(prev);
+                                if (next.has(p.id)) next.delete(p.id);
+                                else next.add(p.id);
+                                return next;
+                              })
+                            }
+                            className="accent-amber-500"
+                          />
+                          {p.name}
+                        </label>
+                      ))}
+                      {visiblePainters.length === 0 && (
+                        <span className="text-xs text-slate-600">
+                          No painters match.
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </SectionCard>
+          )}
+
+          {mode === "txt2img" && (
+            <SectionCard title="Batch run" testid="batch-actions">
+              <label className="flex items-center gap-2 text-xs text-slate-500">
                 <input
                   type="checkbox"
                   checked={applyStyleSettings}
