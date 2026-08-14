@@ -106,7 +106,18 @@ def main(argv: list[str] | None = None) -> None:
         port = opts.port or settings.backend_port
         log("INFO", "server", f"starting HTTP on {opts.host}:{port} (MCP /mcp, REST /api)")
         app = _build_app()
-        uvicorn.run(app, host=opts.host, port=port, log_level="info")
+        import logging
+
+        # Quiet the health-poll spam: httpx request logging + uvicorn access log
+        logging.getLogger("httpx").setLevel(logging.WARNING)
+        logging.getLogger("httpcore").setLevel(logging.WARNING)
+        uvicorn.run(
+            app,
+            host=opts.host,
+            port=port,
+            log_level="warning",
+            access_log=False,
+        )
     else:
         log("INFO", "server", "starting stdio transport")
         import asyncio
