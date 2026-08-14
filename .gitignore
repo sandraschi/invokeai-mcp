@@ -28,7 +28,7 @@ build/
 
 # MCPB pack staging (exact copy of src/ for packing - never commit)
 mcpb/src/
-mcpb/
+mcpb/*
 !mcpb/pack.ps1
 
 # Data / DB
