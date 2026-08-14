@@ -55,3 +55,13 @@ mcpb-pack:
 
 cua-webapp-test:
     Set-Location "{{REPO}}"; powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/just/cua-webapp-test.ps1
+
+# --- Port Zombies ------------------------------------------------------------
+
+# Show stale listeners on fleet-registered ports (dry run)
+zombies:
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/just/clear-port-zombies.ps1 -DryRun
+
+# Kill stale listeners on fleet-registered ports (labeled port -> product)
+zombie-clean:
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/just/clear-port-zombies.ps1
