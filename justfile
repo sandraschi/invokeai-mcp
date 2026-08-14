@@ -1,3 +1,4 @@
+import 'scripts/just/fleet.just'
 set windows-shell := ["powershell.exe", "-NoProfile", "-Command"]
 
 default:
@@ -48,20 +49,3 @@ ci:
     & "{{UV}}" run python -m pytest -q tests/
     Set-Location "{{REPO}}\webapp"; bun run check
     Set-Location "{{REPO}}\webapp"; bun run biome:ci
-
-# Bundle MCP server for Claude Desktop (MCPB) - MUST wipe+recopy src -> mcpb/src first
-mcpb-pack:
-    Set-Location "{{REPO}}"; powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/mcpb-pack.ps1
-
-cua-webapp-test:
-    Set-Location "{{REPO}}"; powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/just/cua-webapp-test.ps1
-
-# --- Port Zombies ------------------------------------------------------------
-
-# Show stale listeners on fleet-registered ports (dry run)
-zombies:
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/just/clear-port-zombies.ps1 -DryRun
-
-# Kill stale listeners on fleet-registered ports (labeled port -> product)
-zombie-clean:
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/just/clear-port-zombies.ps1

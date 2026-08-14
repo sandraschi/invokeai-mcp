@@ -15,6 +15,8 @@ if (Test-Path $stageSrc) {
 New-Item -ItemType Directory -Force -Path (Join-Path $Stage "src") | Out-Null
 Write-Host "-> copying src\$Pkg -> mcpb\src\$Pkg" -ForegroundColor Yellow
 Copy-Item -Recurse -Force (Join-Path $Root "src\$Pkg") (Join-Path $stageSrc $Pkg)
+Get-ChildItem $stageSrc -Recurse -Directory -Filter "__pycache__" -ErrorAction SilentlyContinue |
+    ForEach-Object { Remove-Item $_.FullName -Recurse -Force }
 
 # 2. Copy metadata (manifest + assets) if missing
 if (-not (Test-Path (Join-Path $Stage "manifest.json"))) {
@@ -35,13 +37,16 @@ Write-Host "-> checks" -ForegroundColor Yellow
 
 # 3a. Entry point import resolves from mcpb/src only
 $env:PYTHONPATH = $stageSrc
+$env:PYTHONDONTWRITEBYTECODE = "1"
 $probe = & $Root\.venv\Scripts\python.exe -c "import invokeai_mcp, sys; print(invokeai_mcp.__file__)" 2>&1
 if ($LASTEXITCODE -ne 0 -or $probe -notlike "$stageSrc*") {
     throw "Entry point import failed from mcpb/src: $probe"
 }
 Write-Host "  entry import OK: $probe" -ForegroundColor Green
 
-# 3b. No pycache/bak pollution
+# 3b. No pycache/bak pollution (import probe above must not write bytecode)
+Get-ChildItem $Stage -Recurse -Directory -Filter "__pycache__" -ErrorAction SilentlyContinue |
+    ForEach-Object { Remove-Item $_.FullName -Recurse -Force }
 $junk = Get-ChildItem $Stage -Recurse -Include "__pycache__","*.pyc","*.bak","*.bak.*","*.orig","*.rej" -ErrorAction SilentlyContinue
 if ($junk) { throw "Pollution under mcpb/: $($junk.FullName -join ', ')" }
 Write-Host "  no pollution" -ForegroundColor Green
@@ -62,7 +67,7 @@ Write-Host "  3-4-100 OK" -ForegroundColor Green
 # 4. Pack
 Write-Host "-> mcpb pack" -ForegroundColor Yellow
 Push-Location $Stage
-bunx @anthropic-ai/mcpb pack . (Join-Path $Root "dist\invokeai-mcp-0.1.0.mcpb")
+& "C:\Users\sandr\.bun\bin\bunx.exe" @anthropic-ai/mcpb pack . (Join-Path $Root "dist\invokeai-mcp-0.1.0.mcpb")
 if ($LASTEXITCODE -ne 0) { throw "mcpb pack failed" }
 Pop-Location
 
