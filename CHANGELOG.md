@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.10] - 2026-08-12
+
+### Changed
+- Generate page: styles/materials/painters checkbox panels moved into a
+  collapsible "Batch presets" card (hidden by default, selection count in
+  the header); batch action button lives in its own always-visible card
+
 ## [0.1.9] - 2026-08-12
 
 ### Added
