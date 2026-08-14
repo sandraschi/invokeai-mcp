@@ -47,7 +47,8 @@ engine control (Settings) + HF token login (Settings + Models HF tab), invokeai_
 (status/list/item_status/result/cancel/clear/resume/pause), invokeai_models
 (list/get/install/installs/update/delete/stats), invokeai_gallery
 (list/search/get/metadata/download/delete/star/unstar), invokeai_boards,
-invokeai_styles (list/get/search), invokeai_artists (list/get/search), invokeai_workflows, invokeai_system (health/version/config/stats), 4 Prefab
+invokeai_styles (list/get/search), invokeai_artists (list/get/search),
+invokeai_franchises (list/get/search), invokeai_workflows, invokeai_system (health/version/config/stats), 4 Prefab
 cards, invokeai_help, invokeai_shutdown.
 
 ## Honesty

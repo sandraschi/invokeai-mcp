@@ -493,6 +493,19 @@ async def _invokeai_artists(request: Request) -> JSONResponse:
     return JSONResponse({"artists": artists, "count": len(artists), "total": len(list_artists())})
 
 
+async def _invokeai_franchises(request: Request) -> JSONResponse:
+    """GET /api/invokeai/franchises - franchise catalog (list, ?query=, ?limit=)."""
+    from invokeai_mcp.franchises import list_franchises, search_franchises
+
+    query = request.query_params.get("query")
+    limit = min(int(request.query_params.get("limit", 100)), 200)
+    if query:
+        franchises = search_franchises(query, limit=limit)
+    else:
+        franchises = list_franchises()[:limit]
+    return JSONResponse({"franchises": franchises, "count": len(franchises), "total": len(list_franchises())})
+
+
 async def _invokeai_workflow_templates(request: Request) -> JSONResponse:
     """GET /api/invokeai/workflow-templates - editor node templates."""
     from invokeai_mcp.client import InvokeAIError
@@ -532,8 +545,9 @@ async def _gallery_list_rest(request: Request) -> JSONResponse:
         search = params.get("query") or None
         style_ids = [s for s in (params.get("style") or "").split(",") if s]
         artist_ids = [a for a in (params.get("artist") or "").split(",") if a]
+        franchise_ids = [f for f in (params.get("franchise") or "").split(",") if f]
 
-        fetch_limit = max(limit, 300) if (starred_only or style_ids or artist_ids or sort == "name") else limit
+        fetch_limit = max(limit, 300) if (starred_only or style_ids or artist_ids or franchise_ids or sort == "name") else limit
         data = await client.list_images(
             limit=fetch_limit,
             offset=offset,
@@ -578,9 +592,20 @@ async def _gallery_list_rest(request: Request) -> JSONResponse:
             entry = attrib.get(str(item))
             return list(entry.get("artists", [])) if entry else []
 
+        def _franchises_for(image: dict) -> list[str]:
+            sid = image.get("session_id")
+            if not sid:
+                return []
+            item = session_to_item.get(str(sid))
+            if item is None:
+                return []
+            entry = attrib.get(str(item))
+            return list(entry.get("franchises", [])) if entry else []
+
         for image in images:
             image["styles"] = _styles_for(image)
             image["artists"] = _artists_for(image)
+            image["franchises"] = _franchises_for(image)
 
         # Absolute URLs (the engine returns relative paths - the browser
         # would resolve them against the webapp origin and 404).
@@ -698,6 +723,43 @@ async def _gallery_list_rest(request: Request) -> JSONResponse:
                 results = await asyncio.gather(*(_artist_matched(i) for i in rest))
                 images = [i for i, keep in zip(rest, results, strict=True) if keep]
 
+        franchises_matched: list[str] = []
+        if franchise_ids:
+            from invokeai_mcp.franchises import get_franchise
+
+            franchise_set_ids = set(franchise_ids)
+            exact: list[dict] = []
+            rest: list[dict] = []
+            for image in images:
+                if any(f in franchise_set_ids for f in image.get("franchises", [])):
+                    exact.append(image)
+                else:
+                    rest.append(image)
+            if exact:
+                images = exact
+                franchises_matched = [f for f in franchise_ids if any(
+                    f in img.get("franchises", []) for img in images
+                )]
+            else:
+                valid_f: dict[str, dict] = {}
+                for fid in franchise_ids:
+                    f = get_franchise(fid)
+                    if f:
+                        valid_f[fid] = f
+
+                async def _franchise_matched(image: dict) -> bool:
+                    async with sem:
+                        prompt = await _prompt_of(image)
+                    for fid, f in valid_f.items():
+                        if f["name"].lower() in prompt.lower():
+                            if fid not in franchises_matched:
+                                franchises_matched.append(fid)
+                            return True
+                    return False
+
+                results = await asyncio.gather(*(_franchise_matched(i) for i in rest))
+                images = [i for i, keep in zip(rest, results, strict=True) if keep]
+
         if sort == "name":
             images.sort(key=lambda i: i.get("image_name", ""), reverse=(order == "DESC"))
         elif sort == "starred":
@@ -712,6 +774,7 @@ async def _gallery_list_rest(request: Request) -> JSONResponse:
                 "has_more": len(images) > limit,
                 "styles_matched": styles_matched,
                 "artists_matched": artists_matched,
+                "franchises_matched": franchises_matched,
             }
         )
     except InvokeAIError as exc:
@@ -827,6 +890,7 @@ routes = [
     Route("/api/invokeai/workflow-templates", _invokeai_workflow_templates),
     Route("/api/invokeai/styles", _invokeai_styles),
     Route("/api/invokeai/artists", _invokeai_artists),
+    Route("/api/invokeai/franchises", _invokeai_franchises),
     Route("/api/invokeai/gallery/batch", _gallery_batch, methods=["POST"]),
     Route("/api/invokeai/gallery/board", _gallery_board, methods=["POST", "DELETE"]),
     Route("/api/invokeai/gallery/zip", _gallery_zip, methods=["POST"]),

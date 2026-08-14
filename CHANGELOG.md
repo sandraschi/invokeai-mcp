@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.1.11] - 2026-08-12
+
+### Added
+- invokeai_franchises tool + 23 fan-style franchise presets (Super Mario,
+  Zelda, Pokemon, Minecraft, Ghibli, Shinkai, Disney, Pixar, Tim Burton,
+  Simpsons, Marvel, Star Wars, LotR, Harry Potter, D&D, Warhammer 40k,
+  MTG, Doom, Portal, Sonic, Hollow Knight, Undertale, Animal Crossing)
+  - fan-style descriptors for personal creative use
+- invokeai_generate franchises=[...] param; appended LAST (strongest
+  identity cue): base -> style -> material -> painter -> franchise;
+  styles x artists x franchises cartesian (capped 100)
+- Attribution records franchises; gallery franchise filter + chips
+  (fuchsia); REST /api/invokeai/franchises; Generate page 4th checkbox
+  group; Gallery filter dropdown
+- Fixed duplicated name in anchors ("in the style of Super Mario, super
+  mario style..." -> clean signature)
+
 ## [0.1.10] - 2026-08-12
 
 ### Changed

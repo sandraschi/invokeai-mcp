@@ -37,10 +37,11 @@ async def record_items(
     item_ids: list[int],
     styles: list[str] | None = None,
     artists: list[str] | None = None,
+    franchises: list[str] | None = None,
     model_key: str | None = None,
     prompt: str = "",
 ) -> None:
-    """Associate queue items with the styles/painters that produced them."""
+    """Associate queue items with the styles/painters/franchises that produced them."""
     if not item_ids:
         return
     async with _lock:
@@ -51,6 +52,7 @@ async def record_items(
             entries[str(item_id)] = {
                 "styles": list(styles or []),
                 "artists": list(artists or []),
+                "franchises": list(franchises or []),
                 "model_key": model_key,
                 "prompt": prompt[:2000],
                 "ts": now,

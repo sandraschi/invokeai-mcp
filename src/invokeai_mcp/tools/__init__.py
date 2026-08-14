@@ -3,6 +3,7 @@
 from invokeai_mcp.tools import (
     artist_tools,  # noqa: F401
     cards,  # noqa: F401
+    franchise_tools,  # noqa: F401
     gallery_tools,  # noqa: F401
     generate_tools,  # noqa: F401
     model_tools,  # noqa: F401

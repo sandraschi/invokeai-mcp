@@ -258,10 +258,26 @@ export default function GeneratePage() {
       .catch(() => setPainters([]));
   }, []);
 
+  const [franchises, setFranchises] = useState<
+    { id: string; name: string; prompt: string }[]
+  >([]);
+  const [selectedFranchises, setSelectedFranchises] = useState<Set<string>>(
+    new Set(),
+  );
+  const [franchiseFilter, setFranchiseFilter] = useState("");
+  useEffect(() => {
+    apiGet<{ franchises?: { id: string; name: string; prompt: string }[] }>(
+      "/invokeai/franchises",
+    )
+      .then((d) => setFranchises(d.franchises ?? []))
+      .catch(() => setFranchises([]));
+  }, []);
+
   const batchCount =
     (selectedStyles.size || 1) *
     (selectedMaterials.size || 1) *
-    (selectedPainters.size || 1);
+    (selectedPainters.size || 1) *
+    (selectedFranchises.size || 1);
   const doneCount = batch.filter((b) =>
     ["completed", "failed", "canceled"].includes(b.status),
   ).length;
@@ -543,42 +559,58 @@ export default function GeneratePage() {
     const selectedStyleObjs = styles.filter((s) => selectedStyles.has(s.id));
     const materials = MATERIALS.filter((m) => selectedMaterials.has(m.id));
     const painterObjs = painters.filter((p) => selectedPainters.has(p.id));
+    const franchiseObjs = franchises.filter((f) =>
+      selectedFranchises.has(f.id),
+    );
     if (
       selectedStyleObjs.length === 0 &&
       materials.length === 0 &&
-      painterObjs.length === 0
+      painterObjs.length === 0 &&
+      franchiseObjs.length === 0
     ) {
       setError(
-        "Select at least one style, material, or painter for the batch.",
+        "Select at least one style, material, painter, or franchise for the batch.",
       );
       return;
     }
     const stylePool = selectedStyleObjs.length ? selectedStyleObjs : [null];
     const materialPool = materials.length ? materials : [null];
     const painterPool = painterObjs.length ? painterObjs : [null];
+    const franchisePool = franchiseObjs.length ? franchiseObjs : [null];
     const combos: {
       label: string;
       prompt: string;
       negative: string;
       styleId?: string;
       artistId?: string;
+      franchiseId?: string;
     }[] = [];
     for (const s of stylePool) {
       for (const m of materialPool) {
         for (const a of painterPool) {
-          combos.push({
-            label:
-              [s?.name, m?.id !== "none" ? m?.name : null, a?.name]
+          for (const f of franchisePool) {
+            combos.push({
+              label:
+                [s?.name, m?.id !== "none" ? m?.name : null, a?.name, f?.name]
+                  .filter(Boolean)
+                  .join(" × ") || "plain",
+              // priority: base -> style -> material -> quality -> painter -> franchise
+              prompt: [
+                prompt,
+                s?.prompt,
+                m?.prompt,
+                QUALITY_TAGS,
+                a?.prompt,
+                f?.prompt,
+              ]
                 .filter(Boolean)
-                .join(" × ") || "plain",
-            // priority: base -> style -> material -> quality -> painter (painter last = strongest cue)
-            prompt: [prompt, s?.prompt, m?.prompt, QUALITY_TAGS, a?.prompt]
-              .filter(Boolean)
-              .join(", "),
-            negative: [negative, s?.negative].filter(Boolean).join(", "),
-            styleId: s?.id,
-            artistId: a?.id,
-          });
+                .join(", "),
+              negative: [negative, s?.negative].filter(Boolean).join(", "),
+              styleId: s?.id,
+              artistId: a?.id,
+              franchiseId: f?.id,
+            });
+          }
         }
       }
     }
@@ -603,6 +635,7 @@ export default function GeneratePage() {
           negative_prompt: c.negative || null,
           styles: c.styleId ? [c.styleId] : undefined,
           artists: c.artistId ? [c.artistId] : undefined,
+          franchises: c.franchiseId ? [c.franchiseId] : undefined,
           ...baseParams(),
           runs: 1,
         });
@@ -1594,6 +1627,87 @@ export default function GeneratePage() {
                           No painters match.
                         </span>
                       )}
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <div className="mb-1.5 flex items-center justify-between">
+                      <span className="text-xs font-medium text-slate-400">
+                        Franchises{" "}
+                        <span className="text-slate-500">
+                          ({selectedFranchises.size}/{franchises.length}) -
+                          fan-style
+                        </span>
+                      </span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() =>
+                            setSelectedFranchises(
+                              new Set(franchises.map((f) => f.id)),
+                            )
+                          }
+                          className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-amber-300"
+                          data-testid="select-all-franchises"
+                        >
+                          <CheckSquare className="h-3 w-3" /> All
+                        </button>
+                        <button
+                          onClick={() => setSelectedFranchises(new Set())}
+                          className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-red-400"
+                          data-testid="clear-franchises"
+                        >
+                          <Square className="h-3 w-3" /> None
+                        </button>
+                      </div>
+                    </div>
+                    <input
+                      value={franchiseFilter}
+                      onChange={(e) => setFranchiseFilter(e.target.value)}
+                      placeholder="Search franchises (Mario, Ghibli, 40k...)"
+                      className={`${inputCls} mb-1.5 max-w-xs`}
+                      data-testid="franchise-filter"
+                    />
+                    <div
+                      className="flex max-h-40 flex-wrap gap-1.5 overflow-y-auto"
+                      data-testid="franchise-checks"
+                    >
+                      {franchises
+                        .filter((f) =>
+                          f.name
+                            .toLowerCase()
+                            .includes(franchiseFilter.toLowerCase()),
+                        )
+                        .map((f) => (
+                          <label
+                            key={f.id}
+                            className={checkCls}
+                            data-testid={`franchise-check-${f.id}`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedFranchises.has(f.id)}
+                              onChange={() =>
+                                setSelectedFranchises((prev) => {
+                                  const next = new Set(prev);
+                                  if (next.has(f.id)) next.delete(f.id);
+                                  else next.add(f.id);
+                                  return next;
+                                })
+                              }
+                              className="accent-amber-500"
+                            />
+                            {f.name}
+                          </label>
+                        ))}
+                      {franchises.length > 0 &&
+                        !franchises.some((f) =>
+                          f.name
+                            .toLowerCase()
+                            .includes(franchiseFilter.toLowerCase()),
+                        ) && (
+                          <span className="text-xs text-slate-600">
+                            No franchises match.
+                          </span>
+                        )}
                     </div>
                   </div>
                 </>

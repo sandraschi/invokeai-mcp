@@ -31,6 +31,7 @@ interface GalleryImage {
   created_at?: string;
   styles?: string[];
   artists?: string[];
+  franchises?: string[];
   display_name?: string;
 }
 
@@ -67,12 +68,16 @@ export default function GalleryPage() {
   const [boards, setBoards] = useState<Board[]>([]);
   const [styles, setStyles] = useState<{ id: string; name: string }[]>([]);
   const [artists, setArtists] = useState<{ id: string; name: string }[]>([]);
+  const [franchises, setFranchises] = useState<{ id: string; name: string }[]>(
+    [],
+  );
   const [selected, setSelected] = useState<GalleryImage | null>(null);
   const [selectMode, setSelectMode] = useState(false);
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [batchBusy, setBatchBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [artistFilter, setArtistFilter] = useState("");
+  const [franchiseFilter, setFranchiseFilter] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -83,6 +88,7 @@ export default function GalleryPage() {
       if (boardFilter) qs.set("board", boardFilter);
       if (styleFilter) qs.set("style", styleFilter);
       if (artistFilter) qs.set("artist", artistFilter);
+      if (franchiseFilter) qs.set("franchise", franchiseFilter);
       const data = await apiGet<GalleryResponse>(`/invokeai/gallery?${qs}`);
       setImages(data.images ?? []);
     } catch {
@@ -90,7 +96,15 @@ export default function GalleryPage() {
     } finally {
       setLoading(false);
     }
-  }, [query, sort, starredOnly, boardFilter, styleFilter, artistFilter]);
+  }, [
+    query,
+    sort,
+    starredOnly,
+    boardFilter,
+    styleFilter,
+    artistFilter,
+    franchiseFilter,
+  ]);
 
   useEffect(() => {
     load();
@@ -106,6 +120,11 @@ export default function GalleryPage() {
     apiGet<{ artists?: { id: string; name: string }[] }>("/invokeai/artists")
       .then((d) => setArtists(d.artists ?? []))
       .catch(() => setArtists([]));
+    apiGet<{ franchises?: { id: string; name: string }[] }>(
+      "/invokeai/franchises",
+    )
+      .then((d) => setFranchises(d.franchises ?? []))
+      .catch(() => setFranchises([]));
   }, []);
 
   const action = async (op: string, imageName?: string) => {
@@ -298,6 +317,20 @@ export default function GalleryPage() {
             </option>
           ))}
         </select>
+        <select
+          value={franchiseFilter}
+          onChange={(e) => setFranchiseFilter(e.target.value)}
+          className="rounded-lg border border-slate-700 bg-slate-900 px-2 py-2 text-xs text-slate-200 outline-none"
+          title="Franchise"
+          data-testid="gallery-franchise-filter"
+        >
+          <option value="">All franchises</option>
+          {franchises.map((f) => (
+            <option key={f.id} value={f.id}>
+              {f.name}
+            </option>
+          ))}
+        </select>
         <button
           onClick={() => {
             setSelectMode((v) => {
@@ -469,6 +502,19 @@ export default function GalleryPage() {
                   ))}
                 </div>
               )}
+              {!mock && img.franchises && img.franchises.length > 0 && (
+                <div className="absolute bottom-1.5 left-1.5 flex max-w-[80%] flex-col items-start gap-0.5">
+                  {img.franchises.slice(0, 2).map((f) => (
+                    <span
+                      key={f}
+                      className="rounded bg-slate-950/80 px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-fuchsia-300"
+                      title="Generated in this franchise style"
+                    >
+                      {f}
+                    </span>
+                  ))}
+                </div>
+              )}
               {!mock && (
                 <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-slate-950/90 to-transparent p-2 opacity-0 transition group-hover:opacity-100">
                   <button
@@ -537,6 +583,18 @@ export default function GalleryPage() {
                         className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-sky-300"
                       >
                         {a}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {selected.franchises && selected.franchises.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {selected.franchises.map((f) => (
+                      <span
+                        key={f}
+                        className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-fuchsia-300"
+                      >
+                        {f}
                       </span>
                     ))}
                   </div>

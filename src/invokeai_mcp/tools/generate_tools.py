@@ -138,6 +138,14 @@ async def invokeai_generate(
             "style cue. Combines with styles as a cartesian product (styles x artists)."
         ),
     ] = None,
+    franchises: Annotated[
+        list[str] | None,
+        Field(
+            description="Franchise ids from invokeai_franchises (Mario, Ghibli, "
+            "Warhammer 40k...). Appended AFTER the painter - the strongest identity "
+            "cue of all. Combines as a cartesian product (styles x artists x franchises)."
+        ),
+    ] = None,
     ctx: Context | None = None,  # noqa: B008
 ) -> dict:
     """Generate images through the local InvokeAI creative engine.
@@ -213,6 +221,21 @@ async def invokeai_generate(
                 }
             artist_set.append(a)
 
+    franchise_set: list[dict] | None = None
+    if franchises:
+        from invokeai_mcp.franchises import get_franchise
+
+        franchise_set = []
+        for fid in franchises:
+            f = get_franchise(fid)
+            if not f:
+                return {
+                    "success": False,
+                    "error": "not_found",
+                    "message": f"Unknown franchise '{fid}'. Use invokeai_franchises(operation='list') for valid ids.",
+                }
+            franchise_set.append(f)
+
     try:
         model = await _resolve_model(client, model_key)
         eff_width, eff_height = width, height
@@ -226,29 +249,34 @@ async def invokeai_generate(
                 pass
 
         from invokeai_mcp.artists import apply_artist
+        from invokeai_mcp.franchises import apply_franchise
         from invokeai_mcp.styles import apply_style
 
-        # Prompt composition priority: base -> style -> painter (painter LAST).
+        # Prompt composition priority: base -> style -> painter -> franchise
+        # (franchise LAST - the strongest identity cue).
         jobs: list[dict] = [{"prompt": prompt, "negative": negative_prompt, "steps": steps, "cfg": cfg_scale}]
-        job_attrib: list[dict] = [{"styles": [], "artists": []}]
+        job_attrib: list[dict] = [{"styles": [], "artists": [], "franchises": []}]
         style_pool = style_set or [None]
         artist_pool = artist_set or [None]
-        combos = [(s, a) for s in style_pool for a in artist_pool]
+        franchise_pool = franchise_set or [None]
+        combos = [(s, a, f) for s in style_pool for a in artist_pool for f in franchise_pool]
         if len(combos) > 100:
             return {
                 "success": False,
                 "error": "validation",
-                "message": f"styles x artists = {len(combos)} jobs exceeds the 100 cap.",
+                "message": f"styles x artists x franchises = {len(combos)} jobs exceeds the 100 cap.",
             }
-        if style_set or artist_set:
+        if style_set or artist_set or franchise_set:
             jobs = []
             job_attrib = []
-            for s, a in combos:
+            for s, a, f in combos:
                 combined = prompt
                 if s is not None:
                     combined = apply_style(s, combined)
                 if a is not None:
                     combined = apply_artist(a, combined)
+                if f is not None:
+                    combined = apply_franchise(f, combined)
                 job: dict = {
                     "prompt": combined,
                     "negative": negative_prompt if negative_prompt is not None else (
@@ -263,7 +291,11 @@ async def invokeai_generate(
                     job["cfg"] = cfg_scale
                 jobs.append(job)
                 job_attrib.append(
-                    {"styles": [s["id"]] if s else [], "artists": [a["id"]] if a else []}
+                    {
+                        "styles": [s["id"]] if s else [],
+                        "artists": [a["id"]] if a else [],
+                        "franchises": [f["id"]] if f else [],
+                    }
                 )
         items: list[int] = []
         batch_ids: list[str] = []
@@ -316,6 +348,7 @@ async def invokeai_generate(
                 [int(i) for i in job_items if isinstance(i, int)],
                 styles=attr["styles"],
                 artists=attr["artists"],
+                franchises=attr["franchises"],
                 model_key=model.get("key") if model else None,
                 prompt=job["prompt"],
             )
@@ -332,6 +365,7 @@ async def invokeai_generate(
             "queue_id": queue_id,
             "style_count": len(style_set) if style_set else None,
             "artist_count": len(artist_set) if artist_set else None,
+            "franchise_count": len(franchise_set) if franchise_set else None,
             "message": f"{operation} job enqueued ({len(items)} item(s), first {first}). Poll with invokeai_queue(operation='item_status').",
             "poll": {
                 "tool": "invokeai_queue",
