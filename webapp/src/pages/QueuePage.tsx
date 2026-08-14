@@ -82,7 +82,7 @@ export default function QueuePage() {
             className="rounded-lg border border-slate-800 bg-slate-900/60 p-3"
             data-testid={`queue-${k}`}
           >
-            <div className="text-[11px] uppercase tracking-wide text-slate-500">
+            <div className="text-[11px] uppercase tracking-wide text-slate-400">
               {k.replace("_", " ")}
             </div>
             <div className="text-xl font-bold text-slate-100">
@@ -166,7 +166,7 @@ export default function QueuePage() {
                   {st.replace("_", " ")}
                 </span>
                 <span className="text-xs text-slate-400">#{id}</span>
-                <code className="hidden max-w-40 truncate rounded bg-slate-800 px-1.5 py-0.5 text-[11px] text-slate-500 md:block">
+                <code className="hidden max-w-40 truncate rounded bg-slate-800 px-1.5 py-0.5 text-[11px] text-slate-400 md:block">
                   {item.batch_id}
                 </code>
               </div>
@@ -174,7 +174,7 @@ export default function QueuePage() {
                 {(st === "pending" || st === "in_progress") && (
                   <button
                     onClick={() => act("cancel", id)}
-                    className="text-slate-500 hover:text-red-400"
+                    className="text-slate-400 hover:text-red-400"
                     title="Cancel"
                   >
                     <XCircle className="h-4 w-4" />

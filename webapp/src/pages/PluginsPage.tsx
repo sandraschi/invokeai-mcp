@@ -164,12 +164,12 @@ export default function PluginsPage() {
                   <Package className="h-4 w-4 text-amber-400/70" />
                   {p.name}
                   {p.version && (
-                    <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[11px] text-slate-500">
+                    <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[11px] text-slate-400">
                       v{p.version}
                     </span>
                   )}
                 </div>
-                <div className="mt-1 text-[11px] text-slate-500">
+                <div className="mt-1 text-[11px] text-slate-400">
                   {p.node_types?.length ?? 0} node type(s)
                   {p.workflows?.length
                     ? ` · ${p.workflows.length} workflow(s)`
@@ -178,7 +178,7 @@ export default function PluginsPage() {
               </div>
               <button
                 onClick={() => uninstall(p.name)}
-                className="text-slate-500 hover:text-red-400"
+                className="text-slate-400 hover:text-red-400"
                 title="Uninstall"
               >
                 <Trash2 className="h-4 w-4" />
@@ -218,13 +218,13 @@ export default function PluginsPage() {
                       {cap.nodes.map((n) => (
                         <code
                           key={n}
-                          className="rounded bg-slate-900 px-1.5 py-0.5 text-[10px] text-slate-500"
+                          className="rounded bg-slate-900 px-1.5 py-0.5 text-[10px] text-slate-400"
                         >
                           {n.replace("Invocation", "")}
                         </code>
                       ))}
                       {cap.count > cap.nodes.length && (
-                        <span className="text-[10px] text-slate-600">
+                        <span className="text-[10px] text-slate-400">
                           +{cap.count - cap.nodes.length} more
                         </span>
                       )}

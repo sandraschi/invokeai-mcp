@@ -9,6 +9,26 @@
 body {
   @apply bg-slate-950 text-slate-100 antialiased;
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px;
+}
+
+/* READABILITY OVERRIDES - tiny arbitrary font sizes are too small for
+   the dark theme; bump them to legible sizes app-wide. Remove this block
+   to restore the original sizes. */
+.text-\[9px\] {
+  font-size: 11px;
+}
+.text-\[10px\] {
+  font-size: 12px;
+}
+.text-\[11px\] {
+  font-size: 13px;
+}
+.text-\[12px\] {
+  font-size: 13px;
+}
+.text-xs {
+  font-size: 13px;
 }
 
 select,

@@ -193,7 +193,7 @@ export default function SettingsPage() {
           </div>
           <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-3">
             <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-3">
-              <div className="flex items-center gap-1.5 text-[11px] uppercase text-slate-500">
+              <div className="flex items-center gap-1.5 text-[11px] uppercase text-slate-400">
                 <Cpu className="h-3.5 w-3.5" /> URL
               </div>
               <code className="mt-1 block text-xs text-slate-300">
@@ -201,7 +201,7 @@ export default function SettingsPage() {
               </code>
             </div>
             <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-3">
-              <div className="flex items-center gap-1.5 text-[11px] uppercase text-slate-500">
+              <div className="flex items-center gap-1.5 text-[11px] uppercase text-slate-400">
                 <Zap className="h-3.5 w-3.5" /> Version
               </div>
               <div className="mt-1 text-xs text-slate-300">
@@ -209,7 +209,7 @@ export default function SettingsPage() {
               </div>
             </div>
             <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-3">
-              <div className="flex items-center gap-1.5 text-[11px] uppercase text-slate-500">
+              <div className="flex items-center gap-1.5 text-[11px] uppercase text-slate-400">
                 <Cpu className="h-3.5 w-3.5" /> Backend port
               </div>
               <div className="mt-1 text-xs text-slate-300">
@@ -238,7 +238,7 @@ export default function SettingsPage() {
               >
                 <div className="text-xs font-medium text-slate-300">{p}</div>
                 <div
-                  className={`mt-1 text-[11px] ${status[p] === "detected" ? "text-emerald-400" : status[p] === "probing" || probing ? "text-slate-500" : "text-slate-600"}`}
+                  className={`mt-1 text-[11px] ${status[p] === "detected" ? "text-emerald-400" : status[p] === "probing" || probing ? "text-slate-400" : "text-slate-400"}`}
                 >
                   {probing || status[p] === "probing"
                     ? "Probing..."
@@ -251,7 +251,7 @@ export default function SettingsPage() {
           </div>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500">
+              <label className="mb-1 block text-xs font-medium text-slate-400">
                 Provider
               </label>
               <select
@@ -271,7 +271,7 @@ export default function SettingsPage() {
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500">
+              <label className="mb-1 block text-xs font-medium text-slate-400">
                 Model
               </label>
               <select
@@ -341,7 +341,7 @@ export default function SettingsPage() {
             <p className="mt-2 text-xs text-emerald-300">{engineMsg}</p>
           )}
           <p
-            className="mt-3 text-[11px] leading-relaxed text-slate-600"
+            className="mt-3 text-[11px] leading-relaxed text-slate-400"
             data-testid="engine-note"
           >
             The engine (InvokeAI 6.13.7, canvas GUI on 9090) is a separate
@@ -363,7 +363,7 @@ export default function SettingsPage() {
                     : "Anonymous"
               }
             />
-            <span className="text-xs text-slate-500" data-testid="hf-status">
+            <span className="text-xs text-slate-400" data-testid="hf-status">
               {hfStatus === "valid"
                 ? "Gated models (FLUX.1, SD3.5) are installable."
                 : "Login to install gated HuggingFace models."}
@@ -398,7 +398,7 @@ export default function SettingsPage() {
           </div>
           {hfMsg && <p className="mt-2 text-xs text-emerald-300">{hfMsg}</p>}
           {hfErr && <p className="mt-2 text-xs text-red-300">{hfErr}</p>}
-          <p className="mt-3 text-[11px] leading-relaxed text-slate-600">
+          <p className="mt-3 text-[11px] leading-relaxed text-slate-400">
             The token is stored by the InvokeAI engine (HF login) and used for
             gated model downloads. Create one at huggingface.co/settings/tokens
             (read scope is enough).
@@ -406,7 +406,7 @@ export default function SettingsPage() {
         </SectionCard>
 
         <SectionCard title="About" testid="settings-about">
-          <p className="text-xs leading-relaxed text-slate-500">
+          <p className="text-xs leading-relaxed text-slate-400">
             invokeai-mcp v0.1.0 - fleet creative engine bridge. Backend 11154,
             webapp 11155. Wraps InvokeAI (port 9090). See{" "}
             <Link to="/app/help" className="text-amber-400">

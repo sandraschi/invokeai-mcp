@@ -101,12 +101,12 @@ export default function BoardsPage() {
                 <div className="text-sm font-medium text-slate-200">
                   {b.board_name}
                 </div>
-                <code className="text-[11px] text-slate-500">{b.board_id}</code>
+                <code className="text-[11px] text-slate-400">{b.board_id}</code>
               </div>
             </div>
             <button
               onClick={() => remove(b.board_id)}
-              className="text-slate-500 hover:text-red-400"
+              className="text-slate-400 hover:text-red-400"
               title="Delete board"
             >
               <Trash2 className="h-4 w-4" />

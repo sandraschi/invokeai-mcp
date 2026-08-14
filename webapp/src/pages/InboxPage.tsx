@@ -79,11 +79,11 @@ export default function InboxPage() {
                 <div className="text-sm text-slate-200">
                   Queue item{" "}
                   <span className="font-mono text-amber-300">#{id}</span>{" "}
-                  <span className="text-slate-500">
+                  <span className="text-slate-400">
                     ({st.replace("_", " ")})
                   </span>
                 </div>
-                <div className="truncate text-[11px] text-slate-500">
+                <div className="truncate text-[11px] text-slate-400">
                   batch: {item.batch_id} · destination:{" "}
                   {item.destination ?? "mcp"}
                 </div>

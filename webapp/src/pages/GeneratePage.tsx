@@ -854,7 +854,7 @@ export default function GeneratePage() {
 
   const inputCls =
     "w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-500/60";
-  const labelCls = "mb-1 block text-xs font-medium text-slate-500";
+  const labelCls = "mb-1 block text-xs font-medium text-slate-400";
   const checkCls =
     "flex items-center gap-2 rounded-md border border-slate-700 px-2.5 py-1.5 text-xs text-slate-300 transition hover:border-amber-500/40 hover:bg-slate-800 cursor-pointer select-none";
 
@@ -915,8 +915,8 @@ export default function GeneratePage() {
     in_progress: "bg-amber-500/15 text-amber-300",
     completed: "bg-emerald-500/15 text-emerald-300",
     failed: "bg-red-500/15 text-red-300",
-    canceled: "bg-slate-700/40 text-slate-500",
-    unknown: "bg-slate-700/40 text-slate-500",
+    canceled: "bg-slate-700/40 text-slate-400",
+    unknown: "bg-slate-700/40 text-slate-400",
   };
 
   return (
@@ -959,7 +959,7 @@ export default function GeneratePage() {
               {modeDef.needsPrompt && (
                 <div>
                   <div className="mb-1 flex items-center justify-between">
-                    <label className="text-xs font-medium text-slate-500">
+                    <label className="text-xs font-medium text-slate-400">
                       Prompt
                     </label>
                     <button
@@ -1349,12 +1349,12 @@ export default function GeneratePage() {
 
               <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3">
                 <div className="mb-1 flex items-center justify-between">
-                  <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                     Composed prompt
                   </span>
                   <button
                     onClick={copyComposed}
-                    className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-amber-300"
+                    className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-amber-300"
                     data-testid="composed-copy"
                   >
                     <Copy className="h-3 w-3" /> Copy
@@ -1401,7 +1401,7 @@ export default function GeneratePage() {
                     <ChevronDown className="h-3.5 w-3.5" />
                   )}
                   {batchPanelOpen ? "Hide" : "Show"}
-                  <span className="text-slate-600">
+                  <span className="text-slate-400">
                     ({selectedStyles.size} styles · {selectedMaterials.size}{" "}
                     mats · {selectedPainters.size} painters)
                   </span>
@@ -1409,7 +1409,7 @@ export default function GeneratePage() {
               }
             >
               {!batchPanelOpen && (
-                <p className="text-xs text-slate-600">
+                <p className="text-xs text-slate-400">
                   Checkbox presets are hidden - expand to pick styles,
                   materials, and painters for a batch.
                 </p>
@@ -1427,9 +1427,9 @@ export default function GeneratePage() {
                   </div>
                   <div className="mb-3">
                     <div className="mb-1.5 flex items-center justify-between">
-                      <span className="text-xs font-medium text-slate-500">
+                      <span className="text-xs font-medium text-slate-400">
                         Styles{" "}
-                        <span className="text-slate-600">
+                        <span className="text-slate-400">
                           ({selectedStyles.size}/{styles.length})
                         </span>
                       </span>
@@ -1438,14 +1438,14 @@ export default function GeneratePage() {
                           onClick={() =>
                             setSelectedStyles(new Set(styles.map((s) => s.id)))
                           }
-                          className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-amber-300"
+                          className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-amber-300"
                           data-testid="select-all-styles"
                         >
                           <CheckSquare className="h-3 w-3" /> All
                         </button>
                         <button
                           onClick={() => setSelectedStyles(new Set())}
-                          className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-red-400"
+                          className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-red-400"
                           data-testid="clear-styles"
                         >
                           <Square className="h-3 w-3" /> None
@@ -1472,7 +1472,7 @@ export default function GeneratePage() {
                         </label>
                       ))}
                       {visibleStyles.length === 0 && (
-                        <span className="text-xs text-slate-600">
+                        <span className="text-xs text-slate-400">
                           No styles match.
                         </span>
                       )}
@@ -1480,9 +1480,9 @@ export default function GeneratePage() {
                   </div>
                   <div>
                     <div className="mb-1.5 flex items-center justify-between">
-                      <span className="text-xs font-medium text-slate-500">
+                      <span className="text-xs font-medium text-slate-400">
                         Materials{" "}
-                        <span className="text-slate-600">
+                        <span className="text-slate-400">
                           ({selectedMaterials.size}/{MATERIALS.length})
                         </span>
                       </span>
@@ -1493,14 +1493,14 @@ export default function GeneratePage() {
                               new Set(MATERIALS.map((m) => m.id)),
                             )
                           }
-                          className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-amber-300"
+                          className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-amber-300"
                           data-testid="select-all-materials"
                         >
                           <CheckSquare className="h-3 w-3" /> All
                         </button>
                         <button
                           onClick={() => setSelectedMaterials(new Set())}
-                          className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-red-400"
+                          className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-red-400"
                           data-testid="clear-materials"
                         >
                           <Square className="h-3 w-3" /> None
@@ -1537,9 +1537,9 @@ export default function GeneratePage() {
                   </div>
                   <div className="mt-3">
                     <div className="mb-1.5 flex items-center justify-between">
-                      <span className="text-xs font-medium text-slate-500">
+                      <span className="text-xs font-medium text-slate-400">
                         Painters{" "}
-                        <span className="text-slate-600">
+                        <span className="text-slate-400">
                           ({selectedPainters.size}/{painters.length}) - Giotto
                           to Giger
                         </span>
@@ -1551,14 +1551,14 @@ export default function GeneratePage() {
                               new Set(painters.map((p) => p.id)),
                             )
                           }
-                          className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-amber-300"
+                          className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-amber-300"
                           data-testid="select-all-painters"
                         >
                           <CheckSquare className="h-3 w-3" /> All
                         </button>
                         <button
                           onClick={() => setSelectedPainters(new Set())}
-                          className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-red-400"
+                          className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-red-400"
                           data-testid="clear-painters"
                         >
                           <Square className="h-3 w-3" /> None
@@ -1599,7 +1599,7 @@ export default function GeneratePage() {
                         </label>
                       ))}
                       {visiblePainters.length === 0 && (
-                        <span className="text-xs text-slate-600">
+                        <span className="text-xs text-slate-400">
                           No painters match.
                         </span>
                       )}
@@ -1612,7 +1612,7 @@ export default function GeneratePage() {
 
           {mode === "txt2img" && (
             <SectionCard title="Batch run" testid="batch-actions">
-              <label className="flex items-center gap-2 text-xs text-slate-500">
+              <label className="flex items-center gap-2 text-xs text-slate-400">
                 <input
                   type="checkbox"
                   checked={applyStyleSettings}
@@ -1692,7 +1692,7 @@ export default function GeneratePage() {
             <div className="space-y-3">
               {EXAMPLE_PROMPTS.map((g) => (
                 <div key={g.group}>
-                  <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-600">
+                  <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                     {g.group}
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -1768,7 +1768,7 @@ export default function GeneratePage() {
                 ))}
               </div>
             ) : (
-              <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-slate-800 text-slate-600">
+              <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-slate-800 text-slate-400">
                 <div className="text-center">
                   <Wand2 className="mx-auto mb-2 h-8 w-8" />
                   <p className="text-xs">Generated images appear here</p>

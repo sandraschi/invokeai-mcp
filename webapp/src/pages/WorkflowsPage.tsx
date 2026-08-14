@@ -155,7 +155,7 @@ export default function WorkflowsPage() {
                   <div className="truncate text-sm font-medium text-slate-200">
                     {w.name ?? w.workflow_id}
                   </div>
-                  <div className="truncate text-[11px] text-slate-500">
+                  <div className="truncate text-[11px] text-slate-400">
                     {w.description ?? w.workflow_id}
                   </div>
                 </button>
@@ -170,7 +170,7 @@ export default function WorkflowsPage() {
                 )}
                 {w.category === "default" && (
                   <span
-                    className="ml-2 shrink-0 text-[10px] uppercase tracking-wide text-slate-600"
+                    className="ml-2 shrink-0 text-[10px] uppercase tracking-wide text-slate-400"
                     title="Engine defaults cannot be deleted; save edits a copy"
                   >
                     default
@@ -218,7 +218,7 @@ export default function WorkflowsPage() {
                         setSelected(null);
                         setLoaded(null);
                       }}
-                      className="text-xs text-slate-500 hover:text-slate-300"
+                      className="text-xs text-slate-400 hover:text-slate-300"
                     >
                       Clear
                     </button>
@@ -228,7 +228,7 @@ export default function WorkflowsPage() {
             </div>
 
             {!selected && (
-              <p className="py-16 text-center text-sm text-slate-500">
+              <p className="py-16 text-center text-sm text-slate-400">
                 Pick a workflow on the left - the graph editor shows nodes and
                 connections, the JSON tab shows the raw artifact.
               </p>

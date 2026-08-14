@@ -219,7 +219,7 @@ export default function GalleryPage() {
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <div className="relative flex-1 min-w-52 max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -429,7 +429,7 @@ export default function GalleryPage() {
                   className="aspect-square w-full cursor-pointer object-cover transition group-hover:scale-105"
                 />
               ) : (
-                <div className="flex aspect-square w-full items-center justify-center bg-slate-900 text-slate-700">
+                <div className="flex aspect-square w-full items-center justify-center bg-slate-900 text-slate-400">
                   <Image className="h-8 w-8" />
                 </div>
               )}

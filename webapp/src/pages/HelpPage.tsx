@@ -48,7 +48,7 @@ export default function HelpPage() {
               (11154)
             </div>
             <div>invokeai-mcp -&gt; InvokeAI REST API (127.0.0.1:9090)</div>
-            <div className="pt-2 text-slate-600">
+            <div className="pt-2 text-slate-400">
               MCP transport: /mcp (streamable HTTP) + stdio
             </div>
           </div>
@@ -102,7 +102,7 @@ export default function HelpPage() {
                 <Icon className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
                 <div>
                   <div className="font-medium text-slate-200">{label}</div>
-                  <div className="text-xs text-slate-500">{desc}</div>
+                  <div className="text-xs text-slate-400">{desc}</div>
                 </div>
               </Link>
             ))}
@@ -112,7 +112,7 @@ export default function HelpPage() {
         <SectionCard title="Environment" testid="help-env">
           <table className="w-full text-xs">
             <thead>
-              <tr className="text-left text-slate-500">
+              <tr className="text-left text-slate-400">
                 <th className="py-1">Variable</th>
                 <th>Default</th>
                 <th>Purpose</th>

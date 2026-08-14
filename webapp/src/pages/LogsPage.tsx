@@ -45,7 +45,7 @@ export default function LogsPage() {
       : lvl === "WARNING"
         ? "text-amber-400"
         : lvl === "DEBUG"
-          ? "text-slate-500"
+          ? "text-slate-400"
           : "text-slate-400";
 
   return (
@@ -89,11 +89,11 @@ export default function LogsPage() {
             key={i}
             className="flex gap-3 border-b border-slate-900 px-3 py-1.5 last:border-0"
           >
-            <span className="shrink-0 text-slate-600">{l.timestamp}</span>
+            <span className="shrink-0 text-slate-400">{l.timestamp}</span>
             <span className={`w-16 shrink-0 font-semibold ${color(l.level)}`}>
               {l.level}
             </span>
-            <span className="w-32 shrink-0 truncate text-slate-500">
+            <span className="w-32 shrink-0 truncate text-slate-400">
               {l.source}
             </span>
             <span className="text-slate-300">{l.message}</span>

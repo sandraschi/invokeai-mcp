@@ -41,7 +41,7 @@ export function KpiCard({
       className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 backdrop-blur"
       data-testid={testid}
     >
-      <div className="flex items-center gap-2 text-xs text-slate-500">
+      <div className="flex items-center gap-2 text-xs text-slate-400">
         {icon}
         {label}
       </div>
@@ -99,7 +99,7 @@ export function PageHeader({
   return (
     <div className="mb-6">
       <h1 className="text-2xl font-bold text-slate-100">{title}</h1>
-      {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+      {subtitle && <p className="mt-1 text-sm text-slate-400">{subtitle}</p>}
     </div>
   );
 }
@@ -111,10 +111,10 @@ export function EmptyState({
 }: { icon: ReactNode; title: string; hint?: string }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-800 py-12 text-center">
-      <div className="mb-2 text-slate-600">{icon}</div>
+      <div className="mb-2 text-slate-400">{icon}</div>
       <div className="text-sm font-medium text-slate-400">{title}</div>
       {hint && (
-        <div className="mt-1 max-w-sm text-xs text-slate-600">{hint}</div>
+        <div className="mt-1 max-w-sm text-xs text-slate-400">{hint}</div>
       )}
     </div>
   );
@@ -122,7 +122,7 @@ export function EmptyState({
 
 export function Spinner({ label = "Loading..." }: { label?: string }) {
   return (
-    <div className="flex items-center gap-2 py-6 text-sm text-slate-500">
+    <div className="flex items-center gap-2 py-6 text-sm text-slate-400">
       <span className="h-3 w-3 animate-spin rounded-full border-2 border-slate-600 border-t-amber-400" />
       {label}
     </div>

@@ -201,7 +201,7 @@ export default function ModelsPage() {
                     ? "Unverified"
                     : "Anonymous"}
               </span>
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-slate-400">
                 {hfStatus === "valid"
                   ? "Gated models (FLUX.1, SD3.5, gated checkpoints) are installable."
                   : "Login to install gated HuggingFace models."}
@@ -261,7 +261,7 @@ export default function ModelsPage() {
               </button>
             </div>
             <p
-              className="text-[11px] leading-relaxed text-slate-600"
+              className="text-[11px] leading-relaxed text-slate-400"
               data-testid="hf-readme"
             >
               Install any HuggingFace repo by id. Gated repos require the login
@@ -275,7 +275,7 @@ export default function ModelsPage() {
         <>
           <div className="mb-5 flex flex-wrap items-end gap-3">
             <div className="flex-1 min-w-64">
-              <label className="mb-1 block text-xs font-medium text-slate-500">
+              <label className="mb-1 block text-xs font-medium text-slate-400">
                 Install source (HF repo id, Civitai URL, or path)
               </label>
               <input
@@ -342,7 +342,7 @@ export default function ModelsPage() {
                     </span>
                     {mock && <MockBadge />}
                   </div>
-                  <div className="mt-1 flex items-center gap-2 text-[11px] text-slate-500">
+                  <div className="mt-1 flex items-center gap-2 text-[11px] text-slate-400">
                     <code className="rounded bg-slate-800 px-1.5 py-0.5">
                       {m.base ?? "?"}
                     </code>
@@ -354,7 +354,7 @@ export default function ModelsPage() {
                 {!mock && (
                   <button
                     onClick={() => remove(m.key)}
-                    className="text-slate-500 hover:text-red-400"
+                    className="text-slate-400 hover:text-red-400"
                     title="Delete"
                   >
                     <Trash2 className="h-4 w-4" />

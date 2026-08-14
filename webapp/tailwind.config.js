@@ -12,6 +12,9 @@ export default {
         sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
+      fontSize: {
+        xs: ["0.8125rem", { lineHeight: "1.25rem" }],
+      },
     },
   },
   plugins: [],

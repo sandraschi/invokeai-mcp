@@ -165,7 +165,7 @@ export default function DashboardPage() {
                     loading="lazy"
                   />
                 ) : (
-                  <div className="flex aspect-square w-full items-center justify-center bg-slate-900 text-slate-700">
+                  <div className="flex aspect-square w-full items-center justify-center bg-slate-900 text-slate-400">
                     <Image className="h-8 w-8" />
                   </div>
                 )}

@@ -61,7 +61,7 @@ export default function Layout() {
           {!collapsed && (
             <div className="min-w-0">
               <div className="truncate text-sm font-bold">InvokeAI MCP</div>
-              <div className="text-[11px] text-slate-500">v0.1.0</div>
+              <div className="text-[11px] text-slate-400">v0.1.0</div>
             </div>
           )}
         </div>
@@ -119,7 +119,7 @@ export default function Layout() {
             <div
               className={`flex items-center gap-1.5 text-xs ${
                 configured === null
-                  ? "text-slate-500"
+                  ? "text-slate-400"
                   : configured
                     ? "text-emerald-400"
                     : "text-red-400"

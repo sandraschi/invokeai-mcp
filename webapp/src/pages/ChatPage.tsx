@@ -166,7 +166,7 @@ export default function ChatPage() {
             <option key={p}>{p}</option>
           ))}
         </select>
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-slate-400">
           {selectedModel
             ? `${selectedProvider}: ${selectedModel}`
             : "no LLM selected"}
@@ -197,8 +197,8 @@ export default function ChatPage() {
       >
         {messages.length === 0 && (
           <div className="py-8 text-center">
-            <MessageSquare className="mx-auto mb-2 h-8 w-8 text-slate-600" />
-            <p className="text-sm text-slate-500">
+            <MessageSquare className="mx-auto mb-2 h-8 w-8 text-slate-400" />
+            <p className="text-sm text-slate-400">
               Ask about prompts, models, or workflows. Requires a local LLM
               (Settings).
             </p>
@@ -208,7 +208,7 @@ export default function ChatPage() {
             >
               {EXAMPLES.map((g) => (
                 <div key={g.group}>
-                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-600">
+                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                     {g.group}
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -249,7 +249,7 @@ export default function ChatPage() {
             </div>
           </div>
         ))}
-        {busy && <div className="text-xs text-slate-500">Thinking...</div>}
+        {busy && <div className="text-xs text-slate-400">Thinking...</div>}
         {error && (
           <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-300">
             {error}

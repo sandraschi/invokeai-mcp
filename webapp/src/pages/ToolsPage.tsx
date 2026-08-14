@@ -56,14 +56,14 @@ export default function ToolsPage() {
                 <code className="text-sm font-semibold text-amber-300">
                   {t.name}
                 </code>
-                <p className="mt-0.5 truncate text-xs text-slate-500">
+                <p className="mt-0.5 truncate text-xs text-slate-400">
                   {t.description}
                 </p>
               </div>
               {open === t.name ? (
-                <ChevronUp className="h-4 w-4 shrink-0 text-slate-500" />
+                <ChevronUp className="h-4 w-4 shrink-0 text-slate-400" />
               ) : (
-                <ChevronDown className="h-4 w-4 shrink-0 text-slate-500" />
+                <ChevronDown className="h-4 w-4 shrink-0 text-slate-400" />
               )}
             </button>
             {open === t.name && (
