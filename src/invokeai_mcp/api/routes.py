@@ -466,6 +466,19 @@ async def _queue_list_rest(request: Request) -> JSONResponse:
     )
 
 
+async def _invokeai_styles(request: Request) -> JSONResponse:
+    """GET /api/invokeai/styles - style catalog (list, ?query=, ?limit=)."""
+    from invokeai_mcp.styles import list_styles, search_styles
+
+    query = request.query_params.get("query")
+    limit = min(int(request.query_params.get("limit", 100)), 200)
+    if query:
+        styles = search_styles(query, limit=limit)
+    else:
+        styles = list_styles()[:limit]
+    return JSONResponse({"styles": styles, "count": len(styles), "total": len(list_styles())})
+
+
 async def _invokeai_workflow_templates(request: Request) -> JSONResponse:
     """GET /api/invokeai/workflow-templates - editor node templates."""
     from invokeai_mcp.client import InvokeAIError
@@ -505,6 +518,7 @@ routes = [
     Route("/api/invokeai/plugins/reload", _invokeai_plugin_action, methods=["POST"]),
     Route("/api/invokeai/plugins/{name}", _invokeai_plugin_action, methods=["DELETE"]),
     Route("/api/invokeai/workflow-templates", _invokeai_workflow_templates),
+    Route("/api/invokeai/styles", _invokeai_styles),
     Route("/api/invokeai/queue/status", _queue_status_rest),
     Route("/api/invokeai/queue/list", _queue_list_rest),
     Route("/api/invokeai/generate", _generate, methods=["POST"]),

@@ -6,6 +6,7 @@ from invokeai_mcp.tools import (
     generate_tools,  # noqa: F401
     model_tools,  # noqa: F401
     queue_tools,  # noqa: F401
+    style_tools,  # noqa: F401
     system_tools,  # noqa: F401
     workflow_tools,  # noqa: F401
 )

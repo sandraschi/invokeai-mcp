@@ -13,12 +13,12 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PageHeader, SectionCard, Spinner } from "../components/ui";
-import { apiPost } from "../lib/api";
+import { apiGet, apiPost } from "../lib/api";
 import {
   EXAMPLE_PROMPTS,
   MATERIALS,
   QUALITY_TAGS,
-  STYLES,
+  STYLES as STYLES_CATALOG,
 } from "../lib/presets";
 import { useHealthStore } from "../store/health";
 import { useLlmStore } from "../store/llm";
@@ -160,6 +160,25 @@ interface BatchItem {
 export default function GeneratePage() {
   const configured = useHealthStore((s) => s.configured);
   const { selectedProvider, selectedModel } = useLlmStore();
+  const [styles, setStyles] = useState(STYLES_CATALOG);
+  useEffect(() => {
+    apiGet<{
+      styles?: {
+        id: string;
+        name: string;
+        prompt: string;
+        negative?: string;
+        cfg?: number | null;
+        steps?: number | null;
+      }[];
+    }>("/invokeai/styles")
+      .then((d) => {
+        if (d.styles?.length) setStyles(d.styles as typeof STYLES_CATALOG);
+      })
+      .catch(() => {
+        /* backend offline - bundled catalog */
+      });
+  }, []);
   const [models, setModels] = useState<ModelOption[]>([]);
   const [controlModels, setControlModels] = useState<ModelOption[]>([]);
   const [ipModels, setIpModels] = useState<ModelOption[]>([]);
@@ -216,7 +235,7 @@ export default function GeneratePage() {
   const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const modeDef = MODES.find((m) => m.id === mode) ?? MODES[0];
-  const primaryStyle = STYLES.find((s) => selectedStyles.has(s.id)) ?? null;
+  const primaryStyle = styles.find((s) => selectedStyles.has(s.id)) ?? null;
   const primaryMaterial =
     MATERIALS.find((m) => selectedMaterials.has(m.id) && m.id !== "none") ??
     null;
@@ -238,7 +257,7 @@ export default function GeneratePage() {
     batchTotal > 0 ? Math.round((doneCount / batchTotal) * 100) : 0;
   const batchRunning = batch.length > 0 && doneCount < batchTotal;
 
-  const visibleStyles = STYLES.filter((s) =>
+  const visibleStyles = styles.filter((s) =>
     s.name.toLowerCase().includes(styleFilter.toLowerCase()),
   );
 
@@ -506,13 +525,13 @@ export default function GeneratePage() {
       );
       return;
     }
-    const styles = STYLES.filter((s) => selectedStyles.has(s.id));
+    const selectedStyleObjs = styles.filter((s) => selectedStyles.has(s.id));
     const materials = MATERIALS.filter((m) => selectedMaterials.has(m.id));
-    if (styles.length === 0 && materials.length === 0) {
+    if (selectedStyleObjs.length === 0 && materials.length === 0) {
       setError("Select at least one style or material for the batch.");
       return;
     }
-    const stylePool = styles.length ? styles : [null];
+    const stylePool = selectedStyleObjs.length ? selectedStyleObjs : [null];
     const materialPool = materials.length ? materials : [null];
     const combos: { label: string; prompt: string; negative: string }[] = [];
     for (const s of stylePool) {
@@ -672,7 +691,8 @@ export default function GeneratePage() {
       const system =
         "You are an expert AI image prompt engineer. Take the user's base prompt and produce ONE enhanced prompt that: keeps their subject exactly, adds the requested style and material, includes camera/lens/lighting detail for photorealistic styles, uses vivid descriptive vocabulary, appends quality tags. Return ONLY the enhanced prompt text - no quotes, no commentary, no markdown.";
       const styleNames =
-        STYLES.filter((s) => selectedStyles.has(s.id))
+        styles
+          .filter((s) => selectedStyles.has(s.id))
           .map((s) => s.name)
           .join(", ") || "none";
       const materialNames =
@@ -725,7 +745,7 @@ export default function GeneratePage() {
       return next;
     });
     if (applyStyleSettings) {
-      const s = STYLES.find((x) => x.id === id);
+      const s = styles.find((x) => x.id === id);
       if (s) {
         setCfg(s.cfg);
         setSteps(s.steps);
@@ -1339,13 +1359,13 @@ export default function GeneratePage() {
                   <span className="text-xs font-medium text-slate-500">
                     Styles{" "}
                     <span className="text-slate-600">
-                      ({selectedStyles.size}/{STYLES.length})
+                      ({selectedStyles.size}/{styles.length})
                     </span>
                   </span>
                   <div className="flex gap-2">
                     <button
                       onClick={() =>
-                        setSelectedStyles(new Set(STYLES.map((s) => s.id)))
+                        setSelectedStyles(new Set(styles.map((s) => s.id)))
                       }
                       className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-amber-300"
                       data-testid="select-all-styles"

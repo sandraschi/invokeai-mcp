@@ -174,6 +174,15 @@ steps: docs/ONBOARDING.md.
 - Playwright e2e: backend health + frontend load
 - Gate: `just ci` (ruff + pytest + tsc + biome)
 
+## v0.1.6 additions
+
+Styles are backend-owned (data/styles.json, 69 presets): invokeai_styles
+(operation=list|get|search, style_id/query/limit) lists presets with
+id/name/prompt/negative/cfg/steps. Pass ids to
+invokeai_generate(styles=["photorealistic","watercolor"], style_cfg=true)
+for a multi-style batch - one item per style, style prompt appended,
+style cfg/steps applied unless style_cfg=false. REST: GET /api/invokeai/styles.
+
 ## v0.1.5 additions
 
 Model families: sd-1, sdxl, flux, cogview4 (CogView4-6B, Apache-2.0, no HF

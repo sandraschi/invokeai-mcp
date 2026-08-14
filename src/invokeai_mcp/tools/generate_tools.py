@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from fastmcp import Context
 from pydantic import Field
@@ -111,6 +111,18 @@ async def invokeai_generate(
         float, Field(description="IP-Adapter influence (0.0-1.0).", ge=0.0, le=1.0)
     ] = 0.7,
     runs: Annotated[int, Field(description="Number of images to generate (1-8).", ge=1, le=8)] = 1,
+    styles: Annotated[
+        list[str] | None,
+        Field(
+            description="Style ids from invokeai_styles list. Each style appends its "
+            "prompt suffix and enqueues one item (multi-style batch). "
+            "style_cfg=False keeps the explicit steps/cfg_scale for every item."
+        ),
+    ] = None,
+    style_cfg: Annotated[
+        bool,
+        Field(description="Apply each style's cfg/steps when styles are used (default true)."),
+    ] = True,
     ctx: Context | None = None,  # noqa: B008
 ) -> dict:
     """Generate images through the local InvokeAI creative engine.
@@ -156,6 +168,21 @@ async def invokeai_generate(
             "message": f"{operation} requires a prompt.",
         }
 
+    style_set: list[dict] | None = None
+    if styles:
+        from invokeai_mcp.styles import get_style
+
+        style_set = []
+        for sid in styles:
+            s = get_style(sid)
+            if not s:
+                return {
+                    "success": False,
+                    "error": "not_found",
+                    "message": f"Unknown style '{sid}'. Use invokeai_styles(operation='list') for valid ids.",
+                }
+            style_set.append(s)
+
     try:
         model = await _resolve_model(client, model_key)
         eff_width, eff_height = width, height
@@ -167,47 +194,82 @@ async def invokeai_generate(
                     eff_width, eff_height = int(dto["width"]), int(dto["height"])
             except InvokeAIError:
                 pass
-        graph = build_generation_graph(
-            operation=operation,
-            model=model,
-            positive_prompt=prompt,
-            negative_prompt=negative_prompt or "",
-            width=eff_width,
-            height=eff_height,
-            steps=steps,
-            cfg_scale=cfg_scale,
-            scheduler=scheduler,
-            seed=seed,
-            strength=strength,
-            image_name=image_name,
-            mask_image_name=mask_image_name,
-            seamless_x=seamless_x,
-            seamless_y=seamless_y,
-            control_image_name=control_image_name,
-            control_model=control_model,
-            control_weight=control_weight,
-            canny_low=canny_low,
-            canny_high=canny_high,
-            ip_image_name=ip_image_name,
-            ip_model=ip_model,
-            ip_weight=ip_weight,
-        )
-        result = await client.enqueue_batch(graph, runs=runs, destination="mcp")
-        queue_id = result.get("queue_id") or settings.queue_id
-        items = result.get("queue_item_ids") or result.get("queue_item_id") or []
-        if isinstance(items, int):
-            items = [items]
+
+        from invokeai_mcp.styles import apply_style
+
+        jobs: list[dict] = [{"prompt": prompt, "negative": negative_prompt, "steps": steps, "cfg": cfg_scale}]
+        if style_set:
+            jobs = []
+            for s in style_set:
+                job: dict = {
+                    "prompt": apply_style(s, prompt),
+                    "negative": negative_prompt if negative_prompt is not None else s.get("negative") or "",
+                }
+                if style_cfg:
+                    job["steps"] = int(s.get("steps") or steps)
+                    job["cfg"] = float(s.get("cfg") or cfg_scale)
+                else:
+                    job["steps"] = steps
+                    job["cfg"] = cfg_scale
+                jobs.append(job)
+
+        items: list[int] = []
+        batch_ids: list[str] = []
+        queue_id = settings.queue_id
+        for job in jobs:
+            graph = build_generation_graph(
+                operation=operation,
+                model=model,
+                positive_prompt=job["prompt"],
+                negative_prompt=job["negative"],
+                width=eff_width,
+                height=eff_height,
+                steps=job["steps"],
+                cfg_scale=job["cfg"],
+                scheduler=scheduler,
+                seed=seed,
+                strength=strength,
+                image_name=image_name,
+                mask_image_name=mask_image_name,
+                seamless_x=seamless_x,
+                seamless_y=seamless_y,
+                control_image_name=control_image_name,
+                control_model=control_model,
+                control_weight=control_weight,
+                canny_low=canny_low,
+                canny_high=canny_high,
+                ip_image_name=ip_image_name,
+                ip_model=ip_model,
+                ip_weight=ip_weight,
+            )
+            result = await client.enqueue_batch(graph, runs=runs, destination="mcp")
+            if result.get("queue_id"):
+                queue_id = result.get("queue_id")
+            job_items_raw = result.get("queue_item_ids") or result.get("queue_item_id")
+            if isinstance(job_items_raw, int):
+                job_items: list[Any] = [job_items_raw]
+            elif isinstance(job_items_raw, list):
+                job_items = job_items_raw
+            else:
+                job_items = []
+            if job_items:
+                items.extend(job_items)
+            bid = result.get("batch_id")
+            if bid:
+                batch_ids.append(str(bid))
         first = items[0] if items else None
         log(
-            "INFO", "generate", f"{operation} enqueued: batch={result.get('batch_id')} item={first}"
+            "INFO", "generate", f"{operation} enqueued: {len(items)} item(s) batch={batch_ids[0] if batch_ids else None}"
         )
         return {
             "success": True,
             "queue_item_id": first,
             "queue_item_ids": items,
-            "batch_id": result.get("batch_id"),
+            "batch_id": batch_ids[0] if batch_ids else None,
+            "batch_ids": batch_ids,
             "queue_id": queue_id,
-            "message": f"{operation} job enqueued (item {first}). Poll with invokeai_queue(operation='item_status').",
+            "style_count": len(style_set) if style_set else None,
+            "message": f"{operation} job enqueued ({len(items)} item(s), first {first}). Poll with invokeai_queue(operation='item_status').",
             "poll": {
                 "tool": "invokeai_queue",
                 "args": {"operation": "item_status", "item_id": first},

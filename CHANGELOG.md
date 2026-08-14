@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.6] - 2026-08-12
+
+### Added
+- invokeai_styles tool (list/get/search) - style catalog moved into the
+  backend as single source of truth (data/styles.json, 69 presets)
+- invokeai_generate styles=[...] + style_cfg params: multi-style batches
+  enqueue one item per style (prompt suffix + style cfg/steps)
+- GET /api/invokeai/styles; Generate page now fetches the live catalog
+  with the bundled presets.ts as offline fallback
+
 ## [0.1.5] - 2026-08-12
 
 ### Added
