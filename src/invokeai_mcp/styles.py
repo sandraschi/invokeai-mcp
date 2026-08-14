@@ -51,3 +51,20 @@ def apply_style(style: dict[str, Any], prompt: str) -> str:
     if not suffix:
         return prompt.strip()
     return f"{prompt.strip()}, {suffix}"
+
+
+def match_style_for_prompt(style: dict[str, Any], prompt: str) -> bool:
+    """Did this style's suffix get applied to this prompt?
+
+    The batch appends style.prompt to the base prompt, so a style matches
+    when its name or the first token of its suffix appears in the prompt.
+    """
+    p = prompt.lower()
+    name = style.get("name", "").lower()
+    if name and name in p:
+        return True
+    suffix = style.get("prompt", "").strip().lower()
+    if not suffix:
+        return False
+    first_token = suffix.split(",")[0].strip()
+    return len(first_token) >= 3 and first_token in p

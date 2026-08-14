@@ -1,4 +1,12 @@
-import { Download, Image, Search, Star, Trash2 } from "lucide-react";
+import {
+  CheckSquare,
+  Download,
+  Image,
+  Search,
+  Square,
+  Star,
+  Trash2,
+} from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import {
   EmptyState,
@@ -13,44 +21,177 @@ import { useHealthStore } from "../store/health";
 
 interface GalleryImage {
   image_name: string;
-  url: string;
+  image_url?: string;
+  url?: string;
   thumbnail_url: string;
   width?: number;
   height?: number;
   starred?: boolean;
+  board_id?: string | null;
+  created_at?: string;
 }
+
+interface Board {
+  board_id: string;
+  board_name: string;
+}
+
+interface GalleryResponse {
+  images: GalleryImage[];
+  count: number;
+  total: number;
+  has_more: boolean;
+  styles_matched?: string[];
+}
+
+const SORTS = [
+  { id: "created_at", label: "Newest first" },
+  { id: "oldest", label: "Oldest first" },
+  { id: "name", label: "Name A-Z" },
+  { id: "name_desc", label: "Name Z-A" },
+  { id: "starred", label: "Starred first" },
+];
 
 export default function GalleryPage() {
   const configured = useHealthStore((s) => s.configured);
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [sort, setSort] = useState("created_at");
+  const [starredOnly, setStarredOnly] = useState(false);
+  const [boardFilter, setBoardFilter] = useState("");
+  const [styleFilter, setStyleFilter] = useState("");
+  const [boards, setBoards] = useState<Board[]>([]);
+  const [styles, setStyles] = useState<{ id: string; name: string }[]>([]);
   const [selected, setSelected] = useState<GalleryImage | null>(null);
+  const [selectMode, setSelectMode] = useState(false);
+  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [batchBusy, setBatchBusy] = useState(false);
+  const [notice, setNotice] = useState("");
 
-  const load = useCallback(async (q = "") => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiGet<{ images: GalleryImage[] }>(
-        `/invokeai/gallery?limit=60${q ? `&query=${encodeURIComponent(q)}` : ""}`,
-      );
+      const qs = new URLSearchParams({ limit: "100", sort });
+      if (query) qs.set("query", query);
+      if (starredOnly) qs.set("starred", "1");
+      if (boardFilter) qs.set("board", boardFilter);
+      if (styleFilter) qs.set("style", styleFilter);
+      const data = await apiGet<GalleryResponse>(`/invokeai/gallery?${qs}`);
       setImages(data.images ?? []);
     } catch {
       setImages([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [query, sort, starredOnly, boardFilter, styleFilter]);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    apiGet<{ boards?: Board[] }>("/invokeai/boards")
+      .then((d) => setBoards(d.boards ?? []))
+      .catch(() => setBoards([]));
+    apiGet<{ styles?: { id: string; name: string }[] }>("/invokeai/styles")
+      .then((d) => setStyles(d.styles ?? []))
+      .catch(() => setStyles([]));
+  }, []);
 
   const action = async (op: string, imageName?: string) => {
     const res = await apiPost<{ success: boolean }>("/invokeai/gallery", {
       operation: op,
       image_name: imageName ?? selected?.image_name,
     });
-    if (res.success) void load(query);
+    if (res.success) void load();
+  };
+
+  const togglePick = (name: string) => {
+    setPicked((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  };
+
+  const pickPage = () => {
+    setPicked((prev) => {
+      const next = new Set(prev);
+      for (const i of images) next.add(i.image_name);
+      return next;
+    });
+  };
+
+  const clearPicks = () => setPicked(new Set());
+
+  const batch = async (op: string, body?: Record<string, unknown>) => {
+    if (picked.size === 0) return;
+    setBatchBusy(true);
+    setNotice("");
+    try {
+      if (op === "zip") {
+        const r = await fetch("/api/invokeai/gallery/zip", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image_names: [...picked] }),
+        });
+        if (r.ok) {
+          const blob = await r.blob();
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = `invokeai-${picked.size}.zip`;
+          a.click();
+          URL.revokeObjectURL(a.href);
+          setNotice(`Exported ${picked.size} images.`);
+        } else {
+          setNotice("Zip export failed.");
+        }
+      } else {
+        const res = await apiPost<{ success: boolean; error?: string }>(
+          "/invokeai/gallery/batch",
+          { operation: op, image_names: [...picked], ...(body ?? {}) },
+        );
+        setNotice(
+          res.success
+            ? `${op} on ${picked.size} images.`
+            : (res.error ?? "Batch failed."),
+        );
+        if (res.success) {
+          clearPicks();
+          void load();
+        }
+      }
+    } catch (e) {
+      setNotice(e instanceof Error ? e.message : "batch failed");
+    } finally {
+      setBatchBusy(false);
+    }
+  };
+
+  const moveToBoard = async (boardId: string) => {
+    if (!boardId) return;
+    setBatchBusy(true);
+    try {
+      const res = await apiPost<{ success: boolean; error?: string }>(
+        "/invokeai/gallery/board",
+        { image_names: [...picked], board_id: boardId },
+      );
+      setNotice(
+        res.success
+          ? `Moved ${picked.size} images to board.`
+          : (res.error ?? "Move failed."),
+      );
+      if (res.success) {
+        clearPicks();
+        void load();
+      }
+    } catch (e) {
+      setNotice(e instanceof Error ? e.message : "move failed");
+    } finally {
+      setBatchBusy(false);
+    }
   };
 
   const mock = configured === false;
@@ -62,84 +203,248 @@ export default function GalleryPage() {
     <div className="mx-auto max-w-7xl p-6" data-testid="gallery-page">
       <PageHeader
         title="Gallery"
-        subtitle="Everything the engine has produced, searchable by prompt"
+        subtitle="Everything the engine has produced - sort, filter, batch"
       />
       {mock && <MockBanner />}
-      <div className="mb-4 flex items-center gap-3">
-        <div className="relative flex-1 max-w-md">
+      {notice && <p className="mb-3 text-xs text-emerald-300">{notice}</p>}
+
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <div className="relative flex-1 min-w-52 max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && load(query)}
+            onKeyDown={(e) => e.key === "Enter" && load()}
             placeholder="Search prompts..."
             className="w-full rounded-lg border border-slate-700 bg-slate-900 py-2 pl-9 pr-3 text-sm outline-none focus:border-amber-500/60"
             data-testid="gallery-search"
           />
         </div>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          className="rounded-lg border border-slate-700 bg-slate-900 px-2 py-2 text-xs text-slate-200 outline-none"
+          title="Sort"
+          data-testid="gallery-sort"
+        >
+          {SORTS.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.label}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={() => setStarredOnly((v) => !v)}
+          className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs ${
+            starredOnly
+              ? "border-amber-500/60 bg-amber-500/10 text-amber-300"
+              : "border-slate-700 bg-slate-900 text-slate-300"
+          }`}
+          title="Starred only"
+        >
+          <Star
+            className={`h-3.5 w-3.5 ${starredOnly ? "fill-amber-300" : ""}`}
+          />
+          Starred
+        </button>
+        <select
+          value={boardFilter}
+          onChange={(e) => setBoardFilter(e.target.value)}
+          className="rounded-lg border border-slate-700 bg-slate-900 px-2 py-2 text-xs text-slate-200 outline-none"
+          title="Board"
+          data-testid="gallery-board-filter"
+        >
+          <option value="">All boards</option>
+          {boards.map((b) => (
+            <option key={b.board_id} value={b.board_id}>
+              {b.board_name}
+            </option>
+          ))}
+        </select>
+        <select
+          value={styleFilter}
+          onChange={(e) => setStyleFilter(e.target.value)}
+          className="rounded-lg border border-slate-700 bg-slate-900 px-2 py-2 text-xs text-slate-200 outline-none"
+          title="Style"
+          data-testid="gallery-style-filter"
+        >
+          <option value="">All styles</option>
+          {styles.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={() => {
+            setSelectMode((v) => {
+              if (v) clearPicks();
+              return !v;
+            });
+          }}
+          className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs ${
+            selectMode
+              ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-300"
+              : "border-slate-700 bg-slate-900 text-slate-300"
+          }`}
+          title="Select multiple for batch actions"
+          data-testid="gallery-select-mode"
+        >
+          {selectMode ? (
+            <CheckSquare className="h-3.5 w-3.5" />
+          ) : (
+            <Square className="h-3.5 w-3.5" />
+          )}
+          {selectMode ? "Done" : "Select"}
+        </button>
       </div>
+
+      {selectMode && !mock && (
+        <div
+          className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/5 px-3 py-2"
+          data-testid="gallery-batch-bar"
+        >
+          <span className="text-xs font-medium text-emerald-200">
+            {picked.size} selected
+          </span>
+          <button
+            onClick={pickPage}
+            className="rounded border border-slate-600 px-2 py-1 text-[11px] text-slate-300 hover:text-white"
+          >
+            Select page
+          </button>
+          <button
+            onClick={clearPicks}
+            className="rounded border border-slate-600 px-2 py-1 text-[11px] text-slate-300 hover:text-white"
+          >
+            Clear
+          </button>
+          <span className="mx-1 h-4 w-px bg-slate-700" />
+          <button
+            onClick={() => batch("star")}
+            disabled={batchBusy || picked.size === 0}
+            className="flex items-center gap-1 rounded border border-amber-500/50 px-2 py-1 text-[11px] text-amber-300 hover:bg-amber-500/10 disabled:opacity-40"
+          >
+            <Star className="h-3 w-3" /> Star
+          </button>
+          <button
+            onClick={() => batch("unstar")}
+            disabled={batchBusy || picked.size === 0}
+            className="rounded border border-slate-600 px-2 py-1 text-[11px] text-slate-300 hover:text-white disabled:opacity-40"
+          >
+            Unstar
+          </button>
+          <button
+            onClick={() => batch("zip")}
+            disabled={batchBusy || picked.size === 0}
+            className="flex items-center gap-1 rounded border border-slate-600 px-2 py-1 text-[11px] text-slate-300 hover:text-white disabled:opacity-40"
+          >
+            <Download className="h-3 w-3" /> Zip
+          </button>
+          <select
+            value=""
+            onChange={(e) => e.target.value && moveToBoard(e.target.value)}
+            disabled={batchBusy || picked.size === 0}
+            className="rounded border border-slate-600 bg-slate-900 px-2 py-1 text-[11px] text-slate-300 disabled:opacity-40"
+            title="Move to board"
+          >
+            <option value="">Move to board...</option>
+            {boards.map((b) => (
+              <option key={b.board_id} value={b.board_id}>
+                {b.board_name}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() => batch("delete")}
+            disabled={batchBusy || picked.size === 0}
+            className="flex items-center gap-1 rounded border border-red-500/50 px-2 py-1 text-[11px] text-red-300 hover:bg-red-500/10 disabled:opacity-40"
+          >
+            <Trash2 className="h-3 w-3" /> Delete
+          </button>
+        </div>
+      )}
+
       {loading && <Spinner />}
       {!loading && shown.length === 0 && (
         <EmptyState
           icon={<Image className="h-8 w-8" />}
           title="No images"
-          hint="Generate images or connect InvokeAI."
+          hint="Generate images or adjust the filters."
         />
       )}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
-        {shown.map((img) => (
-          <div
-            key={img.image_name}
-            className="group relative overflow-hidden rounded-lg border border-slate-800"
-            data-testid="gallery-image"
-          >
-            {img.url ? (
-              <img
-                src={img.thumbnail_url || img.url}
-                alt={img.image_name}
-                loading="lazy"
-                onClick={() => setSelected(img)}
-                className="aspect-square w-full cursor-pointer object-cover transition group-hover:scale-105"
-              />
-            ) : (
-              <div className="flex aspect-square w-full items-center justify-center bg-slate-900 text-slate-700">
-                <Image className="h-8 w-8" />
-              </div>
-            )}
-            {mock && (
-              <div className="absolute right-1 top-1">
-                <MockBadge />
-              </div>
-            )}
-            {!mock && (
-              <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-slate-950/90 to-transparent p-2 opacity-0 transition group-hover:opacity-100">
+        {shown.map((img) => {
+          const pickedNow = picked.has(img.image_name);
+          return (
+            <div
+              key={img.image_name}
+              className={`group relative overflow-hidden rounded-lg border ${
+                pickedNow ? "border-emerald-500/70" : "border-slate-800"
+              }`}
+              data-testid="gallery-image"
+            >
+              {selectMode && !mock && (
                 <button
-                  onClick={() => action("star", img.image_name)}
-                  className="text-amber-300 hover:text-amber-200"
-                  title="Star"
+                  onClick={() => togglePick(img.image_name)}
+                  className="absolute left-1.5 top-1.5 z-10 rounded bg-slate-950/80 p-1 text-emerald-300"
+                  title="Toggle selection"
                 >
-                  <Star
-                    className={`h-4 w-4 ${img.starred ? "fill-amber-300" : ""}`}
-                  />
+                  {pickedNow ? (
+                    <CheckSquare className="h-4 w-4" />
+                  ) : (
+                    <Square className="h-4 w-4" />
+                  )}
                 </button>
-                <button
-                  onClick={() => action("download", img.image_name)}
-                  className="text-slate-300 hover:text-white"
-                  title="Download"
-                >
-                  <Download className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => action("delete", img.image_name)}
-                  className="text-red-400 hover:text-red-300"
-                  title="Delete"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            )}
-          </div>
-        ))}
+              )}
+              {img.image_url || img.url ? (
+                <img
+                  src={img.thumbnail_url || img.image_url || img.url}
+                  alt={img.image_name}
+                  loading="lazy"
+                  onClick={() => !selectMode && setSelected(img)}
+                  className="aspect-square w-full cursor-pointer object-cover transition group-hover:scale-105"
+                />
+              ) : (
+                <div className="flex aspect-square w-full items-center justify-center bg-slate-900 text-slate-700">
+                  <Image className="h-8 w-8" />
+                </div>
+              )}
+              {mock && (
+                <div className="absolute right-1 top-1">
+                  <MockBadge />
+                </div>
+              )}
+              {!mock && (
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-slate-950/90 to-transparent p-2 opacity-0 transition group-hover:opacity-100">
+                  <button
+                    onClick={() => action("star", img.image_name)}
+                    className="text-amber-300 hover:text-amber-200"
+                    title="Star"
+                  >
+                    <Star
+                      className={`h-4 w-4 ${img.starred ? "fill-amber-300" : ""}`}
+                    />
+                  </button>
+                  <button
+                    onClick={() => action("download", img.image_name)}
+                    className="text-slate-300 hover:text-white"
+                    title="Download"
+                  >
+                    <Download className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => action("delete", img.image_name)}
+                    className="text-red-400 hover:text-red-300"
+                    title="Delete"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {selected && !mock && (
@@ -152,7 +457,7 @@ export default function GalleryPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={selected.url}
+              src={selected.image_url || selected.url}
               alt={selected.image_name}
               className="max-h-[80vh] w-full object-contain"
             />
@@ -160,12 +465,17 @@ export default function GalleryPage() {
               <code className="text-xs text-slate-400">
                 {selected.image_name}
               </code>
-              <button
-                onClick={() => action("download")}
-                className="flex items-center gap-1 rounded bg-amber-500 px-3 py-1.5 text-xs font-semibold text-slate-950"
-              >
-                <Download className="h-3.5 w-3.5" /> Download
-              </button>
+              <div className="flex items-center gap-2">
+                {selected.starred && (
+                  <Star className="h-3.5 w-3.5 fill-amber-300 text-amber-300" />
+                )}
+                <button
+                  onClick={() => action("download")}
+                  className="flex items-center gap-1 rounded bg-amber-500 px-3 py-1.5 text-xs font-semibold text-slate-950"
+                >
+                  <Download className="h-3.5 w-3.5" /> Download
+                </button>
+              </div>
             </div>
           </div>
         </div>

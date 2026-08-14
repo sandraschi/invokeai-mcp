@@ -15,7 +15,21 @@ from invokeai_mcp.server import mcp
 @mcp.tool()
 async def invokeai_gallery(
     operation: Annotated[
-        Literal["list", "search", "get", "metadata", "download", "delete", "star", "unstar"],
+        Literal[
+            "list",
+            "search",
+            "get",
+            "metadata",
+            "download",
+            "delete",
+            "star",
+            "unstar",
+            "batch_delete",
+            "batch_star",
+            "batch_unstar",
+            "board_add",
+            "board_remove",
+        ],
         Field(description="Gallery operation to perform."),
     ],
     image_name: Annotated[
@@ -24,7 +38,16 @@ async def invokeai_gallery(
             description="InvokeAI image_name (required for get, metadata, download, delete, star, unstar)."
         ),
     ] = None,
-    board_id: Annotated[str | None, Field(description="Filter images by board.")] = None,
+    image_names: Annotated[
+        list[str] | None,
+        Field(
+            description="Image list (required for batch_delete, batch_star, batch_unstar, board_add, board_remove)."
+        ),
+    ] = None,
+    board_id: Annotated[
+        str | None,
+        Field(description="Board id (filter for list; target for board_add/board_remove)."),
+    ] = None,
     query: Annotated[
         str | None, Field(description="Search text for operation='search' (prompt metadata).")
     ] = None,
@@ -47,6 +70,8 @@ async def invokeai_gallery(
     invokeai_gallery(operation="list", limit=20)
     invokeai_gallery(operation="search", query="cyberpunk")
     invokeai_gallery(operation="download", image_name="abc123.png")
+    invokeai_gallery(operation="batch_star", image_names=["a.png", "b.png"])
+    invokeai_gallery(operation="board_add", image_names=["a.png"], board_id="board-uuid")
 
     Notes:
      - URLs returned are absolute (InvokeAI host), usable in chat/browser.
@@ -135,6 +160,38 @@ async def invokeai_gallery(
                 "success": True,
                 "operation": operation,
                 "message": f"Image {image_name} {operation}ed.",
+            }
+        if operation in ("batch_delete", "batch_star", "batch_unstar"):
+            names = image_names or []
+            if not names:
+                return _missing("image_names", operation)
+            if operation == "batch_delete":
+                await client.delete_images(names)
+            elif operation == "batch_star":
+                await client.star_images(names)
+            else:
+                await client.unstar_images(names)
+            log("WARNING", "gallery", f"{operation} on {len(names)} images")
+            return {
+                "success": True,
+                "operation": operation,
+                "count": len(names),
+                "message": f"{operation} applied to {len(names)} images.",
+            }
+        if operation in ("board_add", "board_remove"):
+            names = image_names or []
+            if not names or not board_id:
+                return _missing("image_names + board_id", operation)
+            if operation == "board_add":
+                await client.add_images_to_board(board_id, names)
+            else:
+                await client.remove_images_from_board(board_id, names)
+            return {
+                "success": True,
+                "operation": operation,
+                "board_id": board_id,
+                "count": len(names),
+                "message": f"{len(names)} image(s) {operation.replace('board_', '')} to board {board_id}.",
             }
     except InvokeAIError as exc:
         return {

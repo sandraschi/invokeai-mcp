@@ -299,6 +299,12 @@ class InvokeAIClient:
     async def get_image_metadata(self, image_name: str) -> dict[str, Any]:
         return await self._request("GET", f"/v1/images/i/{image_name}/metadata")
 
+    async def get_image_bytes(self, image_name: str) -> bytes:
+        """Full-resolution image bytes (zip export)."""
+        resp = await self._client.get(f"/v1/images/i/{image_name}/full")
+        resp.raise_for_status()
+        return resp.content
+
     async def delete_image(self, image_name: str) -> None:
         await self._request("DELETE", f"/v1/images/i/{image_name}")
 
@@ -325,7 +331,7 @@ class InvokeAIClient:
 
     # ----------------------------------------------------------------- boards
     async def list_boards(self) -> list[dict[str, Any]]:
-        data = await self._request("GET", "/v1/boards/")
+        data = await self._request("GET", "/v1/boards/", params={"all": "true"})
         if isinstance(data, dict):
             return data.get("boards", [])
         return data or []

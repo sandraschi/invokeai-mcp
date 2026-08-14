@@ -1,361 +1,301 @@
 [
   {
-    "style": "photorealistic",
-    "queue_id": 37,
+    "queue_id": 162,
     "status": "completed",
     "error": null
   },
   {
-    "style": "cinematic",
-    "queue_id": 38,
+    "queue_id": 163,
     "status": "completed",
     "error": null
   },
   {
-    "style": "film-noir",
-    "queue_id": 39,
+    "queue_id": 164,
     "status": "completed",
     "error": null
   },
   {
-    "style": "tilt-shift",
-    "queue_id": 40,
+    "queue_id": 165,
     "status": "completed",
     "error": null
   },
   {
-    "style": "long-exposure",
-    "queue_id": 41,
+    "queue_id": 166,
     "status": "completed",
     "error": null
   },
   {
-    "style": "macro",
-    "queue_id": 42,
+    "queue_id": 167,
     "status": "completed",
     "error": null
   },
   {
-    "style": "aerial",
-    "queue_id": 43,
+    "queue_id": 168,
     "status": "completed",
     "error": null
   },
   {
-    "style": "polaroid",
-    "queue_id": 44,
+    "queue_id": 169,
     "status": "completed",
     "error": null
   },
   {
-    "style": "product-shot",
-    "queue_id": 45,
+    "queue_id": 170,
     "status": "completed",
     "error": null
   },
   {
-    "style": "golden-hour",
-    "queue_id": 46,
+    "queue_id": 171,
     "status": "completed",
     "error": null
   },
   {
-    "style": "watercolor",
-    "queue_id": 47,
+    "queue_id": 172,
     "status": "completed",
     "error": null
   },
   {
-    "style": "oil-painting",
-    "queue_id": 48,
+    "queue_id": 173,
     "status": "completed",
     "error": null
   },
   {
-    "style": "acrylic",
-    "queue_id": 49,
+    "queue_id": 174,
     "status": "completed",
     "error": null
   },
   {
-    "style": "gouache",
-    "queue_id": 50,
+    "queue_id": 175,
     "status": "completed",
     "error": null
   },
   {
-    "style": "pastel",
-    "queue_id": 51,
+    "queue_id": 176,
     "status": "completed",
     "error": null
   },
   {
-    "style": "pencil-sketch",
-    "queue_id": 52,
+    "queue_id": 177,
     "status": "completed",
     "error": null
   },
   {
-    "style": "charcoal",
-    "queue_id": 53,
+    "queue_id": 178,
     "status": "completed",
     "error": null
   },
   {
-    "style": "ukiyo-e",
-    "queue_id": 54,
+    "queue_id": 179,
     "status": "completed",
     "error": null
   },
   {
-    "style": "art-nouveau",
-    "queue_id": 55,
+    "queue_id": 180,
     "status": "completed",
     "error": null
   },
   {
-    "style": "art-deco",
-    "queue_id": 56,
+    "queue_id": 181,
     "status": "completed",
     "error": null
   },
   {
-    "style": "baroque",
-    "queue_id": 57,
+    "queue_id": 182,
     "status": "completed",
     "error": null
   },
   {
-    "style": "impressionist",
-    "queue_id": 58,
+    "queue_id": 183,
     "status": "completed",
     "error": null
   },
   {
-    "style": "pointillism",
-    "queue_id": 59,
+    "queue_id": 184,
     "status": "completed",
     "error": null
   },
   {
-    "style": "stained-glass",
-    "queue_id": 60,
+    "queue_id": 185,
     "status": "completed",
     "error": null
   },
   {
-    "style": "fresco",
-    "queue_id": 61,
+    "queue_id": 186,
     "status": "completed",
     "error": null
   },
   {
-    "style": "surrealism",
-    "queue_id": 62,
+    "queue_id": 187,
     "status": "completed",
     "error": null
   },
   {
-    "style": "pop-art",
-    "queue_id": 63,
+    "queue_id": 188,
     "status": "completed",
     "error": null
   },
   {
-    "style": "anime",
-    "queue_id": 64,
+    "queue_id": 189,
     "status": "completed",
     "error": null
   },
   {
-    "style": "manga",
-    "queue_id": 65,
+    "queue_id": 190,
     "status": "completed",
     "error": null
   },
   {
-    "style": "pixel-art",
-    "queue_id": 66,
+    "queue_id": 191,
     "status": "completed",
     "error": null
   },
   {
-    "style": "low-poly",
-    "queue_id": 67,
+    "queue_id": 192,
     "status": "completed",
     "error": null
   },
   {
-    "style": "voxel",
-    "queue_id": 68,
+    "queue_id": 193,
     "status": "completed",
     "error": null
   },
   {
-    "style": "papercraft",
-    "queue_id": 69,
+    "queue_id": 194,
     "status": "completed",
     "error": null
   },
   {
-    "style": "claymation",
-    "queue_id": 70,
+    "queue_id": 195,
     "status": "completed",
     "error": null
   },
   {
-    "style": "lego",
-    "queue_id": 71,
+    "queue_id": 196,
     "status": "completed",
     "error": null
   },
   {
-    "style": "isometric",
-    "queue_id": 72,
+    "queue_id": 197,
     "status": "completed",
     "error": null
   },
   {
-    "style": "flat-design",
-    "queue_id": 73,
+    "queue_id": 198,
     "status": "completed",
     "error": null
   },
   {
-    "style": "line-art",
-    "queue_id": 74,
+    "queue_id": 199,
     "status": "completed",
     "error": null
   },
   {
-    "style": "sticker",
-    "queue_id": 75,
+    "queue_id": 200,
     "status": "completed",
     "error": null
   },
   {
-    "style": "tattoo",
-    "queue_id": 76,
+    "queue_id": 201,
     "status": "completed",
     "error": null
   },
   {
-    "style": "graffiti",
-    "queue_id": 77,
+    "queue_id": 202,
     "status": "completed",
     "error": null
   },
   {
-    "style": "super-mario",
-    "queue_id": 78,
+    "queue_id": 203,
     "status": "completed",
     "error": null
   },
   {
-    "style": "disco",
-    "queue_id": 79,
+    "queue_id": 204,
     "status": "completed",
     "error": null
   },
   {
-    "style": "cyberpunk",
-    "queue_id": 80,
+    "queue_id": 205,
     "status": "completed",
     "error": null
   },
   {
-    "style": "vaporwave",
-    "queue_id": 81,
+    "queue_id": 206,
     "status": "completed",
     "error": null
   },
   {
-    "style": "synthwave",
-    "queue_id": 82,
+    "queue_id": 207,
     "status": "completed",
     "error": null
   },
   {
-    "style": "steampunk",
-    "queue_id": 83,
+    "queue_id": 208,
     "status": "completed",
     "error": null
   },
   {
-    "style": "dieselpunk",
-    "queue_id": 84,
+    "queue_id": 209,
     "status": "completed",
     "error": null
   },
   {
-    "style": "solargoth",
-    "queue_id": 85,
+    "queue_id": 210,
     "status": "completed",
     "error": null
   },
   {
-    "style": "dark-fantasy",
-    "queue_id": 86,
+    "queue_id": 211,
     "status": "completed",
     "error": null
   },
   {
-    "style": "fantasy",
-    "queue_id": 87,
+    "queue_id": 212,
     "status": "completed",
     "error": null
   },
   {
-    "style": "sci-fi",
-    "queue_id": 88,
+    "queue_id": 213,
     "status": "completed",
     "error": null
   },
   {
-    "style": "3d-render",
-    "queue_id": 89,
+    "queue_id": 214,
     "status": "completed",
     "error": null
   },
   {
-    "style": "blender-cycles",
-    "queue_id": 90,
+    "queue_id": 215,
     "status": "completed",
     "error": null
   },
   {
-    "style": "unreal-engine",
-    "queue_id": 91,
+    "queue_id": 216,
     "status": "completed",
     "error": null
   },
   {
-    "style": "minimalist",
-    "queue_id": 92,
+    "queue_id": 217,
     "status": "completed",
     "error": null
   },
   {
-    "style": "brutalist",
-    "queue_id": 93,
+    "queue_id": 218,
     "status": "completed",
     "error": null
   },
   {
-    "style": "cyber-goth",
-    "queue_id": 94,
+    "queue_id": 219,
     "status": "completed",
     "error": null
   },
   {
-    "style": "glitch",
-    "queue_id": 95,
+    "queue_id": 220,
     "status": "completed",
     "error": null
   },
   {
-    "style": "hdr",
-    "queue_id": 96,
+    "queue_id": 221,
     "status": "completed",
     "error": null
   }

@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.7] - 2026-08-12
+
+### Added
+- Gallery: sorting (created_at/name/starred, asc/desc), filters (starred,
+  board, style from the catalog, prompt search) via dedicated REST feed
+- Batch ops: multi-select mode, select-page, batch star/unstar/delete,
+  zip export (backend streams a real archive), move-to-board
+- invokeai_gallery batch ops: batch_delete/batch_star/batch_unstar/
+  board_add/board_remove (MCP parity)
+- GET /api/invokeai/boards; client.list_boards v6 "all" param fix
+- Style matching for gallery filtering (match_style_for_prompt)
+
 ## [0.1.6] - 2026-08-12
 
 ### Added

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import random
 from typing import Annotated, Any, Literal
 
 from fastmcp import Context
@@ -15,6 +16,12 @@ from invokeai_mcp.server import mcp
 _SCHEDULERS = Literal[
     "euler", "euler_a", "dpmpp_2m", "dpmpp_2m_sde", "dpmpp_3m_sde", "dpmpp_sde", "ddim", "unipc"
 ]
+
+
+def _random_seed() -> int:
+    """Cryptographically random seed - None used to collapse to the graph
+    default (0), which made every batch job start from identical noise."""
+    return random.SystemRandom().randint(0, 0xFFFF_FFFF)
 
 
 async def _resolve_model(client: InvokeAIClient, model_key: str | None) -> dict:
@@ -217,6 +224,7 @@ async def invokeai_generate(
         batch_ids: list[str] = []
         queue_id = settings.queue_id
         for job in jobs:
+            job_seed = seed if seed is not None else _random_seed()
             graph = build_generation_graph(
                 operation=operation,
                 model=model,
@@ -227,7 +235,7 @@ async def invokeai_generate(
                 steps=job["steps"],
                 cfg_scale=job["cfg"],
                 scheduler=scheduler,
-                seed=seed,
+                seed=job_seed,
                 strength=strength,
                 image_name=image_name,
                 mask_image_name=mask_image_name,

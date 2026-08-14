@@ -5,10 +5,11 @@ from __future__ import annotations
 from typing import Any
 
 from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
+from starlette.responses import JSONResponse, Response, StreamingResponse
 from starlette.routing import Route
 
 from invokeai_mcp import __version__
+from invokeai_mcp.client import InvokeAIError
 from invokeai_mcp.runtime import get_client, get_settings, log, query_logs
 
 _SKILL_DIR = __import__("invokeai_mcp").__path__[0] + "/skills"
@@ -494,6 +495,174 @@ async def _invokeai_workflow_templates(request: Request) -> JSONResponse:
         )
 
 
+async def _gallery_list_rest(request: Request) -> JSONResponse:
+    """GET /api/invokeai/gallery - sortable, filterable gallery feed.
+
+    Params: query, sort (created_at|name), order (asc|desc), starred (1),
+    board (board_id), style (comma-separated style ids from the catalog),
+    limit, offset. Style/starred filtering enriches the page with metadata
+    (bounded, parallel).
+    """
+    import asyncio
+
+    from invokeai_mcp.styles import get_style, match_style_for_prompt
+
+    client = get_client()
+    try:
+        params = request.query_params
+        limit = min(int(params.get("limit", 60)), 200)
+        offset = int(params.get("offset", 0))
+        sort = params.get("sort", "created_at")
+        order = (params.get("order", "desc") or "desc").upper()
+        starred_only = params.get("starred") == "1"
+        board_id = params.get("board") or None
+        search = params.get("query") or None
+        style_ids = [s for s in (params.get("style") or "").split(",") if s]
+
+        fetch_limit = max(limit, 300) if (starred_only or style_ids or sort == "name") else limit
+        data = await client.list_images(
+            limit=fetch_limit,
+            offset=offset,
+            order_dir=order,
+            search_term=search,
+            board_id=board_id,
+        )
+        images = list(data.get("items", data.get("images", [])))
+        if not images:
+            return JSONResponse({"images": [], "count": 0, "total": 0, "has_more": False})
+
+        if starred_only:
+            images = [i for i in images if i.get("starred")]
+
+        styles_matched: list[str] = []
+        if style_ids:
+            styles_map = {sid: get_style(sid) for sid in style_ids}
+            valid = {sid: s for sid, s in styles_map.items() if s}
+
+            async def _prompt_of(image: dict) -> str:
+                try:
+                    meta = await client.get_image_metadata(image["image_name"])
+                    return str(meta.get("positive_prompt") or "")
+                except Exception:
+                    return ""
+
+            sem = asyncio.Semaphore(8)
+
+            async def _matched(image: dict) -> bool:
+                async with sem:
+                    prompt = await _prompt_of(image)
+                for sid, s in valid.items():
+                    if match_style_for_prompt(s, prompt):
+                        if sid not in styles_matched:
+                            styles_matched.append(sid)
+                        return True
+                return False
+
+            results = await asyncio.gather(*(_matched(i) for i in images))
+            images = [i for i, keep in zip(images, results, strict=True) if keep]
+
+        if sort == "name":
+            images.sort(key=lambda i: i.get("image_name", ""), reverse=(order == "DESC"))
+        elif sort == "starred":
+            images.sort(key=lambda i: bool(i.get("starred")), reverse=True)
+
+        page = images[:limit]
+        return JSONResponse(
+            {
+                "images": page,
+                "count": len(page),
+                "total": len(images),
+                "has_more": len(images) > limit,
+                "styles_matched": styles_matched,
+            }
+        )
+    except InvokeAIError as exc:
+        return JSONResponse({"error": exc.message, "images": [], "count": 0, "total": 0})
+
+
+async def _gallery_batch(request: Request) -> JSONResponse:
+    """POST /api/invokeai/gallery/batch - {operation, image_names}."""
+    from invokeai_mcp.client import InvokeAIError
+
+    body = await request.json()
+    operation = body.get("operation")
+    names = body.get("image_names") or []
+    if not isinstance(names, list) or not names:
+        return JSONResponse({"success": False, "error": "image_names required"})
+    if operation not in ("delete", "star", "unstar"):
+        return JSONResponse({"success": False, "error": f"unknown batch op {operation}"})
+    try:
+        client = get_client()
+        if operation == "delete":
+            await client.delete_images(names)
+        elif operation == "star":
+            await client.star_images(names)
+        else:
+            await client.unstar_images(names)
+        return JSONResponse({"success": True, "operation": operation, "count": len(names)})
+    except InvokeAIError as exc:
+        return JSONResponse({"success": False, "error": exc.message})
+
+
+async def _gallery_board(request: Request) -> JSONResponse:
+    """POST/DELETE /api/invokeai/gallery/board - {image_names, board_id}."""
+    from invokeai_mcp.client import InvokeAIError
+
+    body = await request.json()
+    names = body.get("image_names") or []
+    board_id = body.get("board_id")
+    if not names or not board_id:
+        return JSONResponse({"success": False, "error": "image_names + board_id required"})
+    try:
+        client = get_client()
+        if request.method == "DELETE":
+            await client.remove_images_from_board(board_id, names)
+        else:
+            await client.add_images_to_board(board_id, names)
+        return JSONResponse({"success": True, "board_id": board_id, "count": len(names)})
+    except InvokeAIError as exc:
+        return JSONResponse({"success": False, "error": exc.message})
+
+
+async def _gallery_zip(request: Request) -> Response:
+    """POST /api/invokeai/gallery/zip - {image_names} -> zip archive."""
+    import io
+    import zipfile
+
+    from invokeai_mcp.client import InvokeAIError
+
+    body = await request.json()
+    names = body.get("image_names") or []
+    if not names:
+        return JSONResponse({"success": False, "error": "image_names required"})
+    try:
+        client = get_client()
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+            for name in names:
+                try:
+                    zf.writestr(name, await client.get_image_bytes(name))
+                except Exception:
+                    continue
+        buf.seek(0)
+        return StreamingResponse(
+            buf,
+            media_type="application/zip",
+            headers={"Content-Disposition": f'attachment; filename="invokeai-{len(names)}.zip"'},
+        )
+    except InvokeAIError as exc:
+        return JSONResponse({"success": False, "error": exc.message})
+
+
+async def _boards_rest(request: Request) -> JSONResponse:
+    """GET /api/invokeai/boards - board list for filters/assignment."""
+    try:
+        boards = await get_client().list_boards()
+        return JSONResponse({"boards": boards, "count": len(boards)})
+    except InvokeAIError as exc:
+        return JSONResponse({"boards": [], "count": 0, "error": exc.message})
+
+
 routes = [
     Route("/api/health", _health),
     Route("/api/dashboard", _dashboard),
@@ -519,6 +688,11 @@ routes = [
     Route("/api/invokeai/plugins/{name}", _invokeai_plugin_action, methods=["DELETE"]),
     Route("/api/invokeai/workflow-templates", _invokeai_workflow_templates),
     Route("/api/invokeai/styles", _invokeai_styles),
+    Route("/api/invokeai/gallery/batch", _gallery_batch, methods=["POST"]),
+    Route("/api/invokeai/gallery/board", _gallery_board, methods=["POST", "DELETE"]),
+    Route("/api/invokeai/gallery/zip", _gallery_zip, methods=["POST"]),
+    Route("/api/invokeai/gallery", _gallery_list_rest),
+    Route("/api/invokeai/boards", _boards_rest),
     Route("/api/invokeai/queue/status", _queue_status_rest),
     Route("/api/invokeai/queue/list", _queue_list_rest),
     Route("/api/invokeai/generate", _generate, methods=["POST"]),

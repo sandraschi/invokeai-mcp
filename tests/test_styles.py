@@ -86,6 +86,48 @@ async def test_generate_multi_style_enqueues_one_per_style(fake):
     assert "watercolor" in prompts[1]
 
 
+async def test_generate_multi_style_random_seeds(fake):
+    """seed=None must roll a fresh random seed per job (was 0 for all)."""
+    from invokeai_mcp.tools.generate_tools import invokeai_generate
+
+    result = await invokeai_generate(
+        operation="txt2img",
+        prompt="a boat",
+        styles=["photorealistic", "watercolor", "film-noir"],
+        width=512,
+        height=512,
+    )
+    assert result["success"] is True
+    seeds = []
+    for g in fake.enqueues:
+        for n in g["nodes"].values():
+            if n.get("type") == "integer" and isinstance(n.get("value"), int) and n["value"] > 0:
+                seeds.append(n["value"])
+    assert len(seeds) == 3, f"expected 3 seed nodes, got {seeds}"
+    assert len(set(seeds)) == 3, f"seeds must differ per job, got {seeds}"
+
+
+async def test_generate_explicit_seed_shared_across_styles(fake):
+    from invokeai_mcp.tools.generate_tools import invokeai_generate
+
+    result = await invokeai_generate(
+        operation="txt2img",
+        prompt="a boat",
+        styles=["photorealistic", "watercolor"],
+        width=512,
+        height=512,
+        seed=12345,
+    )
+    assert result["success"] is True
+    seeds = [
+        n["value"]
+        for g in fake.enqueues
+        for n in g["nodes"].values()
+        if n.get("type") == "integer" and n.get("value") == 12345
+    ]
+    assert len(seeds) == 2
+
+
 async def test_generate_unknown_style_rejected(fake):
     from invokeai_mcp.tools.generate_tools import invokeai_generate
 
