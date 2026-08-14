@@ -36,7 +36,9 @@ models, gallery, boards, workflows + SOTA dark webapp. Onboarding required
 .\start.ps1
 uv run pytest tests/ -q
 cd webapp; bun run dev
-just mcpb-pack
+just mcpb-pack   # fleet recipe (mcpb/pack.ps1)
+just zombies     # dry-run port zombie sweep
+just zombie-clean
 ```
 
 ## Tool surface (portmanteau)
@@ -47,7 +49,7 @@ engine control (Settings) + HF token login (Settings + Models HF tab), invokeai_
 (status/list/item_status/result/cancel/clear/resume/pause), invokeai_models
 (list/get/install/installs/update/delete/stats), invokeai_gallery
 (list/search/get/metadata/download/delete/star/unstar), invokeai_boards,
-invokeai_styles (list/get/search), invokeai_artists (list/get/search),
+invokeai_styles (list/get/search/community - 1321 A1111 pack styles), invokeai_artists (list/get/search),
 invokeai_franchises (list/get/search), invokeai_workflows, invokeai_system (health/version/config/stats), 4 Prefab
 cards, invokeai_help, invokeai_shutdown.
 

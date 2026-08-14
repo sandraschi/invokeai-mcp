@@ -38,7 +38,11 @@ InvokeAI instance over its REST API. InvokeAI must be installed and running
 - 4x RealESRGAN upscaling
 - Install models from HuggingFace or Civitai without leaving the chat
 - Full queue control: status, cancel, clear, resume, result polling
-- Gallery search, boards, star/favorite organization
+- Gallery search, boards, star/favorite organization; sort/filter by style,
+  painter, franchise, board, starred; batch ops (star/unstar/delete/zip/move)
+  with exact per-image attribution
+- 76 curated styles + 23 franchise presets + 60 painters + 1321 A1111 community
+  style pack entries - all batchable in any combination
 - Workflow library management (save/load node workflows)
 - Dark SOTA webapp: Generate, Gallery, Models, Queue, Boards, Workflows,
   Inbox, Tools, Skills, Chat (local LLM), Settings, Help, Logs

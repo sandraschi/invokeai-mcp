@@ -174,6 +174,21 @@ steps: docs/ONBOARDING.md.
 - Playwright e2e: backend health + frontend load
 - Gate: `just ci` (ruff + pytest + tsc + biome)
 
+## v0.1.12 additions
+
+A1111 community style packs: data/community_styles.json holds 1321 styles
+imported from Douleb's 850+ and GPT4-750 packs (fetch-community-styles.py,
+idempotent). invokeai_styles(operation='community', query=...) lists them;
+get() resolves community ids so batches + attribution work unchanged.
+REST: GET /api/invokeai/styles?community=1 (total includes community).
+Webapp: 'Include community pack' toggle in the styles panel.
+
+Ops: just zombies (dry run) / zombie-clean kills stale listeners on
+fleet-registered ports with product labels (clear-port-zombies.ps1,
+vendored in scripts/just/). Fleet recipe book is imported from the
+vendored scripts/just/fleet.just - do not redefine recipes that exist
+there (mcpb-pack, cua-*, zombies, fleet-stop, tauri-audit, emojibuster).
+
 ## v0.1.11 additions
 
 invokeai_franchises (operation=list|get|search) exposes 23 fan-style

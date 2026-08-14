@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.1.12] - 2026-08-12
+
+### Added
+- A1111 community style packs: fetch-community-styles.py batch-imports
+  Douleb/SDXL-A1111-Styles (850+) + SDXL-750-Styles-GPT4 -> 1321 styles
+  in data/community_styles.json (normalized, explicit-filtered, source
+  tagged); invokeai_styles operation='community'; REST
+  /api/invokeai/styles?community=1; webapp 'Include community pack'
+  toggle; community ids work in batches + attribution
+- Port zombie sweep: clear-port-zombies.ps1 + just zombies (dry run) /
+  zombie-clean (labeled kill of listeners on fleet-registered ports)
+- Service banners in start terminals (named BACKEND/FRONTEND + urls +
+  window title)
+
+### Changed
+- Console spam silenced: httpx/httpcore loggers -> WARNING, uvicorn
+  access_log off
+- justfile imports the vendored fleet recipe book (fleet.just): gained
+  cua-nsis-test, fleet-stop, tauri-audit, emojibuster, zombies
+- mcpb-pack gate fixed: import probe no longer pollutes mcpb/src with
+  __pycache__ (PYTHONDONTWRITEBYTECODE + sweep); bunx absolute path;
+  fleet layout entry point mcpb/pack.ps1 (gitignore exception)
+
 ## [0.1.11] - 2026-08-12
 
 ### Added
