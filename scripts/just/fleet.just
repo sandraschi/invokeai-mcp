@@ -14,12 +14,16 @@ mcpb-pack:
     powershell.exe -NoProfile -File "{{REPO_DIR}}/mcpb/pack.ps1"
 
 # Run CUA-NSIS smoke test (install -> launch -> verify -> uninstall)
+# Syncs reports/cua-<repo>-<date>.md to mcd when the smoke script writes one.
 cua-nsis-test:
     powershell.exe -NoProfile -File "{{REPO_DIR}}/scripts/just/cua-nsis-test.ps1"
+    $md = "reports/cua-{{file_name(REPO_DIR)}}-$(Get-Date -Format 'yyyy-MM-dd').md"; if (Test-Path $md) { Copy-Item $md "D:/Dev/repos/mcp-central-docs/reports/" -Force; Write-Host "Synced $md to mcd" }
 
 # Run CUA webapp test (pre-Tauri: start.ps1 stack + nav walk in browser)
+# Syncs reports/cua-<repo>-<date>.md to mcd when the test script writes one.
 cua-webapp-test:
     powershell.exe -NoProfile -File "{{REPO_DIR}}/scripts/just/cua-webapp-test.ps1"
+    $md = "reports/cua-{{file_name(REPO_DIR)}}-$(Get-Date -Format 'yyyy-MM-dd').md"; if (Test-Path $md) { Copy-Item $md "D:/Dev/repos/mcp-central-docs/reports/" -Force; Write-Host "Synced $md to mcd" }
 
 # --- Utilities ---------------------------------------------------------------
 
@@ -57,6 +61,20 @@ zombies:
 zombie-clean:
     powershell.exe -NoProfile -ExecutionPolicy Bypass -File "{{REPO_DIR}}/scripts/just/clear-port-zombies.ps1"
 
-# Restrict to specific ports: just zombie-clean 11154,11155
+# Restrict to specific ports: just zombie-clean-ports ports=11154,11155
 zombie-clean-ports ports:
     powershell.exe -NoProfile -ExecutionPolicy Bypass -File "{{REPO_DIR}}/scripts/just/clear-port-zombies.ps1" -Ports "{{ports}}"
+
+# --- GPU Arbitration (4090 between InvokeAI and local dev models) -----------
+
+# Kick InvokeAI web + unload Ollama models so muse-glimmer/qwen3.8 get the VRAM
+gpu-free:
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "D:\Dev\repos\mcp-central-docs\scripts\just\gpu-arbitration.ps1" -Action Kick
+
+# Bring InvokeAI web back up after dev work
+invokeai-up:
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "D:\Dev\repos\mcp-central-docs\scripts\just\gpu-arbitration.ps1" -Action Restore
+
+# Show who holds the 4090 right now
+gpu-status:
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "D:\Dev\repos\mcp-central-docs\scripts\just\gpu-arbitration.ps1" -Action Status
