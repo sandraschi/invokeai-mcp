@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import time
 from typing import Annotated, Literal
 
@@ -118,7 +119,7 @@ async def invokeai_queue(
             if wait_seconds and (data.get("status") not in ("completed", "failed", "canceled")):
                 deadline = time.time() + wait_seconds
                 while time.time() < deadline:
-                    time.sleep(3)
+                    await asyncio.sleep(3)
                     data = await client.queue_item(item_id)
                     if data.get("status") in ("completed", "failed", "canceled"):
                         break
