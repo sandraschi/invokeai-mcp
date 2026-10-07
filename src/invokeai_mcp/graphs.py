@@ -331,7 +331,9 @@ def build_sd1_graph(
         pos_string=pos_string,
         neg_string=neg_string,
         model=model,
-        generation_mode="txt2img" if image_name is None else ("img2img" if mask_image_name is None else "inpaint"),
+        generation_mode="txt2img"
+        if image_name is None
+        else ("img2img" if mask_image_name is None else "inpaint"),
         width=width,
         height=height,
         steps=steps,
@@ -417,7 +419,9 @@ def build_sdxl_graph(
             "type": "denoise_latents",
             "data": {
                 "cfg_scale": cfg_scale,
-                "cfg_rescale_multiplier": cfg_rescale_multiplier if cfg_rescale_multiplier is not None else 0.7,
+                "cfg_rescale_multiplier": cfg_rescale_multiplier
+                if cfg_rescale_multiplier is not None
+                else 0.7,
                 "scheduler": scheduler,
                 "steps": steps,
                 "denoising_start": (1.0 - (strength or 0.75)) if image_name else 0.0,
@@ -486,7 +490,9 @@ def build_sdxl_graph(
         pos_string=pos_string,
         neg_string=neg_string,
         model=model,
-        generation_mode="sdxl_txt2img" if image_name is None else ("sdxl_img2img" if mask_image_name is None else "sdxl_inpaint"),
+        generation_mode="sdxl_txt2img"
+        if image_name is None
+        else ("sdxl_img2img" if mask_image_name is None else "sdxl_inpaint"),
         width=width,
         height=height,
         steps=steps,
@@ -641,7 +647,9 @@ def build_cogview4_graph(
             }
         )
 
-    loader = add({"id": _uuid(), "type": "cogview4_model_loader", "data": {"model": _model_field(model)}})
+    loader = add(
+        {"id": _uuid(), "type": "cogview4_model_loader", "data": {"model": _model_field(model)}}
+    )
     pos_string = add({"id": _uuid(), "type": "string", "data": {"value": positive_prompt}})
     pos_cond = add({"id": _uuid(), "type": "cogview4_text_encoder", "data": {}})
     neg_string = add({"id": _uuid(), "type": "string", "data": {"value": negative_prompt}})

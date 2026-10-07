@@ -16,9 +16,7 @@ async def invokeai_artists(
         Literal["list", "get", "search"],
         Field(description="Painter catalog operation to perform."),
     ],
-    artist_id: Annotated[
-        str | None, Field(description="Painter id (required for get).")
-    ] = None,
+    artist_id: Annotated[str | None, Field(description="Painter id (required for get).")] = None,
     query: Annotated[
         str | None, Field(description="Free-text search across painter ids, names, signatures.")
     ] = None,

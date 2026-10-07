@@ -232,7 +232,12 @@ class InvokeAIClient:
         return await self._request("GET", f"/v2/models/i/{key}")
 
     async def install_model(
-        self, source: str, *, config: dict[str, Any] | None = None, inplace: bool = False, access_token: str | None = None
+        self,
+        source: str,
+        *,
+        config: dict[str, Any] | None = None,
+        inplace: bool = False,
+        access_token: str | None = None,
     ) -> dict[str, Any]:
         params: dict[str, Any] = {"source": source, "inplace": str(inplace).lower()}
         if access_token:
@@ -385,12 +390,14 @@ class InvokeAIClient:
             workflow["workflow"] if isinstance(workflow.get("workflow"), dict) else workflow
         )
         wid: str | None = workflow.get("workflow_id") or workflow.get("id") or inner.get("id")
-        if wid and isinstance(inner.get("meta"), dict) and inner["meta"].get("category") == "default":
+        if (
+            wid
+            and isinstance(inner.get("meta"), dict)
+            and inner["meta"].get("category") == "default"
+        ):
             wid = None
         if wid:
-            return await self._request(
-                "PATCH", f"/v1/workflows/i/{wid}", json={"workflow": inner}
-            )
+            return await self._request("PATCH", f"/v1/workflows/i/{wid}", json={"workflow": inner})
         inner = dict(inner)
         for key, default in (
             ("author", ""),
@@ -486,9 +493,8 @@ class InvokeAIClient:
                         "default": prop.get("default"),
                         "required": bool(prop.get("orig_required")),
                         "options": prop.get("enum"),
-                        "ref": prop.get("$ref") or (
-                            prop.get("anyOf", [{}])[0].get("$ref") if prop.get("anyOf") else None
-                        ),
+                        "ref": prop.get("$ref")
+                        or (prop.get("anyOf", [{}])[0].get("$ref") if prop.get("anyOf") else None),
                     }
             out[name] = {
                 "title": schema.get("title", name),

@@ -42,7 +42,8 @@ def community_styles(query: str | None = None, limit: int = 200) -> list[dict[st
     if query:
         q = query.lower()
         entries = [
-            e for e in entries
+            e
+            for e in entries
             if q in e["id"].lower() or q in e["name"].lower() or q in e["prompt"].lower()
         ]
     return entries[:limit]

@@ -264,7 +264,9 @@ async def _hf_login(request: Request) -> JSONResponse:
         body = await request.json()
         token = (body.get("token") or "").strip()
         if not token or not token.startswith("hf_"):
-            return JSONResponse({"success": False, "error": "A valid hf_... token is required."}, status_code=400)
+            return JSONResponse(
+                {"success": False, "error": "A valid hf_... token is required."}, status_code=400
+            )
         status = await client.hf_login(token)
         return JSONResponse({"success": True, "status": status})
     except Exception as exc:
@@ -296,7 +298,9 @@ async def _engine_status(request: Request) -> JSONResponse:
         try:
             out = subprocess.run(
                 ["tasklist", "/FI", "IMAGENAME eq invokeai-web.exe", "/FO", "CSV", "/NH"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True,
+                text=True,
+                timeout=10,
             ).stdout
             if "invokeai-web.exe" in out:
                 pid = int(out.split('"')[3])
@@ -332,7 +336,9 @@ async def _engine_start(request: Request) -> JSONResponse:
             ],
             creationflags=0x00000008 | 0x08000000,  # DETACHED_PROCESS | CREATE_NO_WINDOW
         )
-        return JSONResponse({"success": True, "message": "Engine starting - health flips when ready."})
+        return JSONResponse(
+            {"success": True, "message": "Engine starting - health flips when ready."}
+        )
     except Exception as exc:
         return JSONResponse({"success": False, "error": str(exc)}, status_code=500)
 
@@ -342,7 +348,9 @@ async def _engine_stop(request: Request) -> JSONResponse:
     import subprocess
 
     try:
-        subprocess.run(["taskkill", "/F", "/IM", "invokeai-web.exe", "/T"], capture_output=True, timeout=30)
+        subprocess.run(
+            ["taskkill", "/F", "/IM", "invokeai-web.exe", "/T"], capture_output=True, timeout=30
+        )
         log("WARNING", "engine", "engine stopped")
         return JSONResponse({"success": True, "message": "Engine stopped."})
     except Exception as exc:
@@ -481,7 +489,11 @@ async def _invokeai_styles(request: Request) -> JSONResponse:
     if query:
         styles = search_styles(query, limit=limit)
         if request.query_params.get("community") == "1":
-            styles = styles + [s for s in community_styles(query, limit=limit) if s["id"] not in {x["id"] for x in styles}]
+            styles = styles + [
+                s
+                for s in community_styles(query, limit=limit)
+                if s["id"] not in {x["id"] for x in styles}
+            ]
     else:
         styles = list_styles()[:limit]
         if request.query_params.get("community") == "1":
@@ -520,7 +532,9 @@ async def _invokeai_franchises(request: Request) -> JSONResponse:
         franchises = search_franchises(query, limit=limit)
     else:
         franchises = list_franchises()[:limit]
-    return JSONResponse({"franchises": franchises, "count": len(franchises), "total": len(list_franchises())})
+    return JSONResponse(
+        {"franchises": franchises, "count": len(franchises), "total": len(list_franchises())}
+    )
 
 
 async def _invokeai_workflow_templates(request: Request) -> JSONResponse:
@@ -529,13 +543,9 @@ async def _invokeai_workflow_templates(request: Request) -> JSONResponse:
 
     try:
         templates = await get_client().node_templates()
-        return JSONResponse(
-            {"success": True, "templates": templates, "count": len(templates)}
-        )
+        return JSONResponse({"success": True, "templates": templates, "count": len(templates)})
     except InvokeAIError as exc:
-        return JSONResponse(
-            {"success": False, "templates": {}, "count": 0, "error": exc.message}
-        )
+        return JSONResponse({"success": False, "templates": {}, "count": 0, "error": exc.message})
 
 
 async def _gallery_list_rest(request: Request) -> JSONResponse:
@@ -564,7 +574,11 @@ async def _gallery_list_rest(request: Request) -> JSONResponse:
         artist_ids = [a for a in (params.get("artist") or "").split(",") if a]
         franchise_ids = [f for f in (params.get("franchise") or "").split(",") if f]
 
-        fetch_limit = max(limit, 300) if (starred_only or style_ids or artist_ids or franchise_ids or sort == "name") else limit
+        fetch_limit = (
+            max(limit, 300)
+            if (starred_only or style_ids or artist_ids or franchise_ids or sort == "name")
+            else limit
+        )
         data = await client.list_images(
             limit=fetch_limit,
             offset=offset,
@@ -644,7 +658,11 @@ async def _gallery_list_rest(request: Request) -> JSONResponse:
         from invokeai_mcp.attribution import prompt_slug, short_id
 
         async def _slug_for(image: dict) -> str:
-            item = session_to_item.get(str(image.get("session_id"))) if image.get("session_id") else None
+            item = (
+                session_to_item.get(str(image.get("session_id")))
+                if image.get("session_id")
+                else None
+            )
             entry = attrib.get(str(item)) if item is not None else None
             if entry and entry.get("prompt"):
                 return prompt_slug(str(entry["prompt"]))
@@ -682,9 +700,9 @@ async def _gallery_list_rest(request: Request) -> JSONResponse:
                     rest.append(image)
             if exact:
                 images = exact
-                styles_matched = [s for s in style_ids if any(
-                    s in img.get("styles", []) for img in images
-                )]
+                styles_matched = [
+                    s for s in style_ids if any(s in img.get("styles", []) for img in images)
+                ]
             else:
                 # fallback: prompt-signature matching for pre-registry images
                 styles_map = {sid: get_style(sid) for sid in style_ids}
@@ -717,9 +735,9 @@ async def _gallery_list_rest(request: Request) -> JSONResponse:
                     rest.append(image)
             if exact:
                 images = exact
-                artists_matched = [a for a in artist_ids if any(
-                    a in img.get("artists", []) for img in images
-                )]
+                artists_matched = [
+                    a for a in artist_ids if any(a in img.get("artists", []) for img in images)
+                ]
             else:
                 valid_a: dict[str, dict] = {}
                 for aid in artist_ids:
@@ -754,9 +772,11 @@ async def _gallery_list_rest(request: Request) -> JSONResponse:
                     rest.append(image)
             if exact:
                 images = exact
-                franchises_matched = [f for f in franchise_ids if any(
-                    f in img.get("franchises", []) for img in images
-                )]
+                franchises_matched = [
+                    f
+                    for f in franchise_ids
+                    if any(f in img.get("franchises", []) for img in images)
+                ]
             else:
                 valid_f: dict[str, dict] = {}
                 for fid in franchise_ids:

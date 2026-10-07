@@ -22,9 +22,7 @@ async def invokeai_styles(
         Literal["list", "get", "search", "community"],
         Field(description="Style catalog operation to perform."),
     ],
-    style_id: Annotated[
-        str | None, Field(description="Style id (required for get).")
-    ] = None,
+    style_id: Annotated[str | None, Field(description="Style id (required for get).")] = None,
     query: Annotated[
         str | None, Field(description="Free-text search across style ids, names, and prompts.")
     ] = None,

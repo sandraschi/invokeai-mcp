@@ -1,0 +1,1180 @@
+[
+  {
+    "name": "txt2img-0",
+    "description": "txt2img: lighthouse",
+    "prompt": "Generate a picture of a lighthouse at dusk",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Generate a picture of a lighthouse at dusk"
+    }
+  },
+  {
+    "name": "txt2img-1",
+    "description": "txt2img: cyberpunk",
+    "prompt": "Create a neon cyberpunk city at night with rain",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Create a neon cyberpunk city at night with rain"
+    }
+  },
+  {
+    "name": "txt2img-2",
+    "description": "txt2img: watercolor",
+    "prompt": "Paint a watercolor scene of a mountain lake",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Paint a watercolor scene of a mountain lake"
+    }
+  },
+  {
+    "name": "txt2img-3",
+    "description": "txt2img: steampunk",
+    "prompt": "Generate a steampunk robot portrait with dramatic lighting",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Generate a steampunk robot portrait with dramatic lighting"
+    }
+  },
+  {
+    "name": "txt2img-4",
+    "description": "txt2img: space",
+    "prompt": "Make a dark space nebula poster background",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Make a dark space nebula poster background"
+    }
+  },
+  {
+    "name": "txt2img-5",
+    "description": "txt2img: dragon-logo",
+    "prompt": "Generate four variations of a dragon logo",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Generate four variations of a dragon logo"
+    }
+  },
+  {
+    "name": "txt2img-6",
+    "description": "txt2img: portrait",
+    "prompt": "Create a cinematic portrait of an old fisherman",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Create a cinematic portrait of an old fisherman"
+    }
+  },
+  {
+    "name": "txt2img-7",
+    "description": "txt2img: architecture",
+    "prompt": "Render a brutalist concrete building at sunrise",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Render a brutalist concrete building at sunrise"
+    }
+  },
+  {
+    "name": "txt2img-8",
+    "description": "txt2img: product",
+    "prompt": "Generate a product shot of a ceramic teapot on slate",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Generate a product shot of a ceramic teapot on slate"
+    }
+  },
+  {
+    "name": "txt2img-9",
+    "description": "txt2img: book-cover",
+    "prompt": "Design a fantasy book cover with a glowing forest",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Design a fantasy book cover with a glowing forest"
+    }
+  },
+  {
+    "name": "txt2img-10",
+    "description": "txt2img: isometric",
+    "prompt": "Make an isometric illustration of a cozy coffee shop",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Make an isometric illustration of a cozy coffee shop"
+    }
+  },
+  {
+    "name": "txt2img-11",
+    "description": "txt2img: pixel",
+    "prompt": "Generate a pixel art village at night",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Generate a pixel art village at night"
+    }
+  },
+  {
+    "name": "txt2img-12",
+    "description": "txt2img: car",
+    "prompt": "Render a 1960s sports car in a desert",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Render a 1960s sports car in a desert"
+    }
+  },
+  {
+    "name": "txt2img-13",
+    "description": "txt2img: food",
+    "prompt": "Create an editorial food photo of ramen with steam",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Create an editorial food photo of ramen with steam"
+    }
+  },
+  {
+    "name": "txt2img-14",
+    "description": "txt2img: garden",
+    "prompt": "Paint a japanese garden in autumn, koi pond",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Paint a japanese garden in autumn, koi pond"
+    }
+  },
+  {
+    "name": "txt2img-settings",
+    "description": "txt2img with explicit size/steps/cfg",
+    "prompt": "Generate a wide banner of a space station, 1536x512, 40 steps",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "space station orbital sunrise",
+      "width": 1536,
+      "height": 512,
+      "steps": 40,
+      "cfg_scale": 6.0
+    }
+  },
+  {
+    "name": "txt2img-seed",
+    "description": "txt2img with fixed seed",
+    "prompt": "Regenerate my dragon image with seed 42",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "dragon logo, dark background",
+      "seed": 42
+    }
+  },
+  {
+    "name": "txt2img-runs",
+    "description": "txt2img batch of 4",
+    "prompt": "Give me four different takes of a nebula",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "colorful nebula",
+      "runs": 4
+    }
+  },
+  {
+    "name": "txt2img-scheduler",
+    "description": "txt2img with dpmpp scheduler",
+    "prompt": "Render a lighthouse using the dpmpp_2m_sde scheduler",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "lighthouse at dusk",
+      "scheduler": "dpmpp_2m_sde"
+    }
+  },
+  {
+    "name": "txt2img-negative",
+    "description": "txt2img with negative prompt",
+    "prompt": "Generate a clean logo without text or watermark",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "minimalist gear logo",
+      "negative_prompt": "text, watermark, blurry"
+    }
+  },
+  {
+    "name": "txt2img-model",
+    "description": "txt2img on a specific model",
+    "prompt": "Use my FLUX model to create a photo-real feline portrait",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "photorealistic tabby portrait",
+      "model_key": "flux"
+    }
+  },
+  {
+    "name": "img2img-watercolor",
+    "description": "img2img style transfer",
+    "prompt": "Turn my last image into a watercolor painting",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "img2img",
+      "prompt": "watercolor painting",
+      "image_name": "abc123.png",
+      "strength": 0.6
+    }
+  },
+  {
+    "name": "img2img-noir",
+    "description": "img2img film noir",
+    "prompt": "Make my city photo film noir style",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "img2img",
+      "prompt": "film noir, hard shadows, high contrast",
+      "image_name": "city.png",
+      "strength": 0.65
+    }
+  },
+  {
+    "name": "img2img-anime",
+    "description": "img2img anime version",
+    "prompt": "Make an anime version of my pet photo",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "img2img",
+      "prompt": "anime style, vibrant colors",
+      "image_name": "pet.png",
+      "strength": 0.55
+    }
+  },
+  {
+    "name": "img2img-day-night",
+    "description": "img2img day to night",
+    "prompt": "Convert my street photo to night with neon lights",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "img2img",
+      "prompt": "night scene, neon lights",
+      "image_name": "street.png",
+      "strength": 0.5
+    }
+  },
+  {
+    "name": "img2img-subtle",
+    "description": "img2img subtle change",
+    "prompt": "Slightly enhance the lighting of my portrait",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "img2img",
+      "prompt": "better lighting, natural",
+      "image_name": "portrait.png",
+      "strength": 0.3
+    }
+  },
+  {
+    "name": "inpaint-face",
+    "description": "inpaint fix face",
+    "prompt": "Fix the face in my portrait using the mask fix.png",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "inpaint",
+      "prompt": "correct face, natural skin",
+      "image_name": "portrait.png",
+      "mask_image_name": "fix.png",
+      "strength": 0.6
+    }
+  },
+  {
+    "name": "inpaint-reflection",
+    "description": "inpaint remove reflection",
+    "prompt": "Remove the bad reflection from my product photo",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "inpaint",
+      "prompt": "remove reflection, clean glass",
+      "image_name": "product.png",
+      "mask_image_name": "mask.png",
+      "strength": 0.6
+    }
+  },
+  {
+    "name": "inpaint-object",
+    "description": "inpaint remove object",
+    "prompt": "Remove the person from the background of my photo",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "inpaint",
+      "prompt": "empty background",
+      "image_name": "scene.png",
+      "mask_image_name": "person-mask.png",
+      "strength": 0.7
+    }
+  },
+  {
+    "name": "upscale-4x",
+    "description": "upscale image 4x",
+    "prompt": "Upscale my last image 4x",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "upscale",
+      "image_name": "abc123.png"
+    }
+  },
+  {
+    "name": "upscale-poster",
+    "description": "upscale for print",
+    "prompt": "Upscale the poster background for print",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "upscale",
+      "image_name": "nebula.png"
+    }
+  },
+  {
+    "name": "queue-status",
+    "description": "queue status",
+    "prompt": "Is the queue busy?",
+    "tool": "invokeai_queue",
+    "arguments": {
+      "operation": "status"
+    }
+  },
+  {
+    "name": "queue-list",
+    "description": "queue recent items",
+    "prompt": "What is running right now?",
+    "tool": "invokeai_queue",
+    "arguments": {
+      "operation": "list",
+      "limit": 10
+    }
+  },
+  {
+    "name": "queue-list-completed",
+    "description": "queue completed filter",
+    "prompt": "Show my completed jobs",
+    "tool": "invokeai_queue",
+    "arguments": {
+      "operation": "list",
+      "status_filter": "completed",
+      "limit": 20
+    }
+  },
+  {
+    "name": "queue-item-status",
+    "description": "queue item status",
+    "prompt": "What is the status of item 42?",
+    "tool": "invokeai_queue",
+    "arguments": {
+      "operation": "item_status",
+      "item_id": 42
+    }
+  },
+  {
+    "name": "queue-result",
+    "description": "queue result with wait",
+    "prompt": "Wait for my generation and show it",
+    "tool": "invokeai_queue",
+    "arguments": {
+      "operation": "result",
+      "item_id": 42,
+      "wait_seconds": 120
+    }
+  },
+  {
+    "name": "queue-result-download",
+    "description": "queue result download",
+    "prompt": "Generate an image and save it to disk",
+    "tool": "invokeai_queue",
+    "arguments": {
+      "operation": "result",
+      "item_id": 42,
+      "wait_seconds": 180,
+      "download_image": true
+    }
+  },
+  {
+    "name": "queue-cancel",
+    "description": "queue cancel item",
+    "prompt": "Cancel my last job",
+    "tool": "invokeai_queue",
+    "arguments": {
+      "operation": "cancel",
+      "item_id": 43
+    }
+  },
+  {
+    "name": "queue-cancel-batch",
+    "description": "queue cancel batch",
+    "prompt": "Cancel the batch I just enqueued",
+    "tool": "invokeai_queue",
+    "arguments": {
+      "operation": "cancel_batch",
+      "batch_ids": [
+        "batch-uuid"
+      ]
+    }
+  },
+  {
+    "name": "queue-clear",
+    "description": "queue clear",
+    "prompt": "Clear the queue",
+    "tool": "invokeai_queue",
+    "arguments": {
+      "operation": "clear"
+    }
+  },
+  {
+    "name": "queue-resume",
+    "description": "queue resume",
+    "prompt": "The queue seems stuck, resume it",
+    "tool": "invokeai_queue",
+    "arguments": {
+      "operation": "resume"
+    }
+  },
+  {
+    "name": "queue-pause",
+    "description": "queue pause",
+    "prompt": "Pause the queue while I think",
+    "tool": "invokeai_queue",
+    "arguments": {
+      "operation": "pause"
+    }
+  },
+  {
+    "name": "models-list-main",
+    "description": "list main models",
+    "prompt": "What models do I have installed?",
+    "tool": "invokeai_models",
+    "arguments": {
+      "operation": "list",
+      "model_type": "main"
+    }
+  },
+  {
+    "name": "models-list-lora",
+    "description": "list loras",
+    "prompt": "Show my LoRA models",
+    "tool": "invokeai_models",
+    "arguments": {
+      "operation": "list",
+      "model_type": "lora"
+    }
+  },
+  {
+    "name": "models-list-search",
+    "description": "search models",
+    "prompt": "Find the model with flux in the name",
+    "tool": "invokeai_models",
+    "arguments": {
+      "operation": "list",
+      "model_type": "main",
+      "search": "flux"
+    }
+  },
+  {
+    "name": "models-install-sdxl",
+    "description": "install SDXL",
+    "prompt": "Install SDXL base from HuggingFace",
+    "tool": "invokeai_models",
+    "arguments": {
+      "operation": "install",
+      "source": "stabilityai/stable-diffusion-xl-base-1.0",
+      "config": {
+        "name": "SDXL Base"
+      }
+    }
+  },
+  {
+    "name": "models-install-flux",
+    "description": "install Flux dev",
+    "prompt": "Install FLUX.1 dev",
+    "tool": "invokeai_models",
+    "arguments": {
+      "operation": "install",
+      "source": "black-forest-labs/FLUX.1-dev"
+    }
+  },
+  {
+    "name": "models-install-sd15",
+    "description": "install SD1.5",
+    "prompt": "Install the fast SD1.5 model",
+    "tool": "invokeai_models",
+    "arguments": {
+      "operation": "install",
+      "source": "runwayml/stable-diffusion-v1-5"
+    }
+  },
+  {
+    "name": "models-install-civitai",
+    "description": "install from civitai",
+    "prompt": "Install this Civitai model: https://civitai.com/models/4384",
+    "tool": "invokeai_models",
+    "arguments": {
+      "operation": "install",
+      "source": "https://civitai.com/models/4384"
+    }
+  },
+  {
+    "name": "models-installs",
+    "description": "poll install jobs",
+    "prompt": "How is my model install going?",
+    "tool": "invokeai_models",
+    "arguments": {
+      "operation": "installs"
+    }
+  },
+  {
+    "name": "models-get",
+    "description": "get model by key",
+    "prompt": "Show me details of model m1",
+    "tool": "invokeai_models",
+    "arguments": {
+      "operation": "get",
+      "key": "m1"
+    }
+  },
+  {
+    "name": "models-update",
+    "description": "rename model",
+    "prompt": "Rename my model to DreamShaper",
+    "tool": "invokeai_models",
+    "arguments": {
+      "operation": "update",
+      "key": "m1",
+      "config": {
+        "name": "DreamShaper"
+      }
+    }
+  },
+  {
+    "name": "models-delete",
+    "description": "delete model",
+    "prompt": "Remove the old SD1.5 model",
+    "tool": "invokeai_models",
+    "arguments": {
+      "operation": "delete",
+      "key": "sd15-old"
+    }
+  },
+  {
+    "name": "models-stats",
+    "description": "model stats",
+    "prompt": "Show model manager stats",
+    "tool": "invokeai_models",
+    "arguments": {
+      "operation": "stats"
+    }
+  },
+  {
+    "name": "gallery-list",
+    "description": "gallery recent",
+    "prompt": "Show me my recent images",
+    "tool": "invokeai_gallery",
+    "arguments": {
+      "operation": "list",
+      "limit": 20
+    }
+  },
+  {
+    "name": "gallery-search",
+    "description": "gallery search",
+    "prompt": "Find the image of the lighthouse",
+    "tool": "invokeai_gallery",
+    "arguments": {
+      "operation": "search",
+      "query": "lighthouse"
+    }
+  },
+  {
+    "name": "gallery-get",
+    "description": "gallery get image",
+    "prompt": "Get details for image abc123.png",
+    "tool": "invokeai_gallery",
+    "arguments": {
+      "operation": "get",
+      "image_name": "abc123.png"
+    }
+  },
+  {
+    "name": "gallery-metadata",
+    "description": "gallery metadata",
+    "prompt": "What settings made this image?",
+    "tool": "invokeai_gallery",
+    "arguments": {
+      "operation": "metadata",
+      "image_name": "abc123.png"
+    }
+  },
+  {
+    "name": "gallery-download",
+    "description": "gallery download",
+    "prompt": "Download the lighthouse image",
+    "tool": "invokeai_gallery",
+    "arguments": {
+      "operation": "download",
+      "image_name": "abc123.png"
+    }
+  },
+  {
+    "name": "gallery-star",
+    "description": "gallery star",
+    "prompt": "Star my favorite images",
+    "tool": "invokeai_gallery",
+    "arguments": {
+      "operation": "star",
+      "image_name": "abc123.png"
+    }
+  },
+  {
+    "name": "gallery-unstar",
+    "description": "gallery unstar",
+    "prompt": "Unstar this image",
+    "tool": "invokeai_gallery",
+    "arguments": {
+      "operation": "unstar",
+      "image_name": "abc123.png"
+    }
+  },
+  {
+    "name": "gallery-delete",
+    "description": "gallery delete",
+    "prompt": "Delete this image",
+    "tool": "invokeai_gallery",
+    "arguments": {
+      "operation": "delete",
+      "image_name": "abc123.png"
+    }
+  },
+  {
+    "name": "gallery-starred",
+    "description": "gallery starred filter",
+    "prompt": "Show my starred images",
+    "tool": "invokeai_gallery",
+    "arguments": {
+      "operation": "list",
+      "starred": true,
+      "limit": 50
+    }
+  },
+  {
+    "name": "gallery-board-filter",
+    "description": "gallery by board",
+    "prompt": "Show images in the Concept Art board",
+    "tool": "invokeai_gallery",
+    "arguments": {
+      "operation": "list",
+      "board_id": "board-uuid",
+      "limit": 30
+    }
+  },
+  {
+    "name": "boards-list",
+    "description": "list boards",
+    "prompt": "What boards do I have?",
+    "tool": "invokeai_boards",
+    "arguments": {
+      "operation": "list"
+    }
+  },
+  {
+    "name": "boards-create",
+    "description": "create board",
+    "prompt": "Make a board called Concept Art",
+    "tool": "invokeai_boards",
+    "arguments": {
+      "operation": "create",
+      "board_name": "Concept Art"
+    }
+  },
+  {
+    "name": "boards-update",
+    "description": "rename board",
+    "prompt": "Rename that board to Refined",
+    "tool": "invokeai_boards",
+    "arguments": {
+      "operation": "update",
+      "board_id": "board-uuid",
+      "board_name": "Refined"
+    }
+  },
+  {
+    "name": "boards-delete",
+    "description": "delete board",
+    "prompt": "Delete the old board",
+    "tool": "invokeai_boards",
+    "arguments": {
+      "operation": "delete",
+      "board_id": "board-uuid"
+    }
+  },
+  {
+    "name": "boards-add-image",
+    "description": "add image to board",
+    "prompt": "Put these three images on the Concept Art board",
+    "tool": "invokeai_boards",
+    "arguments": {
+      "operation": "add_image",
+      "board_id": "board-uuid",
+      "image_names": [
+        "a.png",
+        "b.png",
+        "c.png"
+      ]
+    }
+  },
+  {
+    "name": "boards-remove-image",
+    "description": "remove image from board",
+    "prompt": "Take this image off the board",
+    "tool": "invokeai_boards",
+    "arguments": {
+      "operation": "remove_image",
+      "board_id": "board-uuid",
+      "image_names": [
+        "a.png"
+      ]
+    }
+  },
+  {
+    "name": "workflows-list",
+    "description": "list workflows",
+    "prompt": "List my saved workflows",
+    "tool": "invokeai_workflows",
+    "arguments": {
+      "operation": "list"
+    }
+  },
+  {
+    "name": "workflows-get",
+    "description": "get workflow",
+    "prompt": "Show me the workflow named Upscale XL",
+    "tool": "invokeai_workflows",
+    "arguments": {
+      "operation": "get",
+      "workflow_id": "wf-uuid"
+    }
+  },
+  {
+    "name": "workflows-save",
+    "description": "save workflow",
+    "prompt": "Save this workflow JSON",
+    "tool": "invokeai_workflows",
+    "arguments": {
+      "operation": "save",
+      "workflow_json": "{\"nodes\": {}}"
+    }
+  },
+  {
+    "name": "workflows-delete",
+    "description": "delete workflow",
+    "prompt": "Delete the old workflow",
+    "tool": "invokeai_workflows",
+    "arguments": {
+      "operation": "delete",
+      "workflow_id": "wf-uuid"
+    }
+  },
+  {
+    "name": "system-health",
+    "description": "health check",
+    "prompt": "Check the InvokeAI health",
+    "tool": "invokeai_system",
+    "arguments": {
+      "operation": "health"
+    }
+  },
+  {
+    "name": "system-version",
+    "description": "version check",
+    "prompt": "What version of InvokeAI is running?",
+    "tool": "invokeai_system",
+    "arguments": {
+      "operation": "version"
+    }
+  },
+  {
+    "name": "system-config",
+    "description": "runtime config",
+    "prompt": "Show the engine runtime config",
+    "tool": "invokeai_system",
+    "arguments": {
+      "operation": "config"
+    }
+  },
+  {
+    "name": "system-stats",
+    "description": "system stats",
+    "prompt": "Show engine model stats",
+    "tool": "invokeai_system",
+    "arguments": {
+      "operation": "stats"
+    }
+  },
+  {
+    "name": "card-dashboard",
+    "description": "dashboard card",
+    "prompt": "Show the InvokeAI status card",
+    "tool": "show_invokeai_dashboard_card",
+    "arguments": {}
+  },
+  {
+    "name": "card-queue",
+    "description": "queue card",
+    "prompt": "Show me the queue as a card",
+    "tool": "show_invokeai_queue_card",
+    "arguments": {}
+  },
+  {
+    "name": "card-models",
+    "description": "models card",
+    "prompt": "Show my models as a card",
+    "tool": "show_invokeai_models_card",
+    "arguments": {
+      "model_type": "main"
+    }
+  },
+  {
+    "name": "card-gallery",
+    "description": "gallery card",
+    "prompt": "Show recent images as a card",
+    "tool": "show_invokeai_gallery_card",
+    "arguments": {
+      "limit": 6
+    }
+  },
+  {
+    "name": "help-index",
+    "description": "help index",
+    "prompt": "What can this server do?",
+    "tool": "invokeai_help",
+    "arguments": {}
+  },
+  {
+    "name": "help-tools",
+    "description": "help tools topic",
+    "prompt": "Explain the tools",
+    "tool": "invokeai_help",
+    "arguments": {
+      "topic": "tools"
+    }
+  },
+  {
+    "name": "help-install",
+    "description": "help install topic",
+    "prompt": "How do I install models?",
+    "tool": "invokeai_help",
+    "arguments": {
+      "topic": "install"
+    }
+  },
+  {
+    "name": "workflow-banner",
+    "description": "full banner workflow",
+    "prompt": "Create a wide cyberpunk banner, then upscale it",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "cyberpunk city wide banner",
+      "width": 1536,
+      "height": 512
+    }
+  },
+  {
+    "name": "workflow-pick-upscale",
+    "description": "pick and upscale",
+    "prompt": "Pick the best of my four dragons and upscale it",
+    "tool": "invokeai_gallery",
+    "arguments": {
+      "operation": "search",
+      "query": "dragon"
+    }
+  },
+  {
+    "name": "workflow-organize",
+    "description": "organize batch",
+    "prompt": "Star the good results and put them on a board",
+    "tool": "invokeai_boards",
+    "arguments": {
+      "operation": "add_image",
+      "board_id": "board-uuid",
+      "image_names": [
+        "d1.png",
+        "d2.png"
+      ]
+    }
+  },
+  {
+    "name": "workflow-cleanup",
+    "description": "cleanup",
+    "prompt": "Delete the failed experiment images",
+    "tool": "invokeai_gallery",
+    "arguments": {
+      "operation": "delete",
+      "image_name": "exp1.png"
+    }
+  },
+  {
+    "name": "workflow-inspect",
+    "description": "inspect before reuse",
+    "prompt": "What prompt and seed made this image?",
+    "tool": "invokeai_gallery",
+    "arguments": {
+      "operation": "metadata",
+      "image_name": "abc123.png"
+    }
+  },
+  {
+    "name": "txt2img-extra-0",
+    "description": "txt2img extra: neon-sign",
+    "prompt": "Generate a neon sign in a rainy alley",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Generate a neon sign in a rainy alley"
+    }
+  },
+  {
+    "name": "txt2img-extra-1",
+    "description": "txt2img extra: vintage-poster",
+    "prompt": "Create a vintage travel poster of Vienna",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Create a vintage travel poster of Vienna"
+    }
+  },
+  {
+    "name": "txt2img-extra-2",
+    "description": "txt2img extra: macro",
+    "prompt": "Generate a macro photo of a dragonfly on a leaf",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Generate a macro photo of a dragonfly on a leaf"
+    }
+  },
+  {
+    "name": "txt2img-extra-3",
+    "description": "txt2img extra: fantasy-map",
+    "prompt": "Draw a fantasy world map with parchment texture",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Draw a fantasy world map with parchment texture"
+    }
+  },
+  {
+    "name": "txt2img-extra-4",
+    "description": "txt2img extra: abstract",
+    "prompt": "Create an abstract gradient artwork with gold accents",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Create an abstract gradient artwork with gold accents"
+    }
+  },
+  {
+    "name": "txt2img-extra-5",
+    "description": "txt2img extra: character",
+    "prompt": "Design a sci-fi bounty hunter character sheet",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Design a sci-fi bounty hunter character sheet"
+    }
+  },
+  {
+    "name": "txt2img-extra-6",
+    "description": "txt2img extra: lowpoly",
+    "prompt": "Render a low-poly fox in a forest",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Render a low-poly fox in a forest"
+    }
+  },
+  {
+    "name": "txt2img-extra-7",
+    "description": "txt2img extra: minimal",
+    "prompt": "Make a minimal geometric sun poster",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Make a minimal geometric sun poster"
+    }
+  },
+  {
+    "name": "txt2img-extra-8",
+    "description": "txt2img extra: spaceship",
+    "prompt": "Generate a detailed spaceship hangar interior",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Generate a detailed spaceship hangar interior"
+    }
+  },
+  {
+    "name": "txt2img-extra-9",
+    "description": "txt2img extra: texture",
+    "prompt": "Create a seamless stone wall texture",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "txt2img",
+      "prompt": "Create a seamless stone wall texture"
+    }
+  },
+  {
+    "name": "img2img-colorize",
+    "description": "img2img colorize sketch",
+    "prompt": "Colorize my pencil sketch",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "img2img",
+      "prompt": "vibrant colors, detailed",
+      "image_name": "sketch.png",
+      "strength": 0.7
+    }
+  },
+  {
+    "name": "img2img-restyle",
+    "description": "img2img restyle logo",
+    "prompt": "Restyle my logo in flat design",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "img2img",
+      "prompt": "flat design, clean shapes",
+      "image_name": "logo.png",
+      "strength": 0.6
+    }
+  },
+  {
+    "name": "inpaint-text",
+    "description": "inpaint fix text",
+    "prompt": "Fix the misspelled text on my sign with mask text.png",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "inpaint",
+      "prompt": "correct text spelling",
+      "image_name": "sign.png",
+      "mask_image_name": "text.png",
+      "strength": 0.5
+    }
+  },
+  {
+    "name": "upscale-thumb",
+    "description": "upscale small image",
+    "prompt": "Upscale the thumbnail for my profile",
+    "tool": "invokeai_generate",
+    "arguments": {
+      "operation": "upscale",
+      "image_name": "thumb.png"
+    }
+  },
+  {
+    "name": "queue-list-inprogress",
+    "description": "queue in progress filter",
+    "prompt": "What is the engine working on right now?",
+    "tool": "invokeai_queue",
+    "arguments": {
+      "operation": "list",
+      "status_filter": "in_progress",
+      "limit": 10
+    }
+  },
+  {
+    "name": "queue-delete-item",
+    "description": "queue delete item",
+    "prompt": "Remove the stuck item 77 from the queue",
+    "tool": "invokeai_queue",
+    "arguments": {
+      "operation": "cancel",
+      "item_id": 77
+    }
+  },
+  {
+    "name": "gallery-board-images",
+    "description": "gallery board images",
+    "prompt": "List images on the client board",
+    "tool": "invokeai_gallery",
+    "arguments": {
+      "operation": "list",
+      "board_id": "client-board",
+      "limit": 40
+    }
+  },
+  {
+    "name": "gallery-rename-check",
+    "description": "gallery metadata check",
+    "prompt": "Which scheduler did I use for the nebula image?",
+    "tool": "invokeai_gallery",
+    "arguments": {
+      "operation": "metadata",
+      "image_name": "nebula.png"
+    }
+  },
+  {
+    "name": "boards-get",
+    "description": "board detail",
+    "prompt": "Show me the contents info of the Concept Art board",
+    "tool": "invokeai_boards",
+    "arguments": {
+      "operation": "get",
+      "board_id": "board-uuid"
+    }
+  },
+  {
+    "name": "workflows-count",
+    "description": "workflow count",
+    "prompt": "How many workflows do I have saved?",
+    "tool": "invokeai_workflows",
+    "arguments": {
+      "operation": "list",
+      "limit": 100
+    }
+  },
+  {
+    "name": "system-health-then-generate",
+    "description": "health before generate",
+    "prompt": "Check the engine then generate a test image",
+    "tool": "invokeai_system",
+    "arguments": {
+      "operation": "health"
+    }
+  },
+  {
+    "name": "card-models-lora",
+    "description": "lora models card",
+    "prompt": "Show my LoRAs as a card",
+    "tool": "show_invokeai_models_card",
+    "arguments": {
+      "model_type": "lora"
+    }
+  },
+  {
+    "name": "help-troubleshooting",
+    "description": "help troubleshooting topic",
+    "prompt": "How do I fix connection errors?",
+    "tool": "invokeai_help",
+    "arguments": {
+      "topic": "troubleshooting"
+    }
+  },
+  {
+    "name": "help-api-keys",
+    "description": "help api keys topic",
+    "prompt": "Do I need any API keys?",
+    "tool": "invokeai_help",
+    "arguments": {
+      "topic": "api_keys"
+    }
+  }
+]

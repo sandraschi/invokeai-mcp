@@ -254,7 +254,9 @@ async def invokeai_generate(
 
         # Prompt composition priority: base -> style -> painter -> franchise
         # (franchise LAST - the strongest identity cue).
-        jobs: list[dict] = [{"prompt": prompt, "negative": negative_prompt, "steps": steps, "cfg": cfg_scale}]
+        jobs: list[dict] = [
+            {"prompt": prompt, "negative": negative_prompt, "steps": steps, "cfg": cfg_scale}
+        ]
         job_attrib: list[dict] = [{"styles": [], "artists": [], "franchises": []}]
         style_pool = style_set or [None]
         artist_pool = artist_set or [None]
@@ -279,9 +281,9 @@ async def invokeai_generate(
                     combined = apply_franchise(f, combined)
                 job: dict = {
                     "prompt": combined,
-                    "negative": negative_prompt if negative_prompt is not None else (
-                        s.get("negative") if s is not None else ""
-                    ),
+                    "negative": negative_prompt
+                    if negative_prompt is not None
+                    else (s.get("negative") if s is not None else ""),
                 }
                 if style_cfg and s is not None:
                     job["steps"] = int(s.get("steps") or steps)
@@ -354,7 +356,9 @@ async def invokeai_generate(
             )
         first = items[0] if items else None
         log(
-            "INFO", "generate", f"{operation} enqueued: {len(items)} item(s) batch={batch_ids[0] if batch_ids else None}"
+            "INFO",
+            "generate",
+            f"{operation} enqueued: {len(items)} item(s) batch={batch_ids[0] if batch_ids else None}",
         )
         return {
             "success": True,
