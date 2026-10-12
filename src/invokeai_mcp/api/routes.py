@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 from starlette.requests import Request
@@ -296,11 +297,14 @@ async def _engine_status(request: Request) -> JSONResponse:
         version = {}
     if running:
         try:
-            out = subprocess.run(
-                ["tasklist", "/FI", "IMAGENAME eq invokeai-web.exe", "/FO", "CSV", "/NH"],
-                capture_output=True,
-                text=True,
-                timeout=10,
+            out = (
+                await asyncio.to_thread(
+                    subprocess.run,
+                    ["tasklist", "/FI", "IMAGENAME eq invokeai-web.exe", "/FO", "CSV", "/NH"],
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                )
             ).stdout
             if "invokeai-web.exe" in out:
                 pid = int(out.split('"')[3])
@@ -348,8 +352,11 @@ async def _engine_stop(request: Request) -> JSONResponse:
     import subprocess
 
     try:
-        subprocess.run(
-            ["taskkill", "/F", "/IM", "invokeai-web.exe", "/T"], capture_output=True, timeout=30
+        await asyncio.to_thread(
+            subprocess.run,
+            ["taskkill", "/F", "/IM", "invokeai-web.exe", "/T"],
+            capture_output=True,
+            timeout=30,
         )
         log("WARNING", "engine", "engine stopped")
         return JSONResponse({"success": True, "message": "Engine stopped."})
