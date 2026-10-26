@@ -4,12 +4,16 @@
     Name         = 'invokeai-mcp'
     BackendPort  = 11154
     FrontendPort = 11155
-    HealthPath   = '/health'
+    HealthPath   = '/api/health'
     WebRoot      = 'webapp'
     Backend = @{
-        Kind = 'none'
+        Kind    = 'custom'
+        Command = "uv run --no-sync --project '$PSScriptRoot' invokeai-mcp --mode http --port 11154"
     }
     Frontend = @{
-        Kind = 'none'
+        Kind           = 'vite-npm'
+        PackageManager = 'bun'
+        PortEnvVar     = 'VITE_PORT'
+        ApiTargetEnv   = 'VITE_API_TARGET'
     }
 }
